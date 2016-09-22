@@ -1,0 +1,39 @@
+{
+  "name": "storj-service-storage-models",
+  "version": "1.0.0",
+  "description": "common storage models for various storj services",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/**"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Storj/service-storage-models.git"
+  },
+  "keywords": [
+    "storj",
+    "bridge",
+    "models",
+    "mongodb",
+    "mongoose"
+  ],
+  "author": "Gordon Hall <gordon@storj.io>",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Storj/service-storage-models/issues"
+  },
+  "homepage": "https://github.com/Storj/service-storage-models#readme",
+  "dependencies": {
+    "elliptic": "^6.3.2",
+    "hat": "0.0.3",
+    "mime-db": "^1.24.0",
+    "mongoose": "^4.6.1",
+    "mongoose-types": "^1.0.3",
+    "ms": "^0.7.1",
+    "storj-lib": "^4.0.0-rc.3",
+    "storj-service-error-types": "^1.0.0"
+  }
+}
