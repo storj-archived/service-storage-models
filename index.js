@@ -17,16 +17,19 @@ function Storage(options) {
 
   assert(typeof options === 'object', 'Invalid storage options supplied');
 
+  var self = this;
+
   this._options = options;
+  this._log = this._options.logger || console;
   this.connection = this._connect();
   this.models = this._createBoundModels();
 
   this.connection.on('error', function(err) {
-    // TODO
+    self._log.error('failed to connect to database:', err.message);
   });
 
   this.connection.on('connected', function() {
-    // TODO
+    self._log.info('connected to database');
   });
 }
 
@@ -58,7 +61,7 @@ Storage.prototype._connect = function() {
     uri = this._getConnectionURI(this._options);
   }
 
-  log.info('opening database connection to %s', uri);
+  this._log.info('opening database connection to %s', uri);
 
   return mongoose.createConnection(uri, {
     mongos: mongos,
