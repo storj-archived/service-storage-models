@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
@@ -33,7 +33,7 @@
     "mongoose": "^4.6.1",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
-    "storj-lib": "^4.0.0-rc.3",
+    "storj-lib": "^4.0.0",
     "storj-service-error-types": "^1.0.0"
   },
   "devDependencies": {
