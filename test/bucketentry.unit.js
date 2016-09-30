@@ -36,19 +36,40 @@ after(function(done) {
 
 describe('Storage/models/BucketEntry', function() {
 
+  var bucketA;
+
   it('should create the bucket entry metadata', function(done) {
-    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'Bucket A' }, function(err, bucket) {
+      bucketA = bucket;
       var frame = new Frame({
 
       });
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
-        var entry = new BucketEntry({
-          file: frame._id,
+        var entry = BucketEntry.create({
+          frame: frame._id,
           bucket: bucket._id,
           filename: 'test.txt'
+        }, function(err){
+          done();
         });
-        entry.save(done);
+      });
+    });
+  });
+
+  it('should reject a duplicate name in this same bucket', function(done) {
+    var frame = new Frame({
+
+    });
+    frame.save(function(err) {
+      expect(err).to.not.be.instanceOf(Error);
+      var entry = BucketEntry.create({
+        frame: frame._id,
+        bucket: bucketA._id,
+        filename: 'test.txt'
+      }, function(err){
+        expect(err.message).to.equal('Name already used in this bucket');
+        done();
       });
     });
   });
@@ -60,13 +81,12 @@ describe('Storage/models/BucketEntry', function() {
       });
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
-        var entry = new BucketEntry({
+        var entry = BucketEntry.create({
           frame: frame._id,
           mimetype: 'invalid/mimetype',
           bucket: bucket._id,
           filename: 'test.txt'
-        });
-        entry.save(function(err) {
+        }, function(err) {
           expect(err).to.be.instanceOf(Error);
           done();
         });
