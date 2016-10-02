@@ -1,5 +1,6 @@
 'use strict';
 
+const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 
@@ -29,18 +30,20 @@ before(function(done) {
 after(function(done) {
   Frame.remove({}, function() {
     Bucket.remove({}, function() {
-      connection.close(done);
+      BucketEntry.remove({}, function(){
+        connection.close(done);
+      });
     });
   });
 });
 
 describe('Storage/models/BucketEntry', function() {
 
-  var bucketA;
+  var expectedBucketId = storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
+  var expectedFileId = storj.utils.calculateFileId(expectedBucketId, 'test.txt');
 
   it('should create the bucket entry metadata', function(done) {
-    Bucket.create({ _id: 'user@domain.tld' }, { name: 'Bucket A' }, function(err, bucket) {
-      bucketA = bucket;
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' }, function(err, bucket) {
       var frame = new Frame({
 
       });
@@ -50,7 +53,8 @@ describe('Storage/models/BucketEntry', function() {
           frame: frame._id,
           bucket: bucket._id,
           filename: 'test.txt'
-        }, function(err){
+        }, function(err, entry){
+          expect(entry.id).to.equal(expectedFileId);
           done();
         });
       });
@@ -65,7 +69,7 @@ describe('Storage/models/BucketEntry', function() {
       expect(err).to.not.be.instanceOf(Error);
       var entry = BucketEntry.create({
         frame: frame._id,
-        bucket: bucketA._id,
+        bucket: expectedBucketId,
         filename: 'test.txt'
       }, function(err){
         expect(err.message).to.equal('Name already used in this bucket');
