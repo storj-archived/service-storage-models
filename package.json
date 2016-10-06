@@ -30,7 +30,7 @@
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
     "mime-db": "^1.24.0",
-    "mongoose": "^4.6.1",
+    "mongoose": "4.6.0",
     "mongoose-currency": "^0.2.0",
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
