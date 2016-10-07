@@ -3,7 +3,6 @@
 const assert = require('assert');
 const mongoose = require('mongoose');
 
-require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
 
 /**
