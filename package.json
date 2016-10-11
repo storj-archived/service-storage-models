@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/Storj/service-storage-models#readme",
   "dependencies": {
+    "crypto": "0.0.3",
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
     "mime-db": "^1.24.0",
