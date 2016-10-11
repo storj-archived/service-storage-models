@@ -40,17 +40,41 @@ describe('Storage/models/Bucket', function() {
         expect(bucket.name).to.equal('New Bucket');
         expect(bucket.storage).to.equal(0);
         expect(bucket.transfer).to.equal(0);
-        expect(bucket.isPublic).to.equal('false');
+        expect(bucket.publicPermissions.length).to.equal(0);
         Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
           expect(err).to.not.be.instanceOf(Error);
           expect(bucket.id).to.equal(expectedBucketId);
           expect(bucket.name).to.equal('New Bucket');
           expect(bucket.storage).to.equal(0);
           expect(bucket.transfer).to.equal(0);
-          expect(bucket.isPublic).to.equal('false');
+          expect(bucket.publicPermissions.length).to.equal(0);
           expect(bucket.status).to.equal('Active');
           expect(bucket.pubkeys).to.have.lengthOf(0);
           expect(bucket.user).to.equal('user@domain.tld');
+          done();
+        });
+      });
+    });
+
+    it('should allow an update to to the publicPermissions', function(done) {
+      Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+        expect(err).to.not.be.instanceOf(Error);
+        bucket.publicPermissions = ['PUSH', 'PULL'];
+        bucket.save(function(err, bucket){
+          expect(err).to.not.be.instanceOf(Error);
+          expect(bucket.publicPermissions.indexOf('PUSH')).to.not.equal(-1);
+          expect(bucket.publicPermissions.indexOf('PULL')).to.not.equal(-1);
+          done();
+        });
+      });
+    });
+
+    it('should reject invalid permissions request', function(done) {
+      Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+        expect(err).to.not.be.instanceOf(Error);
+        bucket.publicPermissions = ['INVALID'];
+        bucket.save(function(err, bucket){
+          expect(err).to.be.instanceOf(Error);
           done();
         });
       });
