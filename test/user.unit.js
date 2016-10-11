@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const errors = require('storj-service-error-types');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 
@@ -102,6 +103,13 @@ describe('Storage/models/User', function() {
       User.lookup('user@domain.tld', sha256('password'), function(err, user) {
         expect(err).to.not.be.instanceOf(Error);
         expect(user.id).to.equal('user@domain.tld');
+        done();
+      });
+    });
+
+    it('should give a not authorized error if user not found', function(done) {
+      User.lookup('user@domain.tld', sha256('password2'), function(err, user) {
+        expect(err).to.be.instanceOf(errors.NotAuthorizedError);
         done();
       });
     });
