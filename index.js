@@ -30,6 +30,11 @@ function Storage(mongoConf, options) {
     self._log.error('failed to connect to database:', err.message);
   });
 
+  this.connection.on('disconnected', function() {
+    self._log.warn('database connection closed, reconnecting...');
+    self.connection = self._connect();
+  });
+
   this.connection.on('connected', function() {
     self._log.info('connected to database');
   });
