@@ -44,16 +44,15 @@ describe('Storage/models/BucketEntry', function() {
 
   it('should create the bucket entry metadata', function(done) {
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' }, function(err, bucket) {
-      var frame = new Frame({
-
-      });
+      var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         var entry = BucketEntry.create({
           frame: frame._id,
           bucket: bucket._id,
           filename: 'test.txt'
-        }, function(err, entry){
+        }, function(err, entry) {
+          console.log(err)
           expect(entry.id).to.equal(expectedFileId);
           done();
         });
