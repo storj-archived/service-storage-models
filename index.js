@@ -66,6 +66,10 @@ Storage.prototype._connect = function() {
     }).join(',');
   } else {
     uri = this._getConnectionURI(this._options);
+
+    if (this._options.mongos) {
+      mongos = this._options.mongos;
+    }
   }
 
   this._log.info('opening database connection to %s', uri);
