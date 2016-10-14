@@ -52,7 +52,7 @@ describe('Storage/models/BucketEntry', function() {
         var entry = BucketEntry.create({
           frame: frame._id,
           bucket: bucket._id,
-          filename: 'test.txt'
+          name: 'test.txt'
         }, function(err, entry){
           expect(entry.id).to.equal(expectedFileId);
           done();
@@ -70,7 +70,7 @@ describe('Storage/models/BucketEntry', function() {
       var entry = BucketEntry.create({
         frame: frame._id,
         bucket: expectedBucketId,
-        filename: 'test.txt'
+        name: 'test.txt'
       }, function(err){
         expect(err.message).to.equal('Name already used in this bucket');
         done();
@@ -89,7 +89,7 @@ describe('Storage/models/BucketEntry', function() {
           frame: frame._id,
           mimetype: 'invalid/mimetype',
           bucket: bucket._id,
-          filename: 'test.txt'
+          name: 'test.txt'
         }, function(err) {
           expect(err).to.be.instanceOf(Error);
           done();
