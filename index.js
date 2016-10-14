@@ -49,37 +49,27 @@ Storage.models = require('./lib/models');
 Storage.prototype._connect = function() {
   var self = this;
   var uri;
-  var mongos;
+
+  var defaultOpts = {
+    mongos: false,
+    ssl: false
+  };
+
+  var opts = this._options.opts || defaultOpts;
   var ssl = this._options.ssl;
 
   if (Array.isArray(this._options)) {
     uri = this._options.map(function(conf) {
-      if (conf.mongos) {
-        mongos = conf.mongos;
-      }
-
-      if (conf.ssl) {
-        ssl = conf.ssl;
-      }
-
       return self._getConnectionURI(conf);
     }).join(',');
   } else {
     uri = this._getConnectionURI(this._options);
-
-    if (this._options.mongos) {
-      mongos = this._options.mongos;
-    }
   }
 
   this._log.info('opening database connection to %s', uri);
 
-  return mongoose.createConnection(uri, {
-    mongos: mongos,
-    ssl: ssl,
-    sslValidate: false,
-    checkServerIdentity: false
-  });
+  return mongoose.createConnection(uri, opts);
+
 };
 
 /**
