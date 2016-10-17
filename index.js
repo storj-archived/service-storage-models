@@ -8,24 +8,30 @@ require('mongoose-types').loadTypes(mongoose);
 /**
  * MongoDB storage interface
  * @constructor
+ * @param {Object} mongoConf
  * @param {Object} options
  */
-function Storage(options) {
+function Storage(mongoConf, options) {
   if (!(this instanceof Storage)) {
-    return new Storage(options);
+    return new Storage(mongoConf, options);
   }
 
   assert(typeof options === 'object', 'Invalid storage options supplied');
 
   var self = this;
 
-  this._options = options;
-  this._log = this._options.logger || console;
+  this._options = mongoConf;
+  this._log = options ? (options.logger || console) : console;
   this.connection = this._connect();
   this.models = this._createBoundModels();
 
   this.connection.on('error', function(err) {
     self._log.error('failed to connect to database:', err.message);
+  });
+
+  this.connection.on('disconnected', function() {
+    self._log.warn('database connection closed, reconnecting...');
+    self.connection = self._connect();
   });
 
   this.connection.on('connected', function() {
@@ -59,12 +65,17 @@ Storage.prototype._connect = function() {
     }).join(',');
   } else {
     uri = this._getConnectionURI(this._options);
+
+    if (this._options.mongos) {
+      mongos = this._options.mongos;
+    }
   }
 
   this._log.info('opening database connection to %s', uri);
 
   return mongoose.createConnection(uri, {
     mongos: mongos,
+    ssl: ssl,
     sslValidate: false,
     checkServerIdentity: false
   });
