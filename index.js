@@ -56,7 +56,7 @@ Storage.prototype._connect = function() {
     ssl: false
   };
 
-  var opts = merge(defaultOpts, this._options);
+  var opts = merge.recursive(true, defaultOpts, this._options);
 
   if (Array.isArray(this._options)) {
     uri = this._options.map(function(conf) {
