@@ -15,10 +15,13 @@ var db = new Storage({
   host: '127.0.0.1',
   port: 27017,
   name: 'storj-bridge-database-name',
-  user: null,
-  pass: null,
-  mongos: false,
-  ssl: false
+  auth: {
+    user: 'myuser',
+    pass: 'mypassword'
+  },
+  mongos: {
+    ssl: true
+  }
 });
 
 db.models.User.findOne({ email: 'gordon@storj.io' }, function(err, user) {
