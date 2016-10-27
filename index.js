@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const mongoose = require('mongoose');
+const merge = require('merge');
 
 require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
@@ -55,8 +56,7 @@ Storage.prototype._connect = function() {
     ssl: false
   };
 
-  var opts = this._options.opts || defaultOpts;
-  var ssl = this._options.ssl;
+  var opts = merge(defaultOpts, this._options);
 
   if (Array.isArray(this._options)) {
     uri = this._options.map(function(conf) {
@@ -69,7 +69,6 @@ Storage.prototype._connect = function() {
   this._log.info('opening database connection to %s', uri);
 
   return mongoose.createConnection(uri, opts);
-
 };
 
 /**
@@ -81,11 +80,10 @@ Storage.prototype._getConnectionURI = function(_options) {
   var proto = 'mongodb://';
   var address = _options.host + ':' + _options.port;
   var dbname = '/' + _options.name;
-  var creds = _options.user && _options.pass ?
-             _options.user + ':' + _options.pass + '@' : '';
 
-  return [proto, creds, address, dbname].join('');
+  return [proto, address, dbname].join('');
 };
+
 
 /**
  * Return a dictionary of models bound to this connection
