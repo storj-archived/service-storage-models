@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
@@ -29,6 +29,7 @@
   "dependencies": {
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
+    "merge": "^1.2.0",
     "mime-db": "^1.24.0",
     "mongoose": "4.3.4",
     "mongoose-currency": "^0.2.0",
