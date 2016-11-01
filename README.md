@@ -14,7 +14,9 @@ var Storage = require('storj-service-storage-models');
 var db = new Storage({
   host: '127.0.0.1',
   port: 27017,
-  name: 'storj-bridge-database-name',
+  name: 'storj-bridge-database-name'
+},
+{
   auth: {
     user: 'myuser',
     pass: 'mypassword'
