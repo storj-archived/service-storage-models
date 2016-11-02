@@ -13,18 +13,18 @@ require('mongoose-types').loadTypes(mongoose);
  * @param {Object} mongoConf
  * @param {Object} options
  */
-function Storage(mongoConf, options) {
+function Storage(mongoURI, mongoOptions, storageOptions) {
   if (!(this instanceof Storage)) {
-    return new Storage(mongoConf, options);
+    return new Storage(mongoURI, mongoOptions, storageOptions);
   }
 
-  assert(typeof options === 'object', 'Invalid storage options supplied');
+  assert(typeof mongoOptions === 'object', 'Invalid storage options supplied');
 
   var self = this;
 
-  this._mongoConf = mongoConf;
-  this._options = options;
-  this._log = options ? (options.logger || console) : console;
+  this._uri = mongoURI;
+  this._options = mongoOptions;
+  this._log = storageOptions ? (storageOptions.logger || console) : console;
   this.connection = this._connect();
   this.models = this._createBoundModels();
 
@@ -59,32 +59,10 @@ Storage.prototype._connect = function() {
 
   var opts = merge.recursive(true, defaultOpts, this._options);
 
-  if (Array.isArray(this._options)) {
-    uri = this._mongoConf.map(function(conf) {
-      return self._getConnectionURI(conf);
-    }).join(',');
-  } else {
-    uri = this._getConnectionURI(this._mongoConf);
-  }
-
   this._log.info('opening database connection to %s', uri);
 
-  return mongoose.createConnection(uri, opts);
+  return mongoose.createConnection(this._uri, opts);
 };
-
-/**
- * Build the connection URI from options
- * @param {Object} _options
- * @returns {String}
- */
-Storage.prototype._getConnectionURI = function(_options) {
-  var proto = 'mongodb://';
-  var address = _options.host + ':' + _options.port;
-  var dbname = '/' + _options.name;
-
-  return [proto, address, dbname].join('');
-};
-
 
 /**
  * Return a dictionary of models bound to this connection

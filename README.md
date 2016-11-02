@@ -11,10 +11,9 @@ npm install storj-service-storage-models --save
 
 ```js
 var Storage = require('storj-service-storage-models');
-var db = new Storage({
-  host: '127.0.0.1',
-  port: 27017,
-  name: 'storj-bridge-database-name',
+var db = new Storage(
+  'mongodb://127.0.0.1:27017/storj-bridge-database-name',
+{
   auth: {
     user: 'myuser',
     pass: 'mypassword'
@@ -22,6 +21,9 @@ var db = new Storage({
   mongos: {
     ssl: true
   }
+},
+{
+  logger: myAwesomeLogger
 });
 
 db.models.User.findOne({ email: 'gordon@storj.io' }, function(err, user) {
