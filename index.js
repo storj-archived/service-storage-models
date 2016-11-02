@@ -22,7 +22,8 @@ function Storage(mongoConf, options) {
 
   var self = this;
 
-  this._options = mongoConf;
+  this._mongoConf = mongoConf;
+  this._options = options;
   this._log = options ? (options.logger || console) : console;
   this.connection = this._connect();
   this.models = this._createBoundModels();
@@ -59,11 +60,11 @@ Storage.prototype._connect = function() {
   var opts = merge.recursive(true, defaultOpts, this._options);
 
   if (Array.isArray(this._options)) {
-    uri = this._options.map(function(conf) {
+    uri = this._mongoConf.map(function(conf) {
       return self._getConnectionURI(conf);
     }).join(',');
   } else {
-    uri = this._getConnectionURI(this._options);
+    uri = this._getConnectionURI(this._mongoConf);
   }
 
   this._log.info('opening database connection to %s', uri);
