@@ -50,7 +50,6 @@ Storage.models = require('./lib/models');
  */
 Storage.prototype._connect = function() {
   var self = this;
-  var uri;
 
   var defaultOpts = {
     mongos: false,
@@ -59,7 +58,7 @@ Storage.prototype._connect = function() {
 
   var opts = merge.recursive(true, defaultOpts, this._options);
 
-  this._log.info('opening database connection to %s', uri);
+  this._log.info('opening database connection to %s', this._uri);
 
   return mongoose.createConnection(this._uri, opts);
 };
