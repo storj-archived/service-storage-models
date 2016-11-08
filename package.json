@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "2.2.1",
+  "version": "5.0.1",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
@@ -29,13 +29,14 @@
   "dependencies": {
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
+    "merge": "^1.2.0",
     "mime-db": "^1.24.0",
     "mongoose": "4.3.4",
     "mongoose-currency": "^0.2.0",
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
-    "storj-lib": "^4.1.0",
+    "storj-lib": "^5.0.0",
     "storj-service-error-types": "^1.0.0"
   },
   "devDependencies": {
@@ -46,7 +47,8 @@
   },
   "devopsBase": {
     "npmLinkDeps": {
-      "storj-lib": "core"
+      "storj-lib": "core",
+      "storj-service-error-types": "service-error-types"
     }
   }
 }
