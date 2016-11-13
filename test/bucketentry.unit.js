@@ -53,7 +53,6 @@ describe('Storage/models/BucketEntry', function() {
           name: 'test.txt',
           mimetype: 'text/plain'
         }, function(err, entry) {
-          console.log(err)
           expect(entry.id).to.equal(expectedFileId);
           done();
         });
