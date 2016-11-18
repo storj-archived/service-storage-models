@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "5.1.4",
+  "version": "5.1.5",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
