@@ -1,5 +1,14 @@
 language: node_js
 node_js:
-  - "4.4.3"
+  - "6.9.1"
 services:
   - mongodb
+addons:
+  apt:
+    sources:
+      - mongodb-upstart
+      - mongodb-3.0-precise
+    packages:
+      - mongodb-org-server
+      - mongodb-org-shell
+

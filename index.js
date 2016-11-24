@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const mongoose = require('mongoose');
+const merge = require('merge');
 require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
 
@@ -11,17 +12,18 @@ require('mongoose-types').loadTypes(mongoose);
  * @param {Object} mongoConf
  * @param {Object} options
  */
-function Storage(mongoConf, options) {
+function Storage(mongoURI, mongoOptions, storageOptions) {
   if (!(this instanceof Storage)) {
-    return new Storage(mongoConf, options);
+    return new Storage(mongoURI, mongoOptions, storageOptions);
   }
 
-  assert(typeof options === 'object', 'Invalid storage options supplied');
+  assert(typeof mongoOptions === 'object', 'Invalid storage options supplied');
 
   var self = this;
 
-  this._options = mongoConf;
-  this._log = options ? (options.logger || console) : console;
+  this._uri = mongoURI;
+  this._options = mongoOptions;
+  this._log = storageOptions ? (storageOptions.logger || console) : console;
   this.connection = this._connect();
   this.models = this._createBoundModels();
 
@@ -47,53 +49,17 @@ Storage.models = require('./lib/models');
  */
 Storage.prototype._connect = function() {
   var self = this;
-  var uri;
-  var mongos;
-  var ssl = this._options.ssl;
 
-  if (Array.isArray(this._options)) {
-    uri = this._options.map(function(conf) {
-      if (conf.mongos) {
-        mongos = conf.mongos;
-      }
+  var defaultOpts = {
+    mongos: false,
+    ssl: false
+  };
 
-      if (conf.ssl) {
-        ssl = conf.ssl;
-      }
+  var opts = merge.recursive(true, defaultOpts, this._options);
 
-      return self._getConnectionURI(conf);
-    }).join(',');
-  } else {
-    uri = this._getConnectionURI(this._options);
+  this._log.info('opening database connection to %s', this._uri);
 
-    if (this._options.mongos) {
-      mongos = this._options.mongos;
-    }
-  }
-
-  this._log.info('opening database connection to %s', uri);
-
-  return mongoose.createConnection(uri, {
-    mongos: mongos,
-    ssl: ssl,
-    sslValidate: false,
-    checkServerIdentity: false
-  });
-};
-
-/**
- * Build the connection URI from options
- * @param {Object} _options
- * @returns {String}
- */
-Storage.prototype._getConnectionURI = function(_options) {
-  var proto = 'mongodb://';
-  var address = _options.host + ':' + _options.port;
-  var dbname = '/' + _options.name;
-  var creds = _options.user && _options.pass ?
-             _options.user + ':' + _options.pass + '@' : '';
-
-  return [proto, creds, address, dbname].join('');
+  return mongoose.createConnection(this._uri, opts);
 };
 
 /**
