@@ -1,9 +1,12 @@
 'use strict';
 
 const storj = require('storj-lib');
-const expect = require('chai').expect;
+const chai = require('chai');
+const expect = chai.expect;
+const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
 
+chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
 
 const CreditSchema = require('../lib/models/credit');
@@ -39,12 +42,23 @@ describe('Storage/models/Credit', function() {
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL
       });
+      var d = new Date();
+      var date = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 
       newCredit.save(function(err, credit) {
         expect(err).to.not.be.instanceOf(Error);
-        expect(credit.user).to.equal('user@domain.tld');
         expect(credit.paid_amount).to.equal(0);
         expect(credit.invoiced_amount).to.equal(0);
+        expect(credit.user).to.equal('user@domain.tld');
+        expect(credit.promo_code).to.be.null;
+        expect(credit.promo_amount).to.equal(0);
+        expect(credit.paid).to.be.false;
+        expect(credit.created).to.equalDate(date);
+        expect(credit.payment_processor).to.be.null;
+        expect(credit.type).to.be.oneOf(
+            Object.keys(CREDIT_TYPES).map((key) => (CREDIT_TYPES[key]))
+        );
+        expect(credit.data).to.be.null;
         done()
       });
     });
