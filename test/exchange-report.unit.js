@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-/*
-type should fail if not enum
-fail if storage and bandwidth are not integers
-amount fails if not Currency
-user should be an email regex
-should be instanceOf(reference of User model)
-*/
-=======
 'use strict';
 
 // const storj = require('storj-lib');
@@ -15,30 +6,29 @@ const mongoose = require('mongoose');
 
 require('mongoose-types').loadTypes(mongoose);
 
-const DebitSchema = require('../lib/models/debit');
+const ExchangeReportSchema = require('../lib/models/exchange-report');
 
-var Debit;
+var ExchangeReport;
 var connection;
 
 before(function(done) {
   connection = mongoose.createConnection(
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
-      Debit = DebitSchema(connection);
+      ExchangeReport = ExchangeReportSchema(connection);
       done();
     }
   );
 });
 
 after(function(done) {
-  Debit.remove({}, function() {
+  ExchangeReport.remove({}, function() {
     connection.close(done);
   });
 });
 
-describe('Storage/models/Debit', function() {
+describe('Storage/models/Exchange-Report', function() {
   describe('#create', function() {
 
   })
 });
->>>>>>> 8feda06d4840b3cb577e8ee70abf14ae2514c876
