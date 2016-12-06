@@ -64,7 +64,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should convert non-null, non-currency to 0', function(done) {
+    it('should convert non-null, non-currency to 0 for currency types', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
