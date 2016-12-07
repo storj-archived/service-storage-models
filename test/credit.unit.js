@@ -266,22 +266,3 @@ describe('Storage/models/Credit', function() {
   });
 
 });
-
-/*
-DONE:
- - fail with non-currency paid_amount
- - paid amount should never be greater than invoiced_amount
- - if paid amount = invoiced_amount then paid = true
- - if paid = true, paid amount !== 0 and invoiced_amount !== 0
- - make sure data can handle all sorts of types (arrays, objects, strings, numbers)
-
-NEEDS REVIEW:
- - promo code has to be String type
-   - double-checking mongoose's type-check
- - user always needs to be email (regex)
-   - double-checking mongoose's type-check
- - created should always be a Date (pass in non-date thing)
-   - double-checking mongoose's type-check
-
-PLANNED:
- */
