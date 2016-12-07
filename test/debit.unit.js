@@ -125,12 +125,10 @@ describe('Storage/models/Debit', function() {
       });
 
       newDebit.save(function(err, debit) {
-        console.log('debit', debit);
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
-
 
   });
 });
