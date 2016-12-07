@@ -28,7 +28,33 @@ after(function(done) {
 });
 
 describe('Storage/models/Exchange-Report', function() {
-  describe('#create', function() {
 
-  })
+  it('should create exchange report with default props', function(done) {
+    var newExchangeReport = new ExchangeReport({
+      reporterId: 'reporterId',
+      clientId: 'clientId',
+      farmerId: 'farmerId',
+      dataHash: 'dataHash',
+      exchangeStart: new Date(),
+      exchangeEnd: new Date(),
+      exchangeResultCode: 1,
+      exchangeResultMessage: 'succeeded'
+    });
+
+    newExchangeReport.save(function(err, report) {
+      expect(err).to.not.be.an.instanceOf(Error);
+      expect(report.created).to.be.an.instanceOf(Date);
+      expect(report.reporterId).to.be.a('string');
+      expect(report.clientId).to.be.a('string');
+      expect(report.farmerId).to.be.a('string');
+      expect(report.dataHash).to.be.a('string');
+      expect(report.exchangeStart).to.be.an.instanceOf(Date);
+      expect(report.exchangeEnd).to.be.an.instanceOf(Date);
+      expect(report.exchangeResultCode).to.be.a('number');
+      expect(report.exchangeResultMessage).to.be.a('string');
+      done();
+    });
+
+  });
+
 });
