@@ -50,9 +50,10 @@ describe('Storage/models/BucketEntry', function() {
         var entry = BucketEntry.create({
           frame: frame._id,
           bucket: bucket._id,
-          name: 'test.txt'
+          name: 'test.txt',
+          mimetype: 'text/plain'
         }, function(err, entry) {
-          console.log(err)
+          expect(entry.filename).to.equal('test.txt');
           expect(entry.id).to.equal(expectedFileId);
           done();
         });
@@ -60,7 +61,7 @@ describe('Storage/models/BucketEntry', function() {
     });
   });
 
-  it('should reject a duplicate name in this same bucket', function(done) {
+  it('should replace a duplicate name in this same bucket', function(done) {
     var frame = new Frame({
 
     });
@@ -69,9 +70,11 @@ describe('Storage/models/BucketEntry', function() {
       var entry = BucketEntry.create({
         frame: frame._id,
         bucket: expectedBucketId,
-        name: 'test.txt'
-      }, function(err){
-        expect(err.message).to.equal('Name already used in this bucket');
+        name: 'test.txt',
+        mimetype: 'text/javascript'
+      }, function(err, entry){
+        expect(err).to.equal(null);
+        expect(entry.mimetype).to.equal('text/javascript');
         done();
       });
     });
