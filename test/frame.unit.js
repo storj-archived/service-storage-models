@@ -40,6 +40,7 @@ function sha256(i) {
 describe('Storage/models/Frame', function() {
 
   describe('#create', function() {
+
     it('should create a frame with default props', function(done) {
       User.create('user@domain.tld', sha256('password'), function(err, user) {
         Frame.create(user, function(err, frame) {
@@ -57,9 +58,11 @@ describe('Storage/models/Frame', function() {
         });
       });
     });
+
   });
 
   describe('#lock', function() {
+
     it('should set frame.lock to true', function(done) {
       Frame.create({}, function(err, frame) {
         expect(frame.locked).to.be.false;
@@ -69,9 +72,11 @@ describe('Storage/models/Frame', function() {
         });
       });
     });
+
   });
 
   describe('#unlock', function() {
+
     it('should set frame.lock to false', function(done) {
       Frame.create({}, function(err, frame) {
         expect(frame.locked).to.be.false;
@@ -84,6 +89,7 @@ describe('Storage/models/Frame', function() {
         });
       });
     });
+    
   });
 
 });
