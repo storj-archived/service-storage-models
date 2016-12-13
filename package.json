@@ -42,7 +42,6 @@
   "devDependencies": {
     "async": "^2.0.1",
     "chai": "^3.5.0",
-    "chai-datetime": "^1.4.1",
     "mocha": "^3.0.2",
     "sinon": "^1.17.6"
   },
