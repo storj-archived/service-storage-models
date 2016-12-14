@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const errors = require('storj-service-error-types');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const sinon = require('sinon');
+const ms = require('ms');
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -63,6 +65,64 @@ describe('Storage/models/User', function() {
         expect(err.message).to.equal('Password must be hex encoded SHA-256 hash');
         done();
       });
+    });
+
+  });
+
+  describe('#recordUploadBytes', function() {
+
+    it('should record the bytes and increment existing', function(done) {
+      var user = new User({
+        _id: 'test@user.tld',
+        hashpass: 'hashpass'
+      });
+      var clock = sinon.useFakeTimers();
+      user.recordUploadBytes(4096, () => {
+        expect(user.bytesUploaded.lastHourBytes).to.equal(4096);
+        expect(user.bytesUploaded.lastDayBytes).to.equal(4096);
+        expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
+        user.recordUploadBytes(1000, () => {
+          expect(user.bytesUploaded.lastHourBytes).to.equal(5096);
+          expect(user.bytesUploaded.lastDayBytes).to.equal(5096);
+          expect(user.bytesUploaded.lastMonthBytes).to.equal(5096);
+          clock.tick(ms('1h'));
+          user.recordUploadBytes(2000, () => {
+            expect(user.bytesUploaded.lastHourBytes).to.equal(2000);
+            expect(user.bytesUploaded.lastDayBytes).to.equal(7096);
+            expect(user.bytesUploaded.lastMonthBytes).to.equal(7096);
+            clock.tick(ms('24h'));
+            user.recordUploadBytes(1000, () => {
+              expect(user.bytesUploaded.lastHourBytes).to.equal(1000);
+              expect(user.bytesUploaded.lastDayBytes).to.equal(1000);
+              expect(user.bytesUploaded.lastMonthBytes).to.equal(8096);
+              clock.tick(ms('30d'));
+              user.recordUploadBytes(5000, () => {
+                expect(user.bytesUploaded.lastHourBytes).to.equal(5000);
+                expect(user.bytesUploaded.lastDayBytes).to.equal(5000);
+                expect(user.bytesUploaded.lastMonthBytes).to.equal(5000);
+                clock.restore();
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+
+  });
+
+  describe('#isUploadRateLimited', function() {
+
+    it('should return false in not free tier', function() {
+
+    });
+
+    it('should return false if under the limits', function() {
+
+    });
+
+    it('should return true if over the limits', function() {
+
     });
 
   });
