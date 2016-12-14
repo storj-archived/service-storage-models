@@ -77,54 +77,84 @@ describe('Storage/models/User', function() {
         hashpass: 'hashpass'
       });
       var clock = sinon.useFakeTimers();
-      user.recordUploadBytes(4096, () => {
-        expect(user.bytesUploaded.lastHourBytes).to.equal(4096);
-        expect(user.bytesUploaded.lastDayBytes).to.equal(4096);
-        expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
-        user.recordUploadBytes(1000, () => {
-          expect(user.bytesUploaded.lastHourBytes).to.equal(5096);
-          expect(user.bytesUploaded.lastDayBytes).to.equal(5096);
-          expect(user.bytesUploaded.lastMonthBytes).to.equal(5096);
-          clock.tick(ms('1h'));
-          user.recordUploadBytes(2000, () => {
-            expect(user.bytesUploaded.lastHourBytes).to.equal(2000);
-            expect(user.bytesUploaded.lastDayBytes).to.equal(7096);
-            expect(user.bytesUploaded.lastMonthBytes).to.equal(7096);
-            clock.tick(ms('24h'));
-            user.recordUploadBytes(1000, () => {
-              expect(user.bytesUploaded.lastHourBytes).to.equal(1000);
-              expect(user.bytesUploaded.lastDayBytes).to.equal(1000);
-              expect(user.bytesUploaded.lastMonthBytes).to.equal(8096);
-              clock.tick(ms('30d'));
-              user.recordUploadBytes(5000, () => {
-                expect(user.bytesUploaded.lastHourBytes).to.equal(5000);
-                expect(user.bytesUploaded.lastDayBytes).to.equal(5000);
-                expect(user.bytesUploaded.lastMonthBytes).to.equal(5000);
-                clock.restore();
-                done();
-              });
-            });
-          });
-        });
-      });
+      user.recordUploadBytes(4096);
+      expect(user.bytesUploaded.lastHourBytes).to.equal(4096);
+      expect(user.bytesUploaded.lastDayBytes).to.equal(4096);
+      expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
+      user.recordUploadBytes(1000);
+      expect(user.bytesUploaded.lastHourBytes).to.equal(5096);
+      expect(user.bytesUploaded.lastDayBytes).to.equal(5096);
+      expect(user.bytesUploaded.lastMonthBytes).to.equal(5096);
+      clock.tick(ms('1h'));
+      user.recordUploadBytes(2000);
+      expect(user.bytesUploaded.lastHourBytes).to.equal(2000);
+      expect(user.bytesUploaded.lastDayBytes).to.equal(7096);
+      expect(user.bytesUploaded.lastMonthBytes).to.equal(7096);
+      clock.tick(ms('24h'));
+      user.recordUploadBytes(1000);
+      expect(user.bytesUploaded.lastHourBytes).to.equal(1000);
+      expect(user.bytesUploaded.lastDayBytes).to.equal(1000);
+      expect(user.bytesUploaded.lastMonthBytes).to.equal(8096);
+      clock.tick(ms('30d'));
+      user.recordUploadBytes(5000);
+      expect(user.bytesUploaded.lastHourBytes).to.equal(5000);
+      expect(user.bytesUploaded.lastDayBytes).to.equal(5000);
+      expect(user.bytesUploaded.lastMonthBytes).to.equal(5000);
+      clock.restore();
+      done();
     });
 
   });
 
   describe('#isUploadRateLimited', function() {
 
-    it('should return false in not free tier', function() {
+    let userFree = null;
+    let userPaid = null;
+    let clock = null;
 
+    before(() => {
+      clock = sinon.useFakeTimers()
+      userFree = new User({
+        _id: 'user@free.tld',
+        hashpass: 'hashpass'
+      });
+      userPaid = new User({
+        _id: 'user@paid.tld',
+        hashpass: 'hashpass',
+        isFreeTier: false
+      });
+    });
+    after(() => clock.restore());
+
+    it('should return false in paid tier', function() {
+      expect(userPaid.isUploadRateLimited(10, 20, 30)).to.equal(false);
+      userPaid.recordUploadBytes(700);
+      expect(userPaid.isUploadRateLimited(10, 20, 30)).to.equal(false);
     });
 
     it('should return false if under the limits', function() {
-
+      expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(false);
+      userFree.recordUploadBytes(10);
+      clock.tick(ms('1hr'));
+      expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(false);
     });
 
-    it('should return true if over the limits', function() {
-
+    it('should return true if over the hourly limits', function() {
+      userFree.recordUploadBytes(10);
+      expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(true);
     });
 
+    it('should return true if over the daily limits', function() {
+      clock.tick(ms('2hr'));
+      userFree.recordUploadBytes(10);
+      expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(true);
+    });
+
+    it('should return true if over the monthly limits', function() {
+      clock.tick(ms('20h'));
+      userFree.recordUploadBytes(10);
+      expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(true);
+    });
   });
 
   describe('#activate', function() {
