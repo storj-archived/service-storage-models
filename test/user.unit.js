@@ -69,6 +69,95 @@ describe('Storage/models/User', function() {
 
   });
 
+  describe('#recordDownloadBytes', function() {
+
+    it('should record the bytes and increment existing', function(done) {
+      var user = new User({
+        _id: 'test@user.tld',
+        hashpass: 'hashpass'
+      });
+      var clock = sinon.useFakeTimers();
+      user.recordDownloadBytes(4096);
+      expect(user.bytesDownloaded.lastHourBytes).to.equal(4096);
+      expect(user.bytesDownloaded.lastDayBytes).to.equal(4096);
+      expect(user.bytesDownloaded.lastMonthBytes).to.equal(4096);
+      user.recordDownloadBytes(1000);
+      expect(user.bytesDownloaded.lastHourBytes).to.equal(5096);
+      expect(user.bytesDownloaded.lastDayBytes).to.equal(5096);
+      expect(user.bytesDownloaded.lastMonthBytes).to.equal(5096);
+      clock.tick(ms('1h'));
+      user.recordDownloadBytes(2000);
+      expect(user.bytesDownloaded.lastHourBytes).to.equal(2000);
+      expect(user.bytesDownloaded.lastDayBytes).to.equal(7096);
+      expect(user.bytesDownloaded.lastMonthBytes).to.equal(7096);
+      clock.tick(ms('24h'));
+      user.recordDownloadBytes(1000);
+      expect(user.bytesDownloaded.lastHourBytes).to.equal(1000);
+      expect(user.bytesDownloaded.lastDayBytes).to.equal(1000);
+      expect(user.bytesDownloaded.lastMonthBytes).to.equal(8096);
+      clock.tick(ms('30d'));
+      user.recordDownloadBytes(5000);
+      expect(user.bytesDownloaded.lastHourBytes).to.equal(5000);
+      expect(user.bytesDownloaded.lastDayBytes).to.equal(5000);
+      expect(user.bytesDownloaded.lastMonthBytes).to.equal(5000);
+      clock.restore();
+      done();
+    });
+
+  });
+
+  describe('#isDownloadRateLimited', function() {
+
+    let userFree = null;
+    let userPaid = null;
+    let clock = null;
+
+    before(() => {
+      clock = sinon.useFakeTimers()
+      userFree = new User({
+        _id: 'user@free.tld',
+        hashpass: 'hashpass'
+      });
+      userPaid = new User({
+        _id: 'user@paid.tld',
+        hashpass: 'hashpass',
+        isFreeTier: false
+      });
+    });
+    after(() => clock.restore());
+
+    it('should return false in paid tier', function() {
+      expect(userPaid.isDownloadRateLimited(10, 20, 30)).to.equal(false);
+      userPaid.recordDownloadBytes(700);
+      expect(userPaid.isDownloadRateLimited(10, 20, 30)).to.equal(false);
+    });
+
+    it('should return false if under the limits', function() {
+      expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(false);
+      userFree.recordDownloadBytes(10);
+      clock.tick(ms('1hr'));
+      expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(false);
+    });
+
+    it('should return true if over the hourly limits', function() {
+      userFree.recordDownloadBytes(10);
+      expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(true);
+    });
+
+    it('should return true if over the daily limits', function() {
+      clock.tick(ms('2hr'));
+      userFree.recordDownloadBytes(10);
+      expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(true);
+    });
+
+    it('should return true if over the monthly limits', function() {
+      clock.tick(ms('20h'));
+      userFree.recordDownloadBytes(10);
+      expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(true);
+    });
+  });
+
+
   describe('#recordUploadBytes', function() {
 
     it('should record the bytes and increment existing', function(done) {
