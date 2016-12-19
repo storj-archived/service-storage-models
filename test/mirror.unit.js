@@ -45,7 +45,6 @@ describe('Storage/models/Mirror', function() {
       });
     });
 
-    // NB: How to make Contract? No Contract model
     it ('should fail without contact', function(done) {
       Mirror.create({ data_hash: 'data_hash' }, {}, function(err, mirror) {
         expect(err).to.be.an.instanceOf(Error);
@@ -54,7 +53,6 @@ describe('Storage/models/Mirror', function() {
       });
     });
 
-    // NB: How to make Contract? No Contract model
     it('should create with default props', function(done) {
       Contact.record({
         address: '127.0.0.1',
