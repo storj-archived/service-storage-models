@@ -67,6 +67,17 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should create a marketing doc with user ref', function(done) {
+      User.create('user@domain.tld', sha256('password'), function(err) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        Marketing.find({ user: 'user@domain.tld' }, function(err, marketing) {
+          expect(err).to.not.be.an.instanceOf('Error');
+          expect(marketing.user).to.equal('user@domain.tld');
+          done();
+        });
+      });
+    })
+
   });
 
   describe('#recordUploadBytes', function() {
