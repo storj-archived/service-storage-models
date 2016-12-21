@@ -28,6 +28,7 @@
   "homepage": "https://github.com/Storj/service-storage-models#readme",
   "dependencies": {
     "elliptic": "^6.3.2",
+    "graphql": "^0.8.2",
     "hat": "0.0.3",
     "merge": "^1.2.0",
     "mime-db": "^1.24.0",
@@ -36,12 +37,14 @@
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
+    "stripe": "^4.11.0",
     "storj-lib": "^6.0.0",
     "storj-service-error-types": "^1.0.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
     "chai": "^3.5.0",
+    "chai-datetime": "^1.4.1",
     "mocha": "^3.0.2",
     "sinon": "^1.17.6"
   },
