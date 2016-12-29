@@ -7,6 +7,8 @@ const merge = require('merge');
 require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
 
+mongoose.Promise = global.Promise;
+
 /**
  * MongoDB storage interface
  * @constructor
