@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/Storj/service-storage-models#readme",
   "dependencies": {
-    "bitcore-mnemonic": "^1.1.1",
+    "dotenv": "^2.0.0",
     "elliptic": "^6.3.2",
     "graphql": "^0.8.2",
     "hat": "0.0.3",
