@@ -34,3 +34,7 @@ db.models.User.findOne({ email: 'gordon@storj.io' }, function(err, user) {
   }
 });
 ```
+
+#### Billing Specific
+
+If using billing functionality, be sure to include your own `.env` file with necessary environment variables.
