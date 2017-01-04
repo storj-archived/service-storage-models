@@ -3,7 +3,7 @@
 const assert = require('assert');
 const mongoose = require('mongoose');
 const merge = require('merge');
-require('dotenv').config();
+require('dotenv').config({ silent: true });
 
 require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
