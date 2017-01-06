@@ -1,6 +1,8 @@
 Storj Service Storage Models
 ============================
 
+[![Coverage Status](https://coveralls.io/repos/github/Storj/service-storage-models/badge.svg?branch=master)](https://coveralls.io/github/Storj/service-storage-models?branch=master)
+
 [![Build Status](https://img.shields.io/travis/Storj/service-storage-models.svg?style=flat-square)](https://travis-ci.org/Storj/service-storage-models)
 
 Common storage models for various Storj services
