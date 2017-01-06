@@ -52,7 +52,6 @@ Storage.models = require('./lib/models');
  * @returns {mongoose.Connection}
  */
 Storage.prototype._connect = function() {
-  var self = this;
 
   var defaultOpts = {
     mongos: false,

@@ -1,6 +1,7 @@
 'use strict';
 
-const storj = require('storj-lib');
+/*jshint expr: true, maxlen: 100*/
+
 const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
@@ -64,7 +65,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types', function(done) {
+    it('should convert non-null/non-currency to 0', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -89,13 +90,13 @@ describe('Storage/models/Credit', function() {
         paid_amount: null
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
         done();
       });
     });
 
-    it('should fail if paid_amount is greater than invoiced_amount', function(done) {
+    it('should fail if paid_amount > invoiced_amount', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -103,14 +104,16 @@ describe('Storage/models/Credit', function() {
         invoiced_amount: 50
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Cannot save credit: paid_amount cannot be greater than invoiced_amount');
+        expect(err.message).to.equal(
+          `Cannot save credit: paid_amount cannot be greater than invoiced_amount`
+        );
         done();
       });
     });
 
-    it('should set paid to true if invoiced_amount is greater than 0 and equals paid_amount', function(done) {
+    it('should set paid = true if invoiced_amount=paid_amount', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -126,7 +129,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should fail if paid is true and paid_amount does not equal invoiced_amount', function(done) {
+    it('should fail if paid = true && paid_amount !== invoiced_amount', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -135,14 +138,16 @@ describe('Storage/models/Credit', function() {
         invoiced_amount: 100
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Cannot save credit: paid cannot be true if paid_amount does not equal invoiced_amount');
+        expect(err.message).to.equal(
+          `Cannot save credit: paid cannot be true if paid_amount does not equal invoiced_amount`
+        );
         done();
       });
     });
 
-    it('should fail if paid is true and paid_amount and/or invoiced_amount is 0', function(done) {
+    it('should fail if paid = true and paid_amount and/or invoiced_amount is 0', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -151,9 +156,11 @@ describe('Storage/models/Credit', function() {
         invoiced_amount: 100
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Cannot save credit: paid_amount cannot be 0 if paid is true')
+        expect(err.message).to.equal(
+          `Cannot save credit: paid_amount cannot be 0 if paid is true`
+        );
         done();
       });
     });
@@ -165,8 +172,9 @@ describe('Storage/models/Credit', function() {
         paid_amount: -100
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Credit validation failed');
         done();
       });
     });
@@ -178,7 +186,7 @@ describe('Storage/models/Credit', function() {
         invoiced_amount: -100
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
         done();
       });
@@ -191,7 +199,7 @@ describe('Storage/models/Credit', function() {
         promo_amount: -100
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
         done();
       });
