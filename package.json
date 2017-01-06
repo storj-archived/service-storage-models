@@ -43,9 +43,9 @@
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
-    "stripe": "^4.11.0",
     "storj-lib": "^6.0.0",
-    "storj-service-error-types": "^1.0.0"
+    "storj-service-error-types": "^1.0.0",
+    "stripe": "^4.11.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
@@ -53,6 +53,7 @@
     "chai-datetime": "^1.4.1",
     "coveralls": "^2.11.15",
     "istanbul": "^0.4.5",
+    "jshint": "^2.9.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
