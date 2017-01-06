@@ -27,7 +27,7 @@ after(function(done) {
   UserNonce.remove({}, function() {
     User.remove({}, function() {
       connection.close(done);
-    })
+    });
   });
 });
 
@@ -61,7 +61,7 @@ describe('Storage/models/UserNonce', function() {
         };
         var newUserNonce = new UserNonce(info);
 
-        newUserNonce.save(function(err, userNonce) {
+        newUserNonce.save(function(err) {
           expect(err).to.be.an.instanceOf(Error);
           expect(err.code).to.equal(11000);
           done();
