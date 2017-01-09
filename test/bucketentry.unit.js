@@ -39,15 +39,18 @@ after(function(done) {
 
 describe('Storage/models/BucketEntry', function() {
 
-  var expectedBucketId = storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
-  var expectedFileId = storj.utils.calculateFileId(expectedBucketId, 'test.txt');
+  var expectedBucketId =
+    storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
+  var expectedFileId =
+    storj.utils.calculateFileId(expectedBucketId, 'test.txt');
 
   it('should create the bucket entry metadata', function(done) {
-    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' }, function(err, bucket) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
+    function(err, bucket) {
       var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
-        var entry = BucketEntry.create({
+        BucketEntry.create({
           frame: frame._id,
           bucket: bucket._id,
           name: 'test.txt',
@@ -67,7 +70,7 @@ describe('Storage/models/BucketEntry', function() {
     });
     frame.save(function(err) {
       expect(err).to.not.be.instanceOf(Error);
-      var entry = BucketEntry.create({
+      BucketEntry.create({
         frame: frame._id,
         bucket: expectedBucketId,
         name: 'test.txt',
@@ -82,12 +85,10 @@ describe('Storage/models/BucketEntry', function() {
 
   it('should fail with invalid mimetype', function(done) {
     Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
-      var frame = new Frame({
-
-      });
+      var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
-        var entry = BucketEntry.create({
+        BucketEntry.create({
           frame: frame._id,
           mimetype: 'invalid/mimetype',
           bucket: bucket._id,
