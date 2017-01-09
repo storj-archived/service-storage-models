@@ -1,6 +1,5 @@
 'use strict';
 
-// const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 
@@ -61,7 +60,7 @@ describe('Storage/models/Debit', function() {
         type: 'NOT-A-DEBIT-ENUM'
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
         done();
       });
@@ -74,34 +73,35 @@ describe('Storage/models/Debit', function() {
         amount: null
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types', function(done) {
-      var newDebit = new Debit({
-        user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
-        amount: undefined
-      });
+    it('should convert non-null, non-currency to 0 for currency types',
+      function(done) {
+        var newDebit = new Debit({
+          user: 'user@domain.tld',
+          type: DEBIT_TYPES.AUDIT,
+          amount: undefined
+        });
 
-      newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
+        newDebit.save(function(err, debit) {
+          expect(err).to.not.be.an.instanceOf(Error);
+          expect(debit.amount).to.equal(0);
 
-        Debit.findOneAndUpdate(
-          { _id: debit._id },
-          { amount: '' },
-          { new: true },
-          function(err, debit) {
-            expect(err).to.not.be.an.instanceOf(Error);
-            expect(debit.amount).to.equal(0);
-            done();
-          }
-        );
-      });
+          Debit.findOneAndUpdate(
+            { _id: debit._id },
+            { amount: '' },
+            { new: true },
+            function(err, debit) {
+              expect(err).to.not.be.an.instanceOf(Error);
+              expect(debit.amount).to.equal(0);
+              done();
+            }
+          );
+        });
     });
 
     it('should fail if bandwidth is not an integer', function(done) {
@@ -111,7 +111,7 @@ describe('Storage/models/Debit', function() {
         bandwidth: 'I am not an integer'
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
@@ -124,12 +124,11 @@ describe('Storage/models/Debit', function() {
         storage: {}
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
-
 
   });
 });

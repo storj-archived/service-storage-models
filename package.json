@@ -7,7 +7,12 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/**"
+    "test": "npm run testsuite && npm run linter",
+    "testsuite": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/mocha test/** --recursive",
+    "coverage": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive",
+    "linter": "./node_modules/.bin/jshint --config .jshintrc ./index.js ./lib ./test",
+    "make-docs": "mkdir -p ./jsdoc && rm -r ./jsdoc && ./node_modules/.bin/jsdoc index.js lib -r -R README.md -u ./doc -c .jsdoc.json --verbose -d ./jsdoc && cp -r doc/assets jsdoc/assets",
+    "publish-docs": "npm run make-docs && node script/publishdoc.js"
   },
   "repository": {
     "type": "git",
@@ -37,15 +42,19 @@
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
-    "stripe": "^4.11.0",
     "storj-lib": "^6.0.0",
-    "storj-service-error-types": "^1.0.0"
+    "storj-service-error-types": "^1.0.0",
+    "stripe": "^4.11.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
     "chai": "^3.5.0",
     "chai-datetime": "^1.4.1",
+    "coveralls": "^2.11.15",
+    "istanbul": "^0.4.5",
+    "jshint": "^2.9.4",
     "mocha": "^3.0.2",
+    "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
   },
   "devopsBase": {

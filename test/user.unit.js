@@ -62,7 +62,9 @@ describe('Storage/models/User', function() {
 
     it('should not create a user account with bad password', function(done) {
       User.create('wrong@domain.tld', 'password', function(err) {
-        expect(err.message).to.equal('Password must be hex encoded SHA-256 hash');
+        expect(err.message).to.equal(
+          'Password must be hex encoded SHA-256 hash'
+        );
         done();
       });
     });
@@ -76,8 +78,9 @@ describe('Storage/models/User', function() {
 
   });
 
+  /* jshint ignore: start */
+  /* ignoring: too many statements */
   describe('#recordDownloadBytes', function() {
-
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
         _id: 'test@user.tld',
@@ -110,17 +113,15 @@ describe('Storage/models/User', function() {
       clock.restore();
       done();
     });
-
   });
 
   describe('#isDownloadRateLimited', function() {
-
     let userFree = null;
     let userPaid = null;
     let clock = null;
 
     before(() => {
-      clock = sinon.useFakeTimers()
+      clock = sinon.useFakeTimers();
       userFree = new User({
         _id: 'user@free.tld',
         hashpass: 'hashpass'
@@ -164,7 +165,6 @@ describe('Storage/models/User', function() {
     });
   });
 
-
   describe('#recordUploadBytes', function() {
 
     it('should record the bytes and increment existing', function(done) {
@@ -201,6 +201,7 @@ describe('Storage/models/User', function() {
     });
 
   });
+  /* jshint ignore: end */
 
   describe('#isUploadRateLimited', function() {
 
@@ -209,7 +210,7 @@ describe('Storage/models/User', function() {
     let clock = null;
 
     before(() => {
-      clock = sinon.useFakeTimers()
+      clock = sinon.useFakeTimers();
       userFree = new User({
         _id: 'user@free.tld',
         hashpass: 'hashpass'
@@ -294,7 +295,7 @@ describe('Storage/models/User', function() {
     });
 
     it('should give a not authorized error if user not found', function(done) {
-      User.lookup('user@domain.tld', sha256('password2'), function(err, user) {
+      User.lookup('user@domain.tld', sha256('password2'), function(err) {
         expect(err).to.be.instanceOf(errors.NotAuthorizedError);
         done();
       });
