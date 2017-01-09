@@ -53,8 +53,9 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('should not create a invalid email', function(done) {
+    it('should not create a invalid email (no tld)', function(done) {
       User.create('wrong@domain', sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal('User validation failed');
         done();
       });
@@ -70,12 +71,37 @@ describe('Storage/models/User', function() {
     });
 
     it('should support modern TLDs', function(done) {
-      User.create('user@domain.lawyer', sha256('password'), function(err, user) {
-        expect(err).to.not.be.instanceOf(Error);
-        done();
-      })
-    })
+      User.create(
+        'user@domain.lawyer',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+      });
+    });
 
+    it('should create email with `+$#^*` symbols in address', function(done) {
+      User.create(
+        "test+!#$%&'*+-/=?^_`{|}~!$%^&*test@test.com", // jshint ignore:line
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
+
+    it('should create user with email that uses IP address', function(done) {
+      User.create(
+        'test@192.168.0.1',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
   });
 
   /* jshint ignore: start */
