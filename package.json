@@ -1,13 +1,18 @@
 {
   "name": "storj-service-storage-models",
-  "version": "6.1.1",
+  "version": "6.2.1",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/**"
+    "test": "npm run testsuite && npm run linter",
+    "testsuite": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/mocha test/** --recursive",
+    "coverage": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive",
+    "linter": "./node_modules/.bin/jshint --config .jshintrc ./index.js ./lib ./test",
+    "make-docs": "mkdir -p ./jsdoc && rm -r ./jsdoc && ./node_modules/.bin/jsdoc index.js lib -r -R README.md -u ./doc -c .jsdoc.json --verbose -d ./jsdoc && cp -r doc/assets jsdoc/assets",
+    "publish-docs": "npm run make-docs && node script/publishdoc.js"
   },
   "repository": {
     "type": "git",
@@ -27,13 +32,14 @@
   },
   "homepage": "https://github.com/Storj/service-storage-models#readme",
   "dependencies": {
+    "dotenv": "^2.0.0",
     "elliptic": "^6.3.2",
-    "graphql": "^0.8.2",
     "hat": "0.0.3",
     "merge": "^1.2.0",
     "mime-db": "^1.24.0",
     "mongoose": "^4.6.7",
     "mongoose-currency": "^0.2.0",
+    "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
     "storj-lib": "^6.0.0",
@@ -43,7 +49,12 @@
   "devDependencies": {
     "async": "^2.0.1",
     "chai": "^3.5.0",
+    "chai-datetime": "^1.4.1",
+    "coveralls": "^2.11.15",
+    "istanbul": "^0.4.5",
+    "jshint": "^2.9.4",
     "mocha": "^3.0.2",
+    "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
   },
   "devopsBase": {

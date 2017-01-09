@@ -32,26 +32,30 @@ describe('Storage/models/Bucket', function() {
   describe('#create', function() {
 
     it('should create the bucket with the default props', function(done) {
-      var expectedBucketId = storj.utils.calculateBucketId('user@domain.tld', 'New Bucket');
+      var expectedBucketId =
+        storj.utils.calculateBucketId('user@domain.tld', 'New Bucket');
 
-      Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket' }, function(err, bucket) {
-        expect(err).to.not.be.instanceOf(Error);
-        expect(bucket.id).to.equal(expectedBucketId);
-        expect(bucket.name).to.equal('New Bucket');
-        expect(bucket.storage).to.equal(0);
-        expect(bucket.transfer).to.equal(0);
-        expect(bucket.publicPermissions.length).to.equal(0);
-        Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
+      Bucket.create(
+        { _id: 'user@domain.tld' },
+        { name: 'New Bucket' },
+        function(err, bucket) {
           expect(err).to.not.be.instanceOf(Error);
           expect(bucket.id).to.equal(expectedBucketId);
           expect(bucket.name).to.equal('New Bucket');
           expect(bucket.storage).to.equal(0);
           expect(bucket.transfer).to.equal(0);
           expect(bucket.publicPermissions.length).to.equal(0);
-          expect(bucket.status).to.equal('Active');
-          expect(bucket.pubkeys).to.have.lengthOf(0);
-          expect(bucket.user).to.equal('user@domain.tld');
-          done();
+          Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
+            expect(err).to.not.be.instanceOf(Error);
+            expect(bucket.id).to.equal(expectedBucketId);
+            expect(bucket.name).to.equal('New Bucket');
+            expect(bucket.storage).to.equal(0);
+            expect(bucket.transfer).to.equal(0);
+            expect(bucket.publicPermissions.length).to.equal(0);
+            expect(bucket.status).to.equal('Active');
+            expect(bucket.pubkeys).to.have.lengthOf(0);
+            expect(bucket.user).to.equal('user@domain.tld');
+            done();
         });
       });
     });
@@ -73,7 +77,7 @@ describe('Storage/models/Bucket', function() {
       Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
         expect(err).to.not.be.instanceOf(Error);
         bucket.publicPermissions = ['INVALID'];
-        bucket.save(function(err, bucket){
+        bucket.save(function(err){
           expect(err).to.be.instanceOf(Error);
           done();
         });
@@ -81,27 +85,30 @@ describe('Storage/models/Bucket', function() {
     });
 
     it('should reject a duplicate name', function(done) {
-      Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket' }, function(err) {
-        expect(err.message).to.equal(
-          'Name already used by another bucket'
-        );
-        done();
+      Bucket.create(
+        { _id: 'user@domain.tld' },
+        { name: 'New Bucket' },
+        function(err) {
+          expect(err.message).to.equal('Name already used by another bucket');
+          done();
       });
     });
 
-    it('should create the bucket with the given special character', function(done) {
-      Bucket.create({ _id: 'user@domain.tld' }, {
-        name: 'My Bucket with special character üèß'
-      }, function(err, bucket) {
-        expect(err).to.not.be.instanceOf(Error);
-        Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
-          expect(err).to.equal(null);
-          expect(bucket.status).to.equal('Active');
-          expect(bucket.name).to.equal('My Bucket with special character üèß');
-          expect(bucket.pubkeys).to.have.lengthOf(0);
-          expect(bucket.user).to.equal('user@domain.tld');
-          done();
-        });
+    it('should create the bucket with the given special character',
+      function(done) {
+        Bucket.create({ _id: 'user@domain.tld' }, {
+          name: 'My Bucket with special character üèß'
+        }, function(err, bucket) {
+          expect(err).to.not.be.instanceOf(Error);
+          Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
+            expect(err).to.equal(null);
+            expect(bucket.status).to.equal('Active');
+            expect(bucket.name)
+              .to.equal('My Bucket with special character üèß');
+            expect(bucket.pubkeys).to.have.lengthOf(0);
+            expect(bucket.user).to.equal('user@domain.tld');
+            done();
+          });
       });
     });
 

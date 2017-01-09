@@ -1,6 +1,7 @@
 'use strict';
 
-// const storj = require('storj-lib');
+/*jshint expr: true*/
+
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const storj = require('storj-lib');
@@ -60,15 +61,18 @@ describe('Storage/models/Mirror', function() {
         nodeID: storj.KeyPair().getNodeID(),
         lastSeen: Date.now()
       }, function(err, contact) {
-        Mirror.create({ data_hash: 'data_hash' }, contact, function(err, mirror) {
-          expect(err).to.not.be.an.instanceOf(Error);
-          // need to check for type of hash?
-          expect(mirror.shardHash).to.be.a('string');
-          expect(mirror.contact).to.be.a('string');
-          expect(mirror.contract).to.be.an('object');
-          expect(mirror.isEstablished).to.be.false;
-          done();
-        });
+        Mirror.create(
+          { data_hash: 'data_hash' },
+          contact,
+          function(err, mirror) {
+            expect(err).to.not.be.an.instanceOf(Error);
+            // need to check for type of hash?
+            expect(mirror.shardHash).to.be.a('string');
+            expect(mirror.contact).to.be.a('string');
+            expect(mirror.contract).to.be.an('object');
+            expect(mirror.isEstablished).to.be.false;
+            done();
+          });
       });
     });
 
