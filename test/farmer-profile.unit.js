@@ -5,8 +5,10 @@ const mongoose = require('mongoose');
 
 require('mongoose-types').loadTypes(mongoose);
 
+const ContactSchema = require('../lib/models/contact');
 const FarmerProfileSchema = require('../lib/models/farmer-profile');
 
+var Contact;
 var FarmerProfile;
 var connection;
 
@@ -14,6 +16,7 @@ before(function(done) {
     connection = mongoose.createConnection(
         'mongodb://127.0.0.1:27017/__storj-bridge-test',
         function() {
+            Contact = ContactSchema(connection);
             FarmerProfile = FarmerProfileSchema(connection);
             done();
         }
@@ -22,7 +25,9 @@ before(function(done) {
 
 after(function(done) {
     FarmerProfile.remove({}, function() {
-        connection.close(done);
+        Contact.remove({}, function() {
+            connection.close(done);
+        });
     });
 });
 
