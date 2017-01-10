@@ -26,7 +26,7 @@ after(function(done) {
     });
 });
 
-describe('Storage/models/Exchange-Report', function() {
+describe('Storage/models/Farmer-Profile', function() {
 
     it('should create a farmer profile with default props', function(done) {
         var newFarmerProfile = new FarmerProfile({
