@@ -57,6 +57,57 @@ describe('Storage/models/Contact', function() {
 
   });
 
+  describe('#recordPingFailure', function() {
+
+    it('should record a ping failure for a contact by nodeID', function(done) {
+
+      const nodeID = '56e6fa5b4cc4c8b9ed6ab4352e2bcac8c01bb502';
+      const lastSeen = Date.now();
+      const address = '127.0.0.1';
+      const port = 1337;
+
+      function checkContact(contact) {
+        expect(contact.port).to.equal(port);
+        expect(contact.address).to.equal(address);
+        expect(contact.lastSeen.getTime()).to.equal(lastSeen);
+        expect(contact.nodeID).to.equal(nodeID);
+      }
+
+      Contact.record({
+        address: address,
+        port: port,
+        nodeID: nodeID,
+        lastSeen: lastSeen
+      }, function(err, contact) {
+        if (err) {
+          return done(err);
+        }
+
+        checkContact(contact);
+
+        Contact.recordPingFailure(nodeID, function(err, result) {
+          if (err) {
+            return done(err);
+          }
+          expect(result.ok).to.equal(1);
+          expect(result.nModified).to.equal(1);
+          expect(result.n).to.equal(1);
+
+          Contact.findOne({_id: nodeID}, function(err, contact) {
+            if (err) {
+              return done(err);
+            }
+            expect(contact.lastPingFailure.getTime())
+              .to.be.above(Date.now() - 5000);
+            checkContact(contact);
+            done();
+          });
+        });
+
+      });
+    });
+  });
+
   describe('#recordResponseTime', function() {
 
     it('will throw if number is not finite (NaN)', function() {
