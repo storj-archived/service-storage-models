@@ -13,42 +13,52 @@ var FarmerProfile;
 var connection;
 
 before(function(done) {
-    connection = mongoose.createConnection(
-        'mongodb://127.0.0.1:27017/__storj-bridge-test',
-        function() {
-            Contact = ContactSchema(connection);
-            FarmerProfile = FarmerProfileSchema(connection);
-            done();
-        }
-    );
+  connection = mongoose.createConnection(
+    'mongodb://127.0.0.1:27017/__storj-bridge-test',
+    function() {
+      Contact = ContactSchema(connection);
+      FarmerProfile = FarmerProfileSchema(connection);
+      done();
+    }
+  );
 });
 
 after(function(done) {
-    FarmerProfile.remove({}, function() {
-        Contact.remove({}, function() {
-            connection.close(done);
-        });
+  FarmerProfile.remove({}, function() {
+    Contact.remove({}, function() {
+      connection.close(done);
     });
+  });
 });
 
 describe('Storage/models/Farmer-Profile', function() {
 
-    it('should create a farmer profile with default props', function(done) {
-        var newFarmerProfile = new FarmerProfile({
-            farmerId: 'farmerId',
-            profile: {
-                failureRate: 0.5
-            }
-        });
+  it('should create a farmer profile when contact exists', function(done) {
+    var contactNodeId = mongoose.Types.ObjectId();
 
-        newFarmerProfile.save(function(err, report) {
-            expect(err).to.not.be.an.instanceOf(Error);
-            expect(report.created).to.be.an.instanceOf(Date);
-            expect(report.profile).to.be.an.instanceOf(Object);
-            expect(report.profile.failureRate).to.be.a('number');
-            done();
-        });
-
+    Contact.record({
+      address: '127.0.0.1',
+      port: 1337,
+      nodeID: contactNodeId,
+      lastSeen: Date.now()
+    }, function(err) {
+      expect(err).to.not.be.an.instanceOf(Error);
     });
 
+    var farmerProfileWithContact = new FarmerProfile({
+      farmerId: contactNodeId,
+      profile: {
+        failureRate: 0.5
+      }
+    });
+    /* jshint maxlen: 90 */
+    farmerProfileWithContact.save(function(err, farmerProfile) {
+      expect(err).to.not.be.an.instanceOf(Error);
+      expect(farmerProfile.created).to.be.an.instanceOf(Date);
+      expect(farmerProfile.farmerId).to.be.an.instanceOf(mongoose.Types.ObjectId);
+      expect(farmerProfile.profile).to.be.an.instanceOf(Object);
+      expect(farmerProfile.profile.failureRate).to.be.a('number');
+      done();
+    });
+  });
 });
