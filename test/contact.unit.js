@@ -126,7 +126,7 @@ describe('Storage/models/Contact', function() {
     });
 
 
-    it('0.41 after 12 hours of failure (w/ sparce success)', function() {
+    it('0.45 after 12 hours of failure (w/ sparce success)', function() {
       const clock = sandbox.useFakeTimers();
       const contact = new Contact({
         lastSeen: Date.now()
@@ -152,7 +152,7 @@ describe('Storage/models/Contact', function() {
         contact.recordTimeoutFailure();
       }
 
-      expect(contact.timeoutRate.toFixed(2)).to.equal('0.41');
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.45');
     });
 
   });
