@@ -125,7 +125,6 @@ describe('Storage/models/Contact', function() {
       expect(contact.timeoutRate.toFixed(4)).to.equal('1.0000');
     });
 
-
     it('0.45 after 12 hours of failure (w/ sparce success)', function() {
       const clock = sandbox.useFakeTimers();
       const contact = new Contact({
