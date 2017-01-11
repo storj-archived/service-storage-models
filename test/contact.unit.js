@@ -1,5 +1,6 @@
 'use strict';
 
+const sinon = require('sinon');
 const async = require('async');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
@@ -57,55 +58,103 @@ describe('Storage/models/Contact', function() {
 
   });
 
-  describe('#recordPingFailure', function() {
+  describe('#recordTimeoutFailure', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
 
-    it('should record a ping failure for a contact by nodeID', function(done) {
+    it('will set last timeout', function() {
+      const contact = new Contact({});
+      contact.recordTimeoutFailure();
 
-      const nodeID = '56e6fa5b4cc4c8b9ed6ab4352e2bcac8c01bb502';
-      const lastSeen = Date.now();
-      const address = '127.0.0.1';
-      const port = 1337;
+      expect(contact.lastTimeout).to.be.above(Date.now() - 5000);
+      expect(contact.lastTimeout).to.be.below(Date.now() + 5000);
 
-      function checkContact(contact) {
-        expect(contact.port).to.equal(port);
-        expect(contact.address).to.equal(address);
-        expect(contact.lastSeen.getTime()).to.equal(lastSeen);
-        expect(contact.nodeID).to.equal(nodeID);
+    });
+
+    it('will set timeout rate on repeat timeout failures', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.0069');
+    });
+
+    it('0.5 after 12 hours of failure', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      // 12 repeated failures, each over an hour
+      for (var i = 0; i < 12; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
       }
 
-      Contact.record({
-        address: address,
-        port: port,
-        nodeID: nodeID,
-        lastSeen: lastSeen
-      }, function(err, contact) {
-        if (err) {
-          return done(err);
-        }
-
-        checkContact(contact);
-
-        Contact.recordPingFailure(nodeID, function(err, result) {
-          if (err) {
-            return done(err);
-          }
-          expect(result.ok).to.equal(1);
-          expect(result.nModified).to.equal(1);
-          expect(result.n).to.equal(1);
-
-          Contact.findOne({_id: nodeID}, function(err, contact) {
-            if (err) {
-              return done(err);
-            }
-            expect(contact.lastPingFailure.getTime())
-              .to.be.above(Date.now() - 5000);
-            checkContact(contact);
-            done();
-          });
-        });
-
-      });
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.5000');
     });
+
+    it('1 after 24 hours of failure', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      // 24 repeated failures, each over an hour
+      for (var i = 0; i < 24; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(4)).to.equal('1.0000');
+    });
+
+
+    it('0.41 after 12 hours of failure (w/ sparce success)', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      // 10 minutes passed by before there was the first timeout failure
+      clock.tick(600000);
+      contact.recordTimeoutFailure();
+
+      // And then 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      // 10 minutes passed and there was a successful query
+      clock.tick(600000);
+      contact.lastSeen = Date.now();
+
+      // And then again, followed by 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000);
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.41');
+    });
+
   });
 
   describe('#recordResponseTime', function() {
