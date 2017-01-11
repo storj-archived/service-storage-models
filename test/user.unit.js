@@ -102,7 +102,45 @@ describe('Storage/models/User', function() {
           done();
         });
     });
+
+    it('should not create email with invalid symbols', function(done) {
+      User.create(
+        'test()test@gmail.com',
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('User validation failed');
+          done();
+        });
+    });
+
+    it('should not create an email of value `null`', function(done) {
+      User.create(
+        null,
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Must supply an email');
+          done();
+        });
+    });
+
+    it('should not create email > 254 chars', function(done) {
+      var longEmail =
+      'PJaNS9k2M0xx0LFyMt2jxSUQEzpN27sHEXwNDiUcYmRc9QJBX28hECkzynbbUskfd@'+
+      'up7MohQrlzLEpUtnQMAvsY8HroBza2ifJotuyz2FD1y1X7paGw40eGxj4TIhM5pCTl' +
+      'gxu6XPRNBRu8qqkv6LNgibPPWK2Il20GKilCFSRTraN67cFJWsCfCOfzZjymS6YPze' +
+      'DPXZugTGl4vMPwAMI3gi7TbwLPcwV64Do6R2Qz3H6My8yWKwepls7J8DK8FisEkIW1N' +
+      'chTop0NqWADTlguHuEi230npemRbNwWQpr0ErcWaRRYZZrIzQ2kwfCiA.com';
+
+      User.create(longEmail, sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('User validation failed');
+        done();
+      });
+    });
   });
+
 
   /* jshint ignore: start */
   /* ignoring: too many statements */
