@@ -80,10 +80,10 @@ describe('Storage/models/PublicKey', function() {
       {
         _id: 'user@domain.tld'
       },
-      '02:3d:9e:3d:b5:e0:b0:1b:be:5d:5a:66:6c:47:d6:87:43:60:8b:2c:ec:70:87:eb:56:37:95:1f:51:e8:61:a7:fd',
+      '02:3d:9e:3d:b5:e0:b0:1b:be:5d:5a:66:6c:47:d6:87:43:60:8b:2c:ec:70:87:eb:56:37:95:1f:51:e8:61:a7:fd', // jshint ignore:line
     function(err) {
       expect(err.message).to.equal(
-        'Invalid public key supplied: Must not contain non-hexidecimal characters like ":"'
+        'Invalid public key supplied: Must not contain non-hexidecimal characters like ":"' // jshint ignore:line
       );
       done();
     });

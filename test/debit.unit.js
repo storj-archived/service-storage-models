@@ -1,8 +1,9 @@
 'use strict';
 
-// const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const chai = require('chai');
+chai.use(require('chai-datetime'));
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -35,15 +36,17 @@ describe('Storage/models/Debit', function() {
     it('should create debit with default props', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT
+        type: DEBIT_TYPES.AUDIT,
+        amount: 1234
       });
 
       var d = new Date();
       var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
+        if(err) return done(err);
+
+        expect(debit.amount).to.equal(1234);
         expect(debit.user).to.equal('user@domain.tld');
         expect(debit.created).to.equalDate(date);
         expect(debit.type).to.be.oneOf(
@@ -61,8 +64,8 @@ describe('Storage/models/Debit', function() {
         type: 'NOT-A-DEBIT-ENUM'
       });
 
-      newDebit.save(function(err, debit) {
-        expect(err).to.be.instanceOf(Error);
+      newDebit.save(function(err) {
+        if(err) return done(err);
         done();
       });
     });
@@ -75,33 +78,36 @@ describe('Storage/models/Debit', function() {
       });
 
       newDebit.save(function(err, debit) {
-        expect(err).to.be.an.instanceOf(Error);
+        console.log('DEBIT: ', debit);
+        if(err) return done(err);
+        // expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types', function(done) {
-      var newDebit = new Debit({
-        user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
-        amount: undefined
-      });
+    it('should convert non-null, non-currency to 0 for currency types',
+      function(done) {
+        var newDebit = new Debit({
+          user: 'user@domain.tld',
+          type: DEBIT_TYPES.AUDIT,
+          amount: undefined
+        });
 
-      newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
+        newDebit.save(function(err, debit) {
+          expect(err).to.not.be.an.instanceOf(Error);
+          expect(debit.amount).to.equal(0);
 
-        Debit.findOneAndUpdate(
-          { _id: debit._id },
-          { amount: '' },
-          { new: true },
-          function(err, debit) {
-            expect(err).to.not.be.an.instanceOf(Error);
-            expect(debit.amount).to.equal(0);
-            done();
-          }
-        );
-      });
+          Debit.findOneAndUpdate(
+            { _id: debit._id },
+            { amount: '' },
+            { new: true },
+            function(err, debit) {
+              expect(err).to.not.be.an.instanceOf(Error);
+              expect(debit.amount).to.equal(0);
+              done();
+            }
+          );
+        });
     });
 
     it('should fail if bandwidth is not an integer', function(done) {
@@ -111,7 +117,7 @@ describe('Storage/models/Debit', function() {
         bandwidth: 'I am not an integer'
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
@@ -124,25 +130,11 @@ describe('Storage/models/Debit', function() {
         storage: {}
       });
 
-      newDebit.save(function(err, debit) {
-        console.log('debit', debit);
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
 
-
   });
 });
-
-/*
- DONE:
-  - type should fail if not enum
-  - amount fails if not Currency
-  - fail if storage and bandwidth are not integers
- NEEDS REVIEW:
-  - user should be an email regex
-    - double-checking mongoose.SchemaTypes.Email
-  - should be instanceOf(reference of User model)
-    - can you do this during tests?
-*/
