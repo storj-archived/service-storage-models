@@ -53,8 +53,9 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('should not create a invalid email', function(done) {
+    it('should not create a invalid email (no tld)', function(done) {
       User.create('wrong@domain', sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal('User validation failed');
         done();
       });
@@ -69,7 +70,77 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should support modern TLDs', function(done) {
+      User.create(
+        'user@domain.lawyer',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+      });
+    });
+
+    it('should create email with `+$#^*` symbols in address', function(done) {
+      User.create(
+        "test+!#$%&'*+-/=?^_`{|}~!$%^&*test@test.com", // jshint ignore:line
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
+
+    it('should create user with email that uses IP address', function(done) {
+      User.create(
+        'test@192.168.0.1',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
+
+    it('should not create email with invalid symbols', function(done) {
+      User.create(
+        'test()test@gmail.com',
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('User validation failed');
+          done();
+        });
+    });
+
+    it('should not create an email of value `null`', function(done) {
+      User.create(
+        null,
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Must supply an email');
+          done();
+        });
+    });
+
+    it('should not create email > 254 chars', function(done) {
+      var longEmail =
+      'PJaNS9k2M0xx0LFyMt2jxSUQEzpN27sHEXwNDiUcYmRc9QJBX28hECkzynbbUskfd@'+
+      'up7MohQrlzLEpUtnQMAvsY8HroBza2ifJotuyz2FD1y1X7paGw40eGxj4TIhM5pCTl' +
+      'gxu6XPRNBRu8qqkv6LNgibPPWK2Il20GKilCFSRTraN67cFJWsCfCOfzZjymS6YPze' +
+      'DPXZugTGl4vMPwAMI3gi7TbwLPcwV64Do6R2Qz3H6My8yWKwepls7J8DK8FisEkIW1N' +
+      'chTop0NqWADTlguHuEi230npemRbNwWQpr0ErcWaRRYZZrIzQ2kwfCiA.com';
+
+      User.create(longEmail, sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('User validation failed');
+        done();
+      });
+    });
   });
+
 
   /* jshint ignore: start */
   /* ignoring: too many statements */
