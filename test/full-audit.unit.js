@@ -1,9 +1,8 @@
 'use strict';
 
 const expect = require('chai').expect;
-const Sinon = require('sinon');
 const Mongoose = require('mongoose');
-const FullAuditModel = require('../lib/fullauditmodel');
+const FullAudit = require('../lib/models/full-audit');
 
 var auditModel;
 var connection;
@@ -12,7 +11,7 @@ before((done) => {
   connection = Mongoose.createConnection(
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     () => {
-      auditModel = FullAuditModel(connection);
+      auditModel = FullAudit(connection);
       done();
     }
   );
@@ -24,7 +23,7 @@ after((done) => {
   });
 });
 
-describe('FullAuditModel', function() {
+describe('FullAudit', function() {
   this.timeout(10000);
   var returnedFakeAuditsDoc;
   var fakeAuditScheduleObj = {
@@ -54,8 +53,8 @@ describe('FullAuditModel', function() {
       auditModel.scheduleFullAudits({challenges:[]},
         null,
         (err, docsArr) => {
-          expect(err).to.not.be.null;
-          expect(docsArr).to.be.undefined;
+          expect(err).to.not.be.a('null');
+          expect(docsArr).to.be.an('undefined');
           done();
         }
       );
@@ -76,7 +75,8 @@ describe('FullAuditModel', function() {
   });
 
   describe('defaultScheduleTransform', function() {
-    it('should schedule audits at an evenly distributed, rounded, interval', () => {
+    it('should schedule audits at an evenly distributed, rounded, interval',
+      () => {
       expect(auditModel.defaultScheduleTransform({
         start: 0,
         end: 9.1,
@@ -98,17 +98,18 @@ describe('FullAuditModel', function() {
   });
 
   describe('popReadyAudits', function() {
-    it('should return a cursor of all audits with expired timestamps', (done) => {
+    it('should return a cursor of all audits with expired timestamps',
+      (done) => {
       var docs = [];
       setTimeout(() => {
         auditModel.popReadyAudits((cursor) => {
           cursor.on('data', (doc) => {
             docs.push(doc);
-          })
+          });
           cursor.on('end', () => {
             expect(docs.length).to.equal(6);
             done();
-          })
+          });
         });
       }, 1500);
     });
@@ -116,10 +117,9 @@ describe('FullAuditModel', function() {
 
   describe('handleAuditResult', function() {
     it('should update an audit record with its result', (done) => {
-      console.log(typeof returnedFakeAuditsDoc[0]._id)
       auditModel.handleAuditResult(returnedFakeAuditsDoc[0]._id, false, () => {
         auditModel.findById(returnedFakeAuditsDoc[0]._id, (err, doc) => {
-          expect(doc.qPassed).to.be.false;
+          expect(doc.qPassed).to.equal(false);
           done();
         });
       });

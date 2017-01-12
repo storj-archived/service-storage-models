@@ -5,7 +5,7 @@
   "curly": true,
   "devel": false,
   "eqeqeq": true,
-  "esnext": true,
+  "esversion": 6,
   "freeze": true,
   "immed": true,
   "indent": 2,
