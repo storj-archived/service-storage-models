@@ -119,7 +119,7 @@ describe('FullAudit', function() {
     it('should update an audit record with its result', (done) => {
       auditModel.handleAuditResult(returnedFakeAuditsDoc[0]._id, false, () => {
         auditModel.findById(returnedFakeAuditsDoc[0]._id, (err, doc) => {
-          expect(doc.qPassed).to.equal(false);
+          expect(doc.passed).to.equal(false);
           done();
         });
       });
