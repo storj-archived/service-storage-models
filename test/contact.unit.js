@@ -6,6 +6,8 @@ const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const storj = require('storj-lib');
 
+/*jshint maxstatements: 100 */
+
 require('mongoose-types').loadTypes(mongoose);
 
 const ContactSchema = require('../lib/models/contact');
@@ -152,6 +154,39 @@ describe('Storage/models/Contact', function() {
       }
 
       expect(contact.timeoutRate.toFixed(2)).to.equal('0.45');
+    });
+
+    it('will reset after 24 hours', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      // 10 minutes passed by before there was the first timeout failure
+      clock.tick(600000);
+      contact.recordTimeoutFailure();
+
+      // And then 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.25');
+
+      // 24 hours passed with successful queries
+      for (let i = 0; i < 24; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.lastSeen = Date.now();
+      }
+
+      // And then again, followed by 2 repeated failures
+      for (let i = 0; i < 2; i++) {
+        clock.tick(3600000);
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.04');
     });
 
   });
