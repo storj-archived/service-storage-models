@@ -44,8 +44,9 @@ describe('Storage/models/Debit', function() {
       var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       newDebit.save(function(err, debit) {
-        if(err) return done(err);
-
+        if(err) {
+          return done(err);
+        }
         expect(debit.amount).to.equal(1234);
         expect(debit.user).to.equal('user@domain.tld');
         expect(debit.created).to.equalDate(date);
@@ -58,6 +59,23 @@ describe('Storage/models/Debit', function() {
       });
     });
 
+    it('should maintain 10000th debit amount accuracy', function(done) {
+      var debitAmount = 1234.5678;
+      var newDebit = new Debit({
+        user: 'user@domain.tld',
+        type: DEBIT_TYPES.AUDIT,
+        amount: debitAmount
+      });
+
+      newDebit.save(function(err, debit) {
+        if(err) {
+          return done(err);
+        }
+        expect(debit.amount).to.equal(Math.round(debitAmount * 10000) / 10000);
+        done();
+      });
+    });
+
     it('should reject type if not enum', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
@@ -65,7 +83,7 @@ describe('Storage/models/Debit', function() {
       });
 
       newDebit.save(function(err) {
-        if(err) return done(err);
+        expect(err).to.be.instanceOf(Error);
         done();
       });
     });
@@ -77,15 +95,13 @@ describe('Storage/models/Debit', function() {
         amount: null
       });
 
-      newDebit.save(function(err, debit) {
-        console.log('DEBIT: ', debit);
-        if(err) return done(err);
-        // expect(err).to.be.an.instanceOf(Error);
+      newDebit.save(function(err) {
+        expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types',
+    it('should not create null or undefined debit amount (no default)',
       function(done) {
         var newDebit = new Debit({
           user: 'user@domain.tld',
@@ -93,20 +109,9 @@ describe('Storage/models/Debit', function() {
           amount: undefined
         });
 
-        newDebit.save(function(err, debit) {
-          expect(err).to.not.be.an.instanceOf(Error);
-          expect(debit.amount).to.equal(0);
-
-          Debit.findOneAndUpdate(
-            { _id: debit._id },
-            { amount: '' },
-            { new: true },
-            function(err, debit) {
-              expect(err).to.not.be.an.instanceOf(Error);
-              expect(debit.amount).to.equal(0);
-              done();
-            }
-          );
+        newDebit.save(function(err) {
+          expect(err).to.be.instanceOf(Error);
+          done();
         });
     });
 
