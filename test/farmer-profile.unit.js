@@ -55,7 +55,7 @@ describe('Storage/models/Farmer-Profile', function() {
         failureRate: 0.5,
         lastSeen: Date.now(),
         lastTimeout: Date.now(),
-        timeoutRate: .25,
+        timeoutRate: 0.25,
         responseTime: 300
       }
     });
