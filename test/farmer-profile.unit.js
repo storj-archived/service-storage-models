@@ -48,7 +48,15 @@ describe('Storage/models/Farmer-Profile', function() {
     var farmerProfileWithContact = new FarmerProfile({
       farmerId: contactNodeId,
       profile: {
-        failureRate: 0.5
+        contractCount: 100,
+        contractSize: 1000000000,
+        downloadedBytes: 500000,
+        totalAmountSjcxPaid: 250.50,
+        failureRate: 0.5,
+        lastSeen: Date.now(),
+        lastTimeout: Date.now(),
+        timeoutRate: .25,
+        responseTime: 300
       }
     });
     /* jshint maxlen: 90 */
@@ -57,7 +65,15 @@ describe('Storage/models/Farmer-Profile', function() {
       expect(farmerProfile.created).to.be.an.instanceOf(Date);
       expect(farmerProfile.farmerId).to.be.an.instanceOf(mongoose.Types.ObjectId);
       expect(farmerProfile.profile).to.be.an.instanceOf(Object);
+      expect(farmerProfile.profile.contractCount).to.be.a('number');
+      expect(farmerProfile.profile.contractSize.to.be.a('number');
+      expect(farmerProfile.profile.downloadedBytes).to.be.a('number');
+      expect(farmerProfile.profile.totalAmountSjcxPaid).to.be.a('number');
       expect(farmerProfile.profile.failureRate).to.be.a('number');
+      expect(farmerProfile.profile.lastSeen).to.be.a(Date);
+      expect(farmerProfile.profile.lastTimeout).to.be.a(Date);
+      expect(farmerProfile.profile.timeoutRate.to.be.a('number');
+      expect(farmerProfile.profile.responseTime).to.be.a('number');
       done();
     });
   });
