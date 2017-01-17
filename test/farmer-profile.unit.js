@@ -66,13 +66,13 @@ describe('Storage/models/Farmer-Profile', function() {
       expect(farmerProfile.farmerId).to.be.an.instanceOf(mongoose.Types.ObjectId);
       expect(farmerProfile.profile).to.be.an.instanceOf(Object);
       expect(farmerProfile.profile.contractCount).to.be.a('number');
-      expect(farmerProfile.profile.contractSize.to.be.a('number');
+      expect(farmerProfile.profile.contractSize).to.be.a('number');
       expect(farmerProfile.profile.downloadedBytes).to.be.a('number');
       expect(farmerProfile.profile.totalAmountSjcxPaid).to.be.a('number');
       expect(farmerProfile.profile.failureRate).to.be.a('number');
       expect(farmerProfile.profile.lastSeen).to.be.a(Date);
       expect(farmerProfile.profile.lastTimeout).to.be.a(Date);
-      expect(farmerProfile.profile.timeoutRate.to.be.a('number');
+      expect(farmerProfile.profile.timeoutRate).to.be.a('number');
       expect(farmerProfile.profile.responseTime).to.be.a('number');
       done();
     });
