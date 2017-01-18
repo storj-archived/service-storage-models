@@ -70,8 +70,8 @@ describe('Storage/models/Farmer-Profile', function() {
       expect(farmerProfile.profile.downloadedBytes).to.be.a('number');
       expect(farmerProfile.profile.totalAmountSjcxPaid).to.be.a('number');
       expect(farmerProfile.profile.failureRate).to.be.a('number');
-      expect(farmerProfile.profile.lastSeen).to.be.a(Date);
-      expect(farmerProfile.profile.lastTimeout).to.be.a(Date);
+      expect(farmerProfile.profile.lastSeen).to.be.an.instanceOf(Date);
+      expect(farmerProfile.profile.lastTimeout).to.be.an.instanceOf(Date);
       expect(farmerProfile.profile.timeoutRate).to.be.a('number');
       expect(farmerProfile.profile.responseTime).to.be.a('number');
       done();
