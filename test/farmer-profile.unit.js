@@ -46,18 +46,19 @@ describe('Storage/models/Farmer-Profile', function() {
     });
 
     var farmerProfileWithContact = new FarmerProfile({
-      farmerId: contactNodeId,
+      farmer: contactNodeId,
       contractCount: 100,
       contractSize: 1000000000,
       downloadedBytes: 500000,
       totalAmountSjcxPaid: 250.50,
       failureRate: 0.5
     });
+
     /* jshint maxlen: 90 */
     farmerProfileWithContact.save(function(err, farmerProfile) {
       expect(err).to.not.be.an.instanceOf(Error);
       expect(farmerProfile.created).to.be.an.instanceOf(Date);
-      expect(farmerProfile.farmerId).to.be.an.instanceOf(mongoose.Types.ObjectId);
+      expect(farmerProfile.farmer).to.be.an.instanceOf(mongoose.Types.ObjectId);
       expect(farmerProfile.contractCount).to.be.a('number');
       expect(farmerProfile.contractSize).to.be.a('number');
       expect(farmerProfile.downloadedBytes).to.be.a('number');
