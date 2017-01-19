@@ -47,33 +47,22 @@ describe('Storage/models/Farmer-Profile', function() {
 
     var farmerProfileWithContact = new FarmerProfile({
       farmerId: contactNodeId,
-      profile: {
-        contractCount: 100,
-        contractSize: 1000000000,
-        downloadedBytes: 500000,
-        totalAmountSjcxPaid: 250.50,
-        failureRate: 0.5,
-        lastSeen: Date.now(),
-        lastTimeout: Date.now(),
-        timeoutRate: 0.25,
-        responseTime: 300
-      }
+      contractCount: 100,
+      contractSize: 1000000000,
+      downloadedBytes: 500000,
+      totalAmountSjcxPaid: 250.50,
+      failureRate: 0.5
     });
     /* jshint maxlen: 90 */
     farmerProfileWithContact.save(function(err, farmerProfile) {
       expect(err).to.not.be.an.instanceOf(Error);
       expect(farmerProfile.created).to.be.an.instanceOf(Date);
       expect(farmerProfile.farmerId).to.be.an.instanceOf(mongoose.Types.ObjectId);
-      expect(farmerProfile.profile).to.be.an.instanceOf(Object);
-      expect(farmerProfile.profile.contractCount).to.be.a('number');
-      expect(farmerProfile.profile.contractSize).to.be.a('number');
-      expect(farmerProfile.profile.downloadedBytes).to.be.a('number');
-      expect(farmerProfile.profile.totalAmountSjcxPaid).to.be.a('number');
-      expect(farmerProfile.profile.failureRate).to.be.a('number');
-      expect(farmerProfile.profile.lastSeen).to.be.an.instanceOf(Date);
-      expect(farmerProfile.profile.lastTimeout).to.be.an.instanceOf(Date);
-      expect(farmerProfile.profile.timeoutRate).to.be.a('number');
-      expect(farmerProfile.profile.responseTime).to.be.a('number');
+      expect(farmerProfile.contractCount).to.be.a('number');
+      expect(farmerProfile.contractSize).to.be.a('number');
+      expect(farmerProfile.downloadedBytes).to.be.a('number');
+      expect(farmerProfile.totalAmountSjcxPaid).to.be.a('number');
+      expect(farmerProfile.failureRate).to.be.a('number');
       done();
     });
   });
