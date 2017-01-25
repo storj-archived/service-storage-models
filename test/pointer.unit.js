@@ -54,4 +54,21 @@ describe('Storage/models/Pointer', function() {
 
   });
 
+  describe('#_validate', function() {
+
+    it('will throw hash message if missing hash', function() {
+      var shard = {
+        index: 1,
+        size: 1,
+        tree: ['tree1', 'tree2'],
+        challenges: ['challenge1', 'challenge2']
+      };
+      Pointer.create(shard, function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.match(/^Hash is expected/);
+      });
+    });
+
+  });
+
 });
