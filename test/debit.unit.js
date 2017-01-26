@@ -1,8 +1,9 @@
 'use strict';
 
-// const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const chai = require('chai');
+chai.use(require('chai-datetime'));
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -35,15 +36,18 @@ describe('Storage/models/Debit', function() {
     it('should create debit with default props', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT
+        type: DEBIT_TYPES.AUDIT,
+        amount: 1234
       });
 
       var d = new Date();
       var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
+        if(err) {
+          return done(err);
+        }
+        expect(debit.amount).to.equal(1234);
         expect(debit.user).to.equal('user@domain.tld');
         expect(debit.created).to.equalDate(date);
         expect(debit.type).to.be.oneOf(
@@ -55,13 +59,30 @@ describe('Storage/models/Debit', function() {
       });
     });
 
+    it('should maintain 10000th debit amount accuracy', function(done) {
+      var debitAmount = 1234.5678;
+      var newDebit = new Debit({
+        user: 'user@domain.tld',
+        type: DEBIT_TYPES.AUDIT,
+        amount: debitAmount
+      });
+
+      newDebit.save(function(err, debit) {
+        if(err) {
+          return done(err);
+        }
+        expect(debit.amount).to.equal(Math.round(debitAmount * 10000) / 10000);
+        done();
+      });
+    });
+
     it('should reject type if not enum', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
         type: 'NOT-A-DEBIT-ENUM'
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
         done();
       });
@@ -74,34 +95,24 @@ describe('Storage/models/Debit', function() {
         amount: null
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types', function(done) {
-      var newDebit = new Debit({
-        user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
-        amount: undefined
-      });
+    it('should not create null or undefined debit amount (no default)',
+      function(done) {
+        var newDebit = new Debit({
+          user: 'user@domain.tld',
+          type: DEBIT_TYPES.AUDIT,
+          amount: undefined
+        });
 
-      newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
-
-        Debit.findOneAndUpdate(
-          { _id: debit._id },
-          { amount: '' },
-          { new: true },
-          function(err, debit) {
-            expect(err).to.not.be.an.instanceOf(Error);
-            expect(debit.amount).to.equal(0);
-            done();
-          }
-        );
-      });
+        newDebit.save(function(err) {
+          expect(err).to.be.instanceOf(Error);
+          done();
+        });
     });
 
     it('should fail if bandwidth is not an integer', function(done) {
@@ -111,7 +122,7 @@ describe('Storage/models/Debit', function() {
         bandwidth: 'I am not an integer'
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });
@@ -124,7 +135,7 @@ describe('Storage/models/Debit', function() {
         storage: {}
       });
 
-      newDebit.save(function(err, debit) {
+      newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         done();
       });

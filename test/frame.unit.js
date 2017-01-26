@@ -1,6 +1,7 @@
 'use strict';
 
-// const storj = require('storj-lib');
+/*jshint expr: true*/
+
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const crypto = require('crypto');
@@ -52,7 +53,8 @@ describe('Storage/models/Frame', function() {
           expect(frame.shards).to.be.an('array');
 
           // cleanup
-          User.findOneAndRemove({ _id: user._id }, function(err, user) {
+          User.findOneAndRemove({ _id: user._id }, function(err) {
+            expect(err).to.not.be.an.instanceOf(Error);
             done();
           });
         });
@@ -65,8 +67,10 @@ describe('Storage/models/Frame', function() {
 
     it('should set frame.lock to true', function(done) {
       Frame.create({}, function(err, frame) {
+        expect(err).to.not.be.an.instanceOf(Error);
         expect(frame.locked).to.be.false;
         frame.lock(function(err, frame) {
+          expect(err).to.not.be.an.instanceOf(Error);
           expect(frame.locked).to.be.true;
           done();
         });
@@ -79,17 +83,20 @@ describe('Storage/models/Frame', function() {
 
     it('should set frame.lock to false', function(done) {
       Frame.create({}, function(err, frame) {
+        expect(err).to.not.be.an.instanceOf(Error);
         expect(frame.locked).to.be.false;
         frame.lock(function(err, frame) {
+          expect(err).to.not.be.an.instanceOf(Error);
           expect(frame.locked).to.be.true;
           frame.unlock(function(err, frame) {
+            expect(err).to.not.be.an.instanceOf(Error);
             expect(frame.locked).to.be.false;
             done();
           });
         });
       });
     });
-    
+
   });
 
 });

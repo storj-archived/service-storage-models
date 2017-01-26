@@ -53,8 +53,9 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('should not create a invalid email', function(done) {
+    it('should not create a invalid email (no tld)', function(done) {
       User.create('wrong@domain', sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal('User validation failed');
         done();
       });
@@ -62,7 +63,9 @@ describe('Storage/models/User', function() {
 
     it('should not create a user account with bad password', function(done) {
       User.create('wrong@domain.tld', 'password', function(err) {
-        expect(err.message).to.equal('Password must be hex encoded SHA-256 hash');
+        expect(err.message).to.equal(
+          'Password must be hex encoded SHA-256 hash'
+        );
         done();
       });
     });
@@ -78,10 +81,81 @@ describe('Storage/models/User', function() {
       });
     })
 
+    it('should support modern TLDs', function(done) {
+      User.create(
+        'user@domain.lawyer',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+      });
+    });
+
+    it('should create email with `+$#^*` symbols in address', function(done) {
+      User.create(
+        "test+!#$%&'*+-/=?^_`{|}~!$%^&*test@test.com", // jshint ignore:line
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
+
+    it('should create user with email that uses IP address', function(done) {
+      User.create(
+        'test@192.168.0.1',
+        sha256('password'),
+        function(err, user) {
+          expect(err).to.not.be.instanceOf(Error);
+          expect(user).to.be.instanceOf(Object);
+          done();
+        });
+    });
+
+    it('should not create email with invalid symbols', function(done) {
+      User.create(
+        'test()test@gmail.com',
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('User validation failed');
+          done();
+        });
+    });
+
+    it('should not create an email of value `null`', function(done) {
+      User.create(
+        null,
+        sha256('password'),
+        function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Must supply an email');
+          done();
+        });
+    });
+
+    it('should not create email > 254 chars', function(done) {
+      var longEmail =
+      'PJaNS9k2M0xx0LFyMt2jxSUQEzpN27sHEXwNDiUcYmRc9QJBX28hECkzynbbUskfd@'+
+      'up7MohQrlzLEpUtnQMAvsY8HroBza2ifJotuyz2FD1y1X7paGw40eGxj4TIhM5pCTl' +
+      'gxu6XPRNBRu8qqkv6LNgibPPWK2Il20GKilCFSRTraN67cFJWsCfCOfzZjymS6YPze' +
+      'DPXZugTGl4vMPwAMI3gi7TbwLPcwV64Do6R2Qz3H6My8yWKwepls7J8DK8FisEkIW1N' +
+      'chTop0NqWADTlguHuEi230npemRbNwWQpr0ErcWaRRYZZrIzQ2kwfCiA.com';
+
+      User.create(longEmail, sha256('password'), function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('User validation failed');
+        done();
+      });
+    });
   });
 
-  describe('#recordDownloadBytes', function() {
 
+  /* jshint ignore: start */
+  /* ignoring: too many statements */
+  describe('#recordDownloadBytes', function() {
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
         _id: 'test@user.tld',
@@ -114,17 +188,15 @@ describe('Storage/models/User', function() {
       clock.restore();
       done();
     });
-
   });
 
   describe('#isDownloadRateLimited', function() {
-
     let userFree = null;
     let userPaid = null;
     let clock = null;
 
     before(() => {
-      clock = sinon.useFakeTimers()
+      clock = sinon.useFakeTimers();
       userFree = new User({
         _id: 'user@free.tld',
         hashpass: 'hashpass'
@@ -168,7 +240,6 @@ describe('Storage/models/User', function() {
     });
   });
 
-
   describe('#recordUploadBytes', function() {
 
     it('should record the bytes and increment existing', function(done) {
@@ -205,6 +276,7 @@ describe('Storage/models/User', function() {
     });
 
   });
+  /* jshint ignore: end */
 
   describe('#isUploadRateLimited', function() {
 
@@ -213,7 +285,7 @@ describe('Storage/models/User', function() {
     let clock = null;
 
     before(() => {
-      clock = sinon.useFakeTimers()
+      clock = sinon.useFakeTimers();
       userFree = new User({
         _id: 'user@free.tld',
         hashpass: 'hashpass'
@@ -297,8 +369,15 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should give error if missing passwd', function(done) {
+      User.lookup('user@domain.tld', null, function(err) {
+        expect(err).to.be.instanceOf(errors.NotAuthorizedError);
+        done();
+      });
+    });
+
     it('should give a not authorized error if user not found', function(done) {
-      User.lookup('user@domain.tld', sha256('password2'), function(err, user) {
+      User.lookup('user@domain.tld', sha256('password2'), function(err) {
         expect(err).to.be.instanceOf(errors.NotAuthorizedError);
         done();
       });
