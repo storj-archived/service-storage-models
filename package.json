@@ -35,7 +35,6 @@
     "dotenv": "^2.0.0",
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
-    "lodash": "^4.17.4",
     "merge": "^1.2.0",
     "mime-db": "^1.24.0",
     "mongoose": "^4.6.7",
@@ -54,6 +53,7 @@
     "coveralls": "^2.11.15",
     "istanbul": "^0.4.5",
     "jshint": "^2.9.4",
+    "lodash": "^4.17.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
