@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "7.0.1",
+  "version": "8.0.0",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
@@ -55,6 +55,7 @@
     "coveralls": "^2.11.15",
     "istanbul": "^0.4.5",
     "jshint": "^2.9.4",
+    "lodash": "^4.17.4",
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
