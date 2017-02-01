@@ -36,7 +36,7 @@ describe('Storage/models/Debit', function() {
     it('should create debit with default props', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
+        type: DEBIT_TYPES.STORAGE,
         amount: 1234
       });
 
@@ -44,7 +44,7 @@ describe('Storage/models/Debit', function() {
       var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       newDebit.save(function(err, debit) {
-        if(err) {
+        if (err) {
           return done(err);
         }
         expect(debit.amount).to.equal(1234);
@@ -63,7 +63,7 @@ describe('Storage/models/Debit', function() {
       var debitAmount = 1234.5678;
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
+        type: DEBIT_TYPES.STORAGE,
         amount: debitAmount
       });
 
@@ -91,7 +91,7 @@ describe('Storage/models/Debit', function() {
     it('should reject null for amount', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
+        type: DEBIT_TYPES.STORAGE,
         amount: null
       });
 
@@ -105,7 +105,7 @@ describe('Storage/models/Debit', function() {
       function(done) {
         var newDebit = new Debit({
           user: 'user@domain.tld',
-          type: DEBIT_TYPES.AUDIT,
+          type: DEBIT_TYPES.STORAGE,
           amount: undefined
         });
 
@@ -118,7 +118,7 @@ describe('Storage/models/Debit', function() {
     it('should fail if bandwidth is not an integer', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
+        type: DEBIT_TYPES.STORAGE,
         bandwidth: 'I am not an integer'
       });
 
@@ -131,7 +131,7 @@ describe('Storage/models/Debit', function() {
     it('should fail if storage is not an integer', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT,
+        type: DEBIT_TYPES.STORAGE,
         storage: {}
       });
 
