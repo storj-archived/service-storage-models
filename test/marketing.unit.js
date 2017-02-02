@@ -4,8 +4,8 @@ const crypto = require('crypto');
 const errors = require('storj-service-error-types');
 const chai = require('chai');
 const expect = require('chai').expect;
+const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
-const ms = require('ms');
 
 chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
@@ -45,37 +45,48 @@ describe('/Storage/models/marketing', function() {
   describe('#create', function() {
 
     it('should create a new marketing doc with default props', function(done) {
+      var d = new Date();
+      var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
+      Marketing.create('user@domain.tld', function(err, marketing) {
+        if (err) {
+          return done(err);
+        }
+        expect(marketing.user).to.equal('user@domain.tld');
+        expect(marketing.link).to.be.a('string');
+        expect(marketing.created).to.equalDate(date);
+        done();
+      });
     });
 
   });
 
-  describe('#_genLink', function() {
+  // describe('#_genLink', function() {
 
-    it('should generate a referral link', function(done) {
+  //   it('should generate a referral link', function(done) {
 
-    });
+  //   });
 
-    it('should create a new link if not unique', function(done) {
+  //   it('should create a new link if not unique', function(done) {
 
-    });
+  //   });
 
-  });
+  // });
 
-  describe('#linkReferralToUser', function() {
+  // describe('#linkReferralToUser', function() {
 
-    it('should link referral to the correct user', function(done) {
+  //   it('should link referral to the correct user', function(done) {
 
-    });
+  //   });
 
-    it('should create a new referral if one does not exist', function(done) {
+  //   it('should create a new referral if one does not exist', function(done) {
 
-    });
+  //   });
 
-    it('should issue recipient credit', function(done) {
+  //   it('should issue recipient credit', function(done) {
 
-    });
+  //   });
 
-  });
+  // });
 
 });
