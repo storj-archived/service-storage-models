@@ -2,10 +2,12 @@
 
 const crypto = require('crypto');
 const errors = require('storj-service-error-types');
+const chai = require('chai');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const ms = require('ms');
 
+chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
 
 const MarketingSchema = require('../lib/models/marketing');
@@ -40,6 +42,14 @@ function sha256(i) {
 
 describe('/Storage/models/marketing', function() {
 
+  describe('#create', function() {
+
+    it('should create a new marketing doc with default props', function(done) {
+
+    });
+
+  });
+
   describe('#_genLink', function() {
 
     it('should generate a referral link', function(done) {
@@ -47,14 +57,6 @@ describe('/Storage/models/marketing', function() {
     });
 
     it('should create a new link if not unique', function(done) {
-
-    });
-
-  });
-
-  describe('#create', function() {
-
-    it('should create a new marketing doc with default props', function(done) {
 
     });
 
