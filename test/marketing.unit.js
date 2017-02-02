@@ -61,17 +61,15 @@ describe('/Storage/models/marketing', function() {
 
   });
 
-  // describe('#_genLink', function() {
+  describe('#_genLink', function() {
 
-  //   it('should generate a referral link', function(done) {
+    it('should generate a referral link', function(done) {
+      const link = Marketing._genLink();
+      expect(link).to.be.a('string');
+      done();
+    });
 
-  //   });
-
-  //   it('should create a new link if not unique', function(done) {
-
-  //   });
-
-  // });
+  });
 
   // describe('#linkReferralToUser', function() {
 
