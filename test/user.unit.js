@@ -10,8 +10,10 @@ const ms = require('ms');
 require('mongoose-types').loadTypes(mongoose);
 
 const UserSchema = require('../lib/models/user');
+const MarketingSchema = require('../lib/models/marketing');
 
 var User;
+var Marketing;
 var connection;
 
 before(function(done) {
@@ -19,6 +21,7 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       User = UserSchema(connection);
+      Marketing = MarketingSchema(connection);
       done();
     }
   );
@@ -26,7 +29,9 @@ before(function(done) {
 
 after(function(done) {
   User.remove({}, function() {
-    connection.close(done);
+    Marketing.remove({}, function() {
+      connection.close(done);
+    });
   });
 });
 
@@ -69,17 +74,6 @@ describe('Storage/models/User', function() {
         done();
       });
     });
-
-    it('should create a marketing doc with user ref', function(done) {
-      User.create('user@domain.tld', sha256('password'), function(err) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        Marketing.find({ user: 'user@domain.tld' }, function(err, marketing) {
-          expect(err).to.not.be.an.instanceOf('Error');
-          expect(marketing.user).to.equal('user@domain.tld');
-          done();
-        });
-      });
-    })
 
     it('should support modern TLDs', function(done) {
       User.create(
