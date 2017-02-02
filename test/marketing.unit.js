@@ -42,13 +42,37 @@ describe('/Storage/models/marketing', function() {
 
   describe('#_genLink', function() {
 
+    it('should generate a referral link', function(done) {
+
+    });
+
+    it('should create a new link if not unique', function(done) {
+
+    });
+
   });
 
   describe('#create', function() {
 
+    it('should create a new marketing doc with default props', function(done) {
+
+    });
+
   });
 
   describe('#linkReferralToUser', function() {
+
+    it('should link referral to the correct user', function(done) {
+
+    });
+
+    it('should create a new referral if one does not exist', function(done) {
+
+    });
+
+    it('should issue recipient credit', function(done) {
+
+    });
 
   });
 
