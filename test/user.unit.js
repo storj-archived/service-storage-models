@@ -358,6 +358,13 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should give error if missing passwd', function(done) {
+      User.lookup('user@domain.tld', null, function(err) {
+        expect(err).to.be.instanceOf(errors.NotAuthorizedError);
+        done();
+      });
+    });
+
     it('should give a not authorized error if user not found', function(done) {
       User.lookup('user@domain.tld', sha256('password2'), function(err) {
         expect(err).to.be.instanceOf(errors.NotAuthorizedError);

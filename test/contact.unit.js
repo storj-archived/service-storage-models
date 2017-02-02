@@ -1,9 +1,12 @@
 'use strict';
 
+const sinon = require('sinon');
 const async = require('async');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const storj = require('storj-lib');
+
+/*jshint maxstatements: 100 */
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -53,6 +56,137 @@ describe('Storage/models/Contact', function() {
           done();
         });
       });
+    });
+
+  });
+
+  describe('#recordTimeoutFailure', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
+
+    it('will set last timeout', function() {
+      const contact = new Contact({});
+      contact.recordTimeoutFailure();
+
+      expect(contact.lastTimeout).to.be.above(Date.now() - 5000);
+      expect(contact.lastTimeout).to.be.below(Date.now() + 5000);
+
+    });
+
+    it('will set timeout rate on repeat timeout failures', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.0069');
+    });
+
+    it('0.5 after 12 hours of failure', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      // 12 repeated failures, each over an hour
+      for (var i = 0; i < 12; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.5000');
+    });
+
+    it('1 after 24 hours of failure', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      clock.tick(600000); // 10 min
+      contact.recordTimeoutFailure();
+
+      // 24 repeated failures, each over an hour
+      for (var i = 0; i < 24; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(4)).to.equal('1.0000');
+    });
+
+    it('0.45 after 12 hours of failure (w/ sparce success)', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      // 10 minutes passed by before there was the first timeout failure
+      clock.tick(600000);
+      contact.recordTimeoutFailure();
+
+      // And then 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      // 10 minutes passed and there was a successful query
+      clock.tick(600000);
+      contact.lastSeen = Date.now();
+
+      // And then again, followed by 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000);
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.45');
+    });
+
+    it('will reset after 24 hours', function() {
+      const clock = sandbox.useFakeTimers();
+      const contact = new Contact({
+        lastSeen: Date.now()
+      });
+
+      // 10 minutes passed by before there was the first timeout failure
+      clock.tick(600000);
+      contact.recordTimeoutFailure();
+
+      // And then 6 repeated failures
+      for (let i = 0; i < 6; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.25');
+
+      // 24 hours passed with successful queries
+      for (let i = 0; i < 24; i++) {
+        clock.tick(3600000); // 1 hour
+        contact.lastSeen = Date.now();
+      }
+
+      // And then again, followed by 2 repeated failures
+      for (let i = 0; i < 2; i++) {
+        clock.tick(3600000);
+        contact.recordTimeoutFailure();
+      }
+
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.04');
     });
 
   });

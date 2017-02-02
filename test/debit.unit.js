@@ -2,6 +2,8 @@
 
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const chai = require('chai');
+chai.use(require('chai-datetime'));
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -34,15 +36,18 @@ describe('Storage/models/Debit', function() {
     it('should create debit with default props', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: DEBIT_TYPES.AUDIT
+        type: DEBIT_TYPES.AUDIT,
+        amount: 1234
       });
 
       var d = new Date();
       var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       newDebit.save(function(err, debit) {
-        expect(err).to.not.be.an.instanceOf(Error);
-        expect(debit.amount).to.equal(0);
+        if(err) {
+          return done(err);
+        }
+        expect(debit.amount).to.equal(1234);
         expect(debit.user).to.equal('user@domain.tld');
         expect(debit.created).to.equalDate(date);
         expect(debit.type).to.be.oneOf(
@@ -50,6 +55,23 @@ describe('Storage/models/Debit', function() {
         );
         expect(debit.bandwidth).to.equal(0).and.to.be.a('number');
         expect(debit.storage).to.equal(0).and.to.be.a('number');
+        done();
+      });
+    });
+
+    it('should maintain 10000th debit amount accuracy', function(done) {
+      var debitAmount = 1234.5678;
+      var newDebit = new Debit({
+        user: 'user@domain.tld',
+        type: DEBIT_TYPES.AUDIT,
+        amount: debitAmount
+      });
+
+      newDebit.save(function(err, debit) {
+        if(err) {
+          return done(err);
+        }
+        expect(debit.amount).to.equal(Math.round(debitAmount * 10000) / 10000);
         done();
       });
     });
@@ -79,7 +101,7 @@ describe('Storage/models/Debit', function() {
       });
     });
 
-    it('should convert non-null, non-currency to 0 for currency types',
+    it('should not create null or undefined debit amount (no default)',
       function(done) {
         var newDebit = new Debit({
           user: 'user@domain.tld',
@@ -87,20 +109,9 @@ describe('Storage/models/Debit', function() {
           amount: undefined
         });
 
-        newDebit.save(function(err, debit) {
-          expect(err).to.not.be.an.instanceOf(Error);
-          expect(debit.amount).to.equal(0);
-
-          Debit.findOneAndUpdate(
-            { _id: debit._id },
-            { amount: '' },
-            { new: true },
-            function(err, debit) {
-              expect(err).to.not.be.an.instanceOf(Error);
-              expect(debit.amount).to.equal(0);
-              done();
-            }
-          );
+        newDebit.save(function(err) {
+          expect(err).to.be.instanceOf(Error);
+          done();
         });
     });
 
