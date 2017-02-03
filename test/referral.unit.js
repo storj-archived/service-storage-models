@@ -70,6 +70,8 @@ describe('Storage/models/referral', function() {
             expect(referral.recipient.min_billed_requirement)
               .to.equal(REFERRAL_AMOUNTS.MIN_BILLED_REQUIREMENT_DEFAULT);
             expect(referral.created).to.equalDate(date);
+            expect(referral.converted.recipient_signup).to.be.undefined;
+            expect(referral.converted.recipient_billed).to.be.undfined;
             expect(referral.type).to.equal('email');
             expect(referral.type).to.be.oneOf(
               Object.keys(REFERRAL_TYPES).map((key) => (REFERRAL_TYPES[key]))
