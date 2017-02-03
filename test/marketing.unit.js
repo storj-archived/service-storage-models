@@ -11,10 +11,8 @@ chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
 
 const MarketingSchema = require('../lib/models/marketing');
-const ReferralSchema = require('../lib/models/referral');
 
 var Marketing;
-var Referral;
 var connection;
 
 before(function(done) {
@@ -22,7 +20,6 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Marketing = MarketingSchema(connection);
-      Referral = ReferralSchema(connection);
       done();
     }
   );
@@ -30,15 +27,9 @@ before(function(done) {
 
 after(function(done) {
   Marketing.remove({}, function() {
-    Referral.remove({}, function() {
-      connection.close(done);
-    });
+    connection.close(done);
   });
 });
-
-function sha256(i) {
-  return crypto.createHash('sha256').update(i).digest('hex');
-}
 
 describe('/Storage/models/marketing', function() {
 

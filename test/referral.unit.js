@@ -9,10 +9,8 @@ const ms = require('ms');
 require('mongoose-types').loadTypes(mongoose);
 
 const ReferralSchema = require('../lib/models/referral');
-const CreditSchema = require('../lib/models/credit');
 
 var Referral;
-var Credit;
 var connection;
 
 before(function(done) {
@@ -20,7 +18,6 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Referral = ReferralSchema(connection);
-      Credit = CreditSchema(connection);
       done();
     }
   );
@@ -28,9 +25,7 @@ before(function(done) {
 
 after(function(done) {
   Referral.remove({}, function() {
-    Credit.remove({}, function() {
-      connection.close(done);
-    });
+    connection.close(done);
   });
 });
 
