@@ -71,6 +71,35 @@ describe('/Storage/models/marketing', function() {
 
   });
 
+  describe('#_verifyNonDupLink', function() {
+
+    it('should return link if link is unique', function(done) {
+      const linkIn = Marketing._genLink();
+      Marketing._verifyNonDupLink(linkIn, function(err, linkOut) {
+        if (err) {
+          return done(err);
+        }
+        expect(linkIn).to.equal(linkOut);
+        done();
+      });
+    });
+
+    it('should fail if link already exists', function(done) {
+      Marketing.create('user@domain.tld', function(err, marketing) {
+        if (err) {
+          return done(err);
+        }
+        const dupLink = marketing.link;
+        Marketing._verifyNonDupLink(dupLink, function(err) {
+          expect(err).to.be.an.instanceOf(Error);
+          expect(err.message).to.equal('Duplicate link');
+          done();
+        });
+      });
+    });
+
+  });
+
   // describe('#linkReferralToUser', function() {
 
   //   it('should link referral to the correct user', function(done) {
