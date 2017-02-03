@@ -1,9 +1,8 @@
 'use strict';
 
-const crypto = require('crypto');
 const errors = require('storj-service-error-types');
 const chai = require('chai');
-const expect = require('chai').expect;
+const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
 
