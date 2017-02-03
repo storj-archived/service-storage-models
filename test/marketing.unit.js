@@ -85,7 +85,7 @@ describe('/Storage/models/marketing', function() {
     });
 
     it('should fail if link already exists', function(done) {
-      Marketing.create('user@domain.tld', function(err, marketing) {
+      Marketing.create('user1@domain.tld', function(err, marketing) {
         if (err) {
           return done(err);
         }
@@ -100,20 +100,24 @@ describe('/Storage/models/marketing', function() {
 
   });
 
-  // describe('#linkReferralToUser', function() {
+  describe('#_genAndVerify', function() {
 
-  //   it('should link referral to the correct user', function(done) {
+    it('should generate and verify link', function(done) {
+      Marketing._genAndVerify(function(err, link) {
+        if (err) {
+          return done(err);
+        }
+        expect(link).to.be.a('string');
+        Marketing.find({ link }, function(err, docs) {
+          if (err) {
+            return done(err);
+          }
+          expect(docs.length).to.equal(0);
+          done();
+        });
+      });
+    });
 
-  //   });
-
-  //   it('should create a new referral if one does not exist', function(done) {
-
-  //   });
-
-  //   it('should issue recipient credit', function(done) {
-
-  //   });
-
-  // });
+  });
 
 });
