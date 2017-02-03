@@ -8,7 +8,8 @@ const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
 const {
   REFERRAL_AMOUNTS,
-  REFERRAL_TYPES
+  REFERRAL_TYPES,
+  CREDIT_TYPES
 } = require('../lib/constants');
 
 chai.use(chaiDate);
@@ -16,9 +17,11 @@ require('mongoose-types').loadTypes(mongoose);
 
 const ReferralSchema = require('../lib/models/referral');
 const MarketingSchema = require('../lib/models/marketing');
+const CreditSchema = require('../lib/models/credit');
 
 var Referral;
 var Marketing;
+var Credit;
 var connection;
 
 before(function(done) {
@@ -27,6 +30,7 @@ before(function(done) {
     function() {
       Referral = ReferralSchema(connection);
       Marketing =  MarketingSchema(connection);
+      Credit = CreditSchema(connection);
       done();
     }
   );
@@ -35,7 +39,9 @@ before(function(done) {
 after(function(done) {
   Referral.remove({}, function() {
     Marketing.remove({}, function() {
-      connection.close(done);
+      Credit.remove({}, function() {
+        connection.close(done);
+      });
     });
   });
 });
@@ -75,6 +81,69 @@ describe('Storage/models/referral', function() {
             }
           });
       });
+    });
+
+  });
+
+  describe('#storeCreditId', function() {
+    let marketing;
+    let referral;
+    let credit;
+
+    beforeEach(function(done) {
+      var newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL
+      });
+      Marketing.create('sender2@domain.tld', function(err, marketing1) {
+        if (err) {
+          return done(err);
+        }
+        marketing = marketing1;
+        Referral.create(marketing._id, 'recipient@a.com', 'email')
+          .then((referral1) => {
+            referral = referral1;
+            newCredit.save(function(err, credit1) {
+              if (err) {
+                return done(err);
+              }
+              credit = credit1;
+              done();
+            }).catch((err) => {
+              if (err) {
+                return done(err);
+              }
+            });
+          });
+      });
+    });
+
+    afterEach(function(done) {
+      Marketing.remove({}, function() {
+        Referral.remove({}, function() {
+          Credit.remove({}, function() {
+            done();
+          });
+        });
+      });
+    });
+
+    it('should store credit id for sender', function(done) {
+      referral.storeCreditId('sender', credit._id)
+        .then((referral) => {
+          expect(referral.sender.credit).to.equal(credit._id);
+          expect(referral.recipient.credit).to.be.undefined;
+          done();
+        }).catch((err) => err);
+    });
+
+    it('should store credit id for recipient', function(done) {
+      referral.storeCreditId('recipient', credit._id)
+        .then((referral) => {
+          expect(referral.recipient.credit).to.equal(credit._id);
+          expect(referral.sender.credit).to.be.undefined;
+          done();
+        });
     });
 
   });
