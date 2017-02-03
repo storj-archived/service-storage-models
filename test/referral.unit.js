@@ -1,6 +1,5 @@
 'use strict';
 
-const crypto = require('crypto');
 const errors = require('storj-service-error-types');
 const chai = require('chai');
 const expect = chai.expect;
@@ -46,10 +45,6 @@ after(function(done) {
   });
 });
 
-function sha256(i) {
-  return crypto.createHash('sha256').update(i).digest('hex');
-}
-
 const d = new Date();
 const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
@@ -82,6 +77,17 @@ describe('Storage/models/referral', function() {
               return done(err);
             }
           });
+      });
+    });
+
+    it('should fail with wrong referral type', function(done) {
+      Marketing.create('sender5@domain.tld', function(err, marketing) {
+        Referral.create(marketing._id, 'recipient@a.com', 'something')
+          .catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal('Referral validation failed');
+            done();
+          })
       });
     });
 
