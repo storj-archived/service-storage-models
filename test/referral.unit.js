@@ -166,7 +166,16 @@ describe('Storage/models/referral', function() {
   });
 
   describe('#convert_billed', function() {
-
+    it('should set converted.recipient_billed to today', function(done) {
+      Marketing.create('sender4@domain.tld', function(err, marketing) {
+        Referral.create(marketing._id, 'recipient@a.com', 'email')
+          .then((referral) => referral.convert_billed())
+          .then((referral) => {
+            expect(referral.converted.recipient_billed).to.equalDate(date);
+            done();
+          });
+      });
+    });
   });
 
 });
