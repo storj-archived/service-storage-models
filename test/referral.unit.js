@@ -1,5 +1,7 @@
 'use strict';
 
+/*jshint expr: true*/
+
 const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
@@ -86,7 +88,7 @@ describe('Storage/models/referral', function() {
             expect(err).to.be.an.instanceOf(Error);
             expect(err.message).to.equal('Referral validation failed');
             done();
-          })
+          });
       });
     });
 
