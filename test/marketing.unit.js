@@ -1,6 +1,5 @@
 'use strict';
 
-const errors = require('storj-service-error-types');
 const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
