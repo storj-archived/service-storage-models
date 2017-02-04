@@ -10,10 +10,8 @@ const ms = require('ms');
 require('mongoose-types').loadTypes(mongoose);
 
 const UserSchema = require('../lib/models/user');
-const MarketingSchema = require('../lib/models/marketing');
 
 var User;
-var Marketing;
 var connection;
 
 before(function(done) {
@@ -21,7 +19,6 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       User = UserSchema(connection);
-      Marketing = MarketingSchema(connection);
       done();
     }
   );
@@ -29,9 +26,7 @@ before(function(done) {
 
 after(function(done) {
   User.remove({}, function() {
-    Marketing.remove({}, function() {
-      connection.close(done);
-    });
+    connection.close(done);
   });
 });
 
