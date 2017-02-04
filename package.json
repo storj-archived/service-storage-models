@@ -42,8 +42,8 @@
     "mongoose-int32": "^0.1.0",
     "mongoose-types": "^1.0.3",
     "ms": "^0.7.1",
-    "storj-lib": "^6.0.12",
-    "storj-service-error-types": "^1.0.0",
+    "storj-lib": "^6.1.1",
+    "storj-service-error-types": "^1.1.0",
     "stripe": "^4.11.0"
   },
   "devDependencies": {
