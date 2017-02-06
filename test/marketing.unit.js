@@ -42,7 +42,7 @@ describe('/Storage/models/marketing', function() {
           return done(err);
         }
         expect(marketing.user).to.equal('user@domain.tld');
-        expect(marketing.link).to.be.a('string');
+        expect(marketing.referralLink).to.be.a('string');
         expect(marketing.created).to.equalDate(date);
         done();
       });
@@ -50,21 +50,21 @@ describe('/Storage/models/marketing', function() {
 
   });
 
-  describe('#_genLink', function() {
+  describe('#_genReferralLink', function() {
 
     it('should generate a referral link', function(done) {
-      const link = Marketing._genLink();
+      const link = Marketing._genReferralLink();
       expect(link).to.be.a('string');
       done();
     });
 
   });
 
-  describe('#_verifyNonDupLink', function() {
+  describe('#_verifyNonDupReferralLink', function() {
 
     it('should return link if link is unique', function(done) {
-      const linkIn = Marketing._genLink();
-      Marketing._verifyNonDupLink(linkIn, function(err, linkOut) {
+      const linkIn = Marketing._genReferralLink();
+      Marketing._verifyNonDupReferralLink(linkIn, function(err, linkOut) {
         if (err) {
           return done(err);
         }
@@ -78,10 +78,10 @@ describe('/Storage/models/marketing', function() {
         if (err) {
           return done(err);
         }
-        const dupLink = marketing.link;
-        Marketing._verifyNonDupLink(dupLink, function(err) {
+        const dupLink = marketing.referralLink;
+        Marketing._verifyNonDupReferralLink(dupLink, function(err) {
           expect(err).to.be.an.instanceOf(Error);
-          expect(err.message).to.equal('Duplicate link');
+          expect(err.message).to.equal('Duplicate referral link');
           done();
         });
       });
@@ -91,13 +91,13 @@ describe('/Storage/models/marketing', function() {
 
   describe('#_genAndVerify', function() {
 
-    it('should generate and verify link', function(done) {
-      Marketing._genAndVerify(function(err, link) {
+    it('should generate and verify referralLink', function(done) {
+      Marketing._genAndVerify(function(err, referralLink) {
         if (err) {
           return done(err);
         }
-        expect(link).to.be.a('string');
-        Marketing.find({ link }, function(err, docs) {
+        expect(referralLink).to.be.a('string');
+        Marketing.find({ referralLink }, function(err, docs) {
           if (err) {
             return done(err);
           }
