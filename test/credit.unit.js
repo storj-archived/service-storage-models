@@ -65,37 +65,6 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should convert non-null/non-currency to 0', function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        paid_amount: 'text',
-        invoiced_amount: '',
-        promo_amount: undefined
-      });
-
-      newCredit.save(function(err, credit) {
-        expect(err).to.not.be.instanceOf(Error);
-        expect(credit.paid_amount).to.equal(0);
-        expect(credit.invoiced_amount).to.equal(0);
-        expect(credit.promo_amount).to.equal(0);
-        done();
-      });
-    });
-
-    it('should reject null for currency types', function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        paid_amount: null
-      });
-
-      newCredit.save(function(err) {
-        expect(err).to.be.instanceOf(Error);
-        done();
-      });
-    });
-
     it('should fail if paid_amount > invoiced_amount', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
