@@ -6,15 +6,17 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
 
 const CreditSchema = require('../lib/models/credit');
-const constants = require('../lib/constants');
-const CREDIT_TYPES = constants.CREDIT_TYPES;
-const PAYMENT_PROCESSORS = constants.PAYMENT_PROCESSORS;
-const PROMO_CODES = constants.PROMO_CODES;
+const {
+  CREDIT_TYPES,
+  PAYMENT_PROCESSORS,
+  PROMO_CODES
+} = require('../lib/constants');
 
 var Credit;
 var connection;
@@ -54,6 +56,9 @@ describe('Storage/models/Credit', function() {
         expect(credit.user).to.equal('user@domain.tld');
         expect(credit.promo_code).to.equal(PROMO_CODES.NONE);
         expect(credit.promo_amount).to.equal(0);
+        expect(credit.promo_expires).to.equalDate(
+          moment.utc().add(1, 'year').toDate()
+        );
         expect(credit.paid).to.be.false;
         expect(credit.created).to.equalDate(date);
         expect(credit.payment_processor).to.equal(PAYMENT_PROCESSORS.DEFAULT);
@@ -202,6 +207,25 @@ describe('Storage/models/Credit', function() {
         expect(err).to.not.be.instanceOf(Error);
         expect(credit.promo_code).to.not.equal(PROMO_CODES.NONE);
         expect(credit.promo_amount).to.be.above(0);
+        done();
+      });
+    });
+
+    it('should set promo_expires one year from today', function(done) {
+      var newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_code: 'signup',
+        promo_amount: 10
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.promo_expires).to.equalDate(
+          moment.utc().add(1, 'year').toDate()
+        );
         done();
       });
     });
