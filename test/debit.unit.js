@@ -88,19 +88,6 @@ describe('Storage/models/Debit', function() {
       });
     });
 
-    it('should reject null for amount', function(done) {
-      var newDebit = new Debit({
-        user: 'user@domain.tld',
-        type: DEBIT_TYPES.STORAGE,
-        amount: null
-      });
-
-      newDebit.save(function(err) {
-        expect(err).to.be.an.instanceOf(Error);
-        done();
-      });
-    });
-
     it('should not create null or undefined debit amount (no default)',
       function(done) {
         var newDebit = new Debit({
