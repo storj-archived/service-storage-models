@@ -7,7 +7,7 @@ require('dotenv').config({ silent: true });
 
 require('mongoose-types').loadTypes(mongoose);
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = require('bluebird');
 
 /**
  * MongoDB storage interface

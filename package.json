@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/Storj/service-storage-models#readme",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "dotenv": "^2.0.0",
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
