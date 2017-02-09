@@ -15,7 +15,8 @@ const CreditSchema = require('../lib/models/credit');
 const {
   CREDIT_TYPES,
   PAYMENT_PROCESSORS,
-  PROMO_CODES
+  PROMO_CODE,
+  PROMO_EXPIRES
 } = require('../lib/constants');
 
 var Credit;
@@ -54,7 +55,7 @@ describe('Storage/models/Credit', function() {
         expect(credit.paid_amount).to.equal(0);
         expect(credit.invoiced_amount).to.equal(0);
         expect(credit.user).to.equal('user@domain.tld');
-        expect(credit.promo_code).to.equal(PROMO_CODES.NONE);
+        expect(credit.promo_code).to.equal(PROMO_CODE.NONE);
         expect(credit.promo_amount).to.equal(0);
         expect(credit.promo_expires).to.equalDate(
           moment.utc().add(1, 'year').toDate()
@@ -183,13 +184,13 @@ describe('Storage/models/Credit', function() {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
-        promo_code: PROMO_CODES.NONE,
+        promo_code: PROMO_CODE.NONE,
         promo_amount: 0
       });
 
       newCredit.save(function(err, credit) {
         expect(err).to.not.be.instanceOf(Error);
-        expect(credit.promo_code).to.equal(PROMO_CODES.NONE);
+        expect(credit.promo_code).to.equal(PROMO_CODE.NONE);
         expect(credit.promo_amount).to.equal(0);
         done();
       });
@@ -205,13 +206,13 @@ describe('Storage/models/Credit', function() {
 
       newCredit.save(function(err, credit) {
         expect(err).to.not.be.instanceOf(Error);
-        expect(credit.promo_code).to.not.equal(PROMO_CODES.NONE);
+        expect(credit.promo_code).to.not.equal(PROMO_CODE.NONE);
         expect(credit.promo_amount).to.be.above(0);
         done();
       });
     });
 
-    it('should set promo_expires one year from today', function(done) {
+    it('should set promo_expires to default time', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -223,9 +224,7 @@ describe('Storage/models/Credit', function() {
         if (err) {
           return done(err);
         }
-        expect(credit.promo_expires).to.equalDate(
-          moment.utc().add(1, 'year').toDate()
-        );
+        expect(credit.promo_expires).to.equalDate(PROMO_EXPIRES.DEFAULT);
         done();
       });
     });
