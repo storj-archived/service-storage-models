@@ -22,7 +22,9 @@ cache:
     - node_modules
 
 before_script:
+  - which yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
+  - which yarn
   - yarn install
 
 after_script:
