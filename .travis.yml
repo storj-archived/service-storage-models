@@ -18,8 +18,11 @@ addons:
 
 cache:
   yarn: true
+  directories:
+    - node_modules
 
 before_script:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash
   - yarn install
 
 after_script:
