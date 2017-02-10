@@ -21,7 +21,7 @@ cache:
   directories:
     - node_modules
 
-before_script:
+before_install:
   - which yarn
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - which yarn
