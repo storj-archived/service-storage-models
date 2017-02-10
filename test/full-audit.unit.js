@@ -2,9 +2,29 @@
 
 const expect = require('chai').expect;
 const Mongoose = require('mongoose');
-const FullAudit = require('../lib/models/full-audit');
+const Shard = require('../lib/models/shard');
+const proxyquire = require('proxyquire');
+
+var FullAudit = proxyquire('../lib/models/full-audit', {
+  'storj-lib': {
+    AuditStream: {
+      fromRecords: (chall, tree) => {
+        return {
+          getPrivateRecord: () => {
+            return {
+              root: 'test',
+              depth: 'test',
+              challenges: [1,2,3]
+            };
+          }
+        };
+      }
+    }
+  }
+});
 
 var auditModel;
+var shardModel;
 var connection;
 
 before((done) => {
@@ -12,6 +32,7 @@ before((done) => {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     () => {
       auditModel = FullAudit(connection);
+      shardModel = Shard(connection);
       done();
     }
   );
@@ -74,6 +95,41 @@ describe('FullAudit', function() {
     });
   });
 
+  describe('scheduleFullAuditsFromShard', function() {
+    it('should create a schedule of audits from a given shard hash', (done) => {
+      let fakeShard = {
+        hash: '123',
+        contracts: [
+          {
+            store_begin: '0',
+            store_end: '8',
+            farmer_id: 'test',
+            data_hash: 'test'
+          }
+        ],
+        trees: [{nodeID: 'test', anyProp: 'test'}],
+        challenges: [{nodeID: 'test', anyProp: 'test'}]
+      };
+
+      shardModel.create(fakeShard, (err, shard) => {
+        auditModel.scheduleFullAuditsFromShard(
+          shardModel,
+          '123',
+          (err, docsArr) => {
+            expect(docsArr.length).to.equal(3);
+            expect(docsArr[0].ts).to.exist;
+            expect(docsArr[0].farmer_id).to.exist;
+            expect(docsArr[0].data_hash).to.exist;
+            expect(docsArr[0].root).to.exist;
+            expect(docsArr[0].depth).to.exist;
+            expect(docsArr[0].challenge).to.exist;
+            done();
+          }
+        );
+      });
+    });
+  });
+
   describe('defaultScheduleTransform', function() {
     it('should schedule audits at an evenly distributed, rounded, interval',
       () => {
@@ -107,7 +163,7 @@ describe('FullAudit', function() {
             docs.push(doc);
           });
           cursor.on('end', () => {
-            expect(docs.length).to.equal(6);
+            expect(docs.length).to.equal(9);
             done();
           });
         });
