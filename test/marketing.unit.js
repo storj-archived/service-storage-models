@@ -118,7 +118,7 @@ describe('/Storage/models/marketing', function() {
         }
         Marketing.isValidReferralLink(marketing.referralLink)
           .then((result) => {
-            expect(result.marketing).to.equal(marketing.referralLink);
+            expect(result.referralLink).to.equal(marketing.referralLink);
             done();
           });
       });
