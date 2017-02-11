@@ -7,9 +7,8 @@ const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
 const {
-  REFERRAL_AMOUNTS,
-  REFERRAL_TYPES,
-  CREDIT_TYPES
+  PROMO_AMOUNT,
+  REFERRAL_TYPES
 } = require('../lib/constants');
 
 chai.use(chaiDate);
@@ -55,16 +54,16 @@ describe('Storage/models/referral', function() {
 
     it('should create a new referral with default props', function(done) {
       Marketing.create('sender@domain.tld', function(err, marketing) {
-        Referral.create(marketing._id, 'recipient@a.com', 'email')
+        Referral.create(marketing, 'recipient@a.com', 'email')
           .then((referral) => {
             expect(referral.sender.id).to.equal(marketing._id);
             expect(referral.sender.amount_to_credit)
-              .to.equal(REFERRAL_AMOUNTS.SENDER_DEFAULT);
-            expect(referral.recipient.id).to.equal('recipient@a.com');
+              .to.equal(PROMO_AMOUNT.REFERRAL_SENDER);
+            expect(referral.recipient.email).to.equal('recipient@a.com');
             expect(referral.recipient.amount_to_credit)
-              .to.equal(REFERRAL_AMOUNTS.RECIPIENT_DEFAULT);
+              .to.equal(PROMO_AMOUNT.REFERRAL_RECIPIENT);
             expect(referral.recipient.min_billed_requirement)
-              .to.equal(REFERRAL_AMOUNTS.MIN_BILLED_REQUIREMENT_DEFAULT);
+              .to.equal(PROMO_AMOUNT.MIN_BILLED_REQUIREMENT_DEFAULT);
             expect(referral.created).to.equalDate(date);
             expect(referral.converted.recipient_signup).to.be.undefined;
             expect(referral.converted.recipient_billed).to.be.undfined;
@@ -83,7 +82,7 @@ describe('Storage/models/referral', function() {
 
     it('should fail with wrong referral type', function(done) {
       Marketing.create('sender5@domain.tld', function(err, marketing) {
-        Referral.create(marketing._id, 'recipient@a.com', 'something')
+        Referral.create(marketing, 'recipient@a.com', 'something')
           .catch((err) => {
             expect(err).to.be.an.instanceOf(Error);
             expect(err.message).to.equal('Referral validation failed');
@@ -94,74 +93,11 @@ describe('Storage/models/referral', function() {
 
   });
 
-  describe('#storeCreditId', function() {
-    let marketing;
-    let referral;
-    let credit;
-
-    beforeEach(function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL
-      });
-      Marketing.create('sender2@domain.tld', function(err, marketing1) {
-        if (err) {
-          return done(err);
-        }
-        marketing = marketing1;
-        Referral.create(marketing._id, 'recipient@a.com', 'email')
-          .then((referral1) => {
-            referral = referral1;
-            newCredit.save(function(err, credit1) {
-              if (err) {
-                return done(err);
-              }
-              credit = credit1;
-              done();
-            }).catch((err) => {
-              if (err) {
-                return done(err);
-              }
-            });
-          });
-      });
-    });
-
-    afterEach(function(done) {
-      Marketing.remove({}, function() {
-        Referral.remove({}, function() {
-          Credit.remove({}, function() {
-            done();
-          });
-        });
-      });
-    });
-
-    it('should store credit id for sender', function(done) {
-      referral.storeCreditId('sender', credit._id)
-        .then((referral) => {
-          expect(referral.sender.credit).to.equal(credit._id);
-          expect(referral.recipient.credit).to.be.undefined;
-          done();
-        }).catch((err) => err);
-    });
-
-    it('should store credit id for recipient', function(done) {
-      referral.storeCreditId('recipient', credit._id)
-        .then((referral) => {
-          expect(referral.recipient.credit).to.equal(credit._id);
-          expect(referral.sender.credit).to.be.undefined;
-          done();
-        });
-    });
-
-  });
-
   describe('#convert_signup', function() {
 
     it('should set converted.recipient_signup to today', function(done) {
       Marketing.create('sender3@domain.tld', function(err, marketing) {
-        Referral.create(marketing._id, 'recipient@a.com', 'email')
+        Referral.create(marketing, 'recipient@a.com', 'email')
           .then((referral) => referral.convert_signup())
           .then((referral) => {
             expect(referral.converted.recipient_signup).to.equalDate(date);
@@ -170,19 +106,6 @@ describe('Storage/models/referral', function() {
       });
     });
 
-  });
-
-  describe('#convert_billed', function() {
-    it('should set converted.recipient_billed to today', function(done) {
-      Marketing.create('sender4@domain.tld', function(err, marketing) {
-        Referral.create(marketing._id, 'recipient@a.com', 'email')
-          .then((referral) => referral.convert_billed())
-          .then((referral) => {
-            expect(referral.converted.recipient_billed).to.equalDate(date);
-            done();
-          });
-      });
-    });
   });
 
 });

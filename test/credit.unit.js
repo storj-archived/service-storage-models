@@ -6,15 +6,19 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
 
 const CreditSchema = require('../lib/models/credit');
-const constants = require('../lib/constants');
-const CREDIT_TYPES = constants.CREDIT_TYPES;
-const PAYMENT_PROCESSORS = constants.PAYMENT_PROCESSORS;
-const PROMO_CODES = constants.PROMO_CODES;
+const {
+  CREDIT_TYPES,
+  PAYMENT_PROCESSORS,
+  PROMO_CODE,
+  PROMO_EXPIRES,
+  PROMO_AMOUNT
+} = require('../lib/constants');
 
 var Credit;
 var connection;
@@ -52,8 +56,6 @@ describe('Storage/models/Credit', function() {
         expect(credit.paid_amount).to.equal(0);
         expect(credit.invoiced_amount).to.equal(0);
         expect(credit.user).to.equal('user@domain.tld');
-        expect(credit.promo_code).to.equal(PROMO_CODES.NONE);
-        expect(credit.promo_amount).to.equal(0);
         expect(credit.paid).to.be.false;
         expect(credit.created).to.equalDate(date);
         expect(credit.payment_processor).to.equal(PAYMENT_PROCESSORS.DEFAULT);
@@ -163,47 +165,35 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should reject if promo_amount is negative', function(done) {
+    it('should have promo_code if promo_amount is > 0', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
-        promo_amount: -100
-      });
-
-      newCredit.save(function(err) {
-        expect(err).to.be.instanceOf(Error);
-        done();
-      });
-    });
-
-    it('should have "none" promo_code if promo_amount is equal to 0', function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        promo_code: PROMO_CODES.NONE,
-        promo_amount: 0
+        promo_code: PROMO_CODE.NEW_SIGNUP,
+        promo_amount: 1
       });
 
       newCredit.save(function(err, credit) {
         expect(err).to.not.be.instanceOf(Error);
-        expect(credit.promo_code).to.equal(PROMO_CODES.NONE);
-        expect(credit.promo_amount).to.equal(0);
+        expect(credit.promo_code).to.equal(PROMO_CODE.NEW_SIGNUP);
+        expect(credit.promo_amount).to.equal(1);
         done();
       });
     });
 
-    it('should have other promo_code if promo_amount is greater than 0', function(done) {
+    it('should have valid promo_code if promo_amount is > 0', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
-        promo_code: 'other',
-        promo_amount: 10
+        promo_code: PROMO_CODE.NEW_SIGNUP,
+        promo_amount: PROMO_AMOUNT.NEW_SIGNUP
       });
 
       newCredit.save(function(err, credit) {
         expect(err).to.not.be.instanceOf(Error);
-        expect(credit.promo_code).to.not.equal(PROMO_CODES.NONE);
+        expect(credit.promo_code).to.equal(PROMO_CODE.NEW_SIGNUP);
         expect(credit.promo_amount).to.be.above(0);
+        expect(credit.promo_amount).to.equal(PROMO_AMOUNT.NEW_SIGNUP);
         done();
       });
     });

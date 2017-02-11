@@ -60,11 +60,11 @@ describe('/Storage/models/marketing', function() {
 
   });
 
-  describe('#_verifyNonDupReferralLink', function() {
+  describe('#_verifyReferralLink', function() {
 
     it('should return link if link is unique', function(done) {
       const linkIn = Marketing._genReferralLink();
-      Marketing._verifyNonDupReferralLink(linkIn, function(err, linkOut) {
+      Marketing._verifyReferralLink(linkIn, function(err, linkOut) {
         if (err) {
           return done(err);
         }
@@ -79,7 +79,7 @@ describe('/Storage/models/marketing', function() {
           return done(err);
         }
         const dupLink = marketing.referralLink;
-        Marketing._verifyNonDupReferralLink(dupLink, function(err) {
+        Marketing._verifyReferralLink(dupLink, function(err) {
           expect(err).to.be.an.instanceOf(Error);
           expect(err.message).to.equal('Duplicate referral link');
           done();
@@ -105,6 +105,32 @@ describe('/Storage/models/marketing', function() {
           done();
         });
       });
+    });
+
+  });
+
+  describe('#isValidReferralLink', function() {
+
+    it('should return referral link if valid', function(done) {
+      Marketing.create('user2@hai.tld', function(err, marketing) {
+        if (err) {
+          return done(err);
+        }
+        Marketing.isValidReferralLink(marketing.referralLink)
+          .then((result) => {
+            expect(result).to.equal(marketing.referralLink);
+            done();
+          });
+      });
+    });
+
+    it('should fail if referral link is invalid', function(done) {
+      Marketing.isValidReferralLink('invalid-link-123')
+        .catch((err) => {
+          expect(err).to.be.an.instanceOf(Error);
+          expect(err.message).to.equal('Invalid referral link');
+          done();
+        });
     });
 
   });
