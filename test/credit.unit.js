@@ -91,7 +91,9 @@ describe('Storage/models/Credit', function() {
       });
 
       newCredit.save(function(err, credit) {
-        expect(err).to.not.be.instanceOf(Error);
+        if (err) {
+          return done(err);
+        }
         expect(credit.paid_amount).to.equal(credit.invoiced_amount);
         expect(credit.paid).to.be.true;
         done();
