@@ -161,19 +161,6 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should reject if promo_amount is negative', function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        promo_amount: -100
-      });
-
-      newCredit.save(function(err) {
-        expect(err).to.be.instanceOf(Error);
-        done();
-      });
-    });
-
     it('should have "none" promo_code if promo_amount is equal to 0', function(done) {
       var newCredit = new Credit({
         user: 'user@domain.tld',
