@@ -7,8 +7,11 @@ const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
 const {
+  PROMO_CODE,
+  PROMO_EXPIRES,
   PROMO_AMOUNT,
-  REFERRAL_TYPES
+  REFERRAL_TYPES,
+  CREDIT_TYPES
 } = require('../lib/constants');
 
 chai.use(chaiDate);
@@ -91,21 +94,76 @@ describe('Storage/models/referral', function() {
       });
     });
 
+    it('should reject invalid email', function(done) {
+      Marketing.create('sender6@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'wrongemail.com', 'email')
+          .catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal('Invalid email');
+            done();
+          });
+      });
+    });
+
   });
 
-  // describe('#convert_signup', function() {
+  describe('#convert_receipient_signup', function() {
 
-  //   it('should set converted.recipient_signup to today', function(done) {
-  //     Marketing.create('sender3@domain.tld', function(err, marketing) {
-  //       Referral.create(marketing, 'recipient@a.com', 'email')
-  //         .then((referral) => referral.convert_receipient_signup())
-  //         .then((referral) => {
-  //           expect(referral.converted.recipient_signup).to.equalDate(date);
-  //           done();
-  //         });
-  //     });
-  //   });
+    it('should set converted.recipient_signup to today', function(done) {
+      Marketing.create('sender3@domain.tld', function(err, marketing) {
+        const newCredit = new Credit({
+          user: 'recipient@a.com',
+          type: CREDIT_TYPES.AUTO,
+          promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
+          promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+        });
 
-  // });
+        newCredit.save().then((credit) => {
+          Referral.create(marketing, 'recipient@a.com', 'email')
+            .then((referral) => referral.convert_recipient_signup(credit))
+            .then((referral) => {
+              expect(referral.converted.recipient_signup)
+                .to.equalDate(credit.created);
+              done();
+            });
+        });
+      });
+    });
+
+    it('should set recipient.referral.credit to credit._id', function(done) {
+      Marketing.create('sender4@domain.tld', function(err, marketing) {
+        const newCredit = new Credit({
+          user: 'recipient2@a.com',
+          type: CREDIT_TYPES.AUTO,
+          promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
+          promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+        });
+
+        newCredit.save().then((credit) => {
+          Referral.create(marketing, 'recipient2@a.com', 'email')
+            .then((referral) => referral.convert_recipient_signup(credit))
+            .then((referral) => {
+              expect(referral.recipient.credit).to.equal(credit._id);
+              done();
+            });
+        });
+      });
+    });
+
+    it('should reject if no !credit', function(done) {
+      Marketing.create('sende54@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient2@a.com', 'email')
+          .then((referral) => referral.convert_recipient_signup(null))
+          .catch((err) => {
+            expect(err).to.be.an.instanceOf(Error);
+            expect(err.message).to.equal('Must pass in valid credit');
+            done();
+          });
+      });
+    });
+
+  });
 
 });
