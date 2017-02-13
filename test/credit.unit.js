@@ -6,7 +6,6 @@ const chai = require('chai');
 const expect = chai.expect;
 const chaiDate = require('chai-datetime');
 const mongoose = require('mongoose');
-const moment = require('moment');
 
 chai.use(chaiDate);
 require('mongoose-types').loadTypes(mongoose);
@@ -67,6 +66,80 @@ describe('Storage/models/Credit', function() {
       });
     });
 
+    it('should allow mixed data types for data field', function(done) {
+      var newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        data: null
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.data).to.be.null;
+
+        Credit.findOneAndUpdate(
+          { _id: credit._id },
+          { data: 'I am a string' },
+          { new: true },
+          function(err, modifiedCredit) {
+            expect(err).to.not.be.instanceOf(Error);
+            expect(modifiedCredit.data).to.be.a('string');
+
+            Credit.findOneAndUpdate(
+              { _id: credit._id },
+              { data: ['I', 'am', 'an', 'Array'] },
+              { new: true },
+              function(err, modifiedCredit) {
+                expect(err).to.not.be.instanceOf(Error);
+                expect(modifiedCredit.data).to.be.an('array');
+                done();
+              }
+            );
+          }
+        );
+      });
+    });
+
+    it('should reject if paid_amount is negative', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        paid_amount: -100
+      });
+
+      newCredit.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Credit validation failed');
+        done();
+      });
+    });
+
+    it('should reject if invoiced_amount is negative', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        invoiced_amount: -100
+      });
+
+      newCredit.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        // NB: This error supercedes 'Credit validation failed' because, at
+        // this point, paid_amount is 0 and is > than invoiced_amount, and it
+        // returns an error before reaching the 'credit validation failed' for
+        // negative amounts
+        expect(err.message).to.equal(
+          'paid_amount cannot be greater than invoiced_amount'
+        );
+        done();
+      });
+    });
+
+  });
+
+  describe('#create - paid_amount and invoiced_amount relations', function() {
+
     it('should fail if trying to save paid without invoiced', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
@@ -74,7 +147,7 @@ describe('Storage/models/Credit', function() {
         paid_amount: 10
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'paid_amount cannot be greater than invoiced_amount'
@@ -91,7 +164,7 @@ describe('Storage/models/Credit', function() {
         invoiced_amount: 10
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'paid_amount cannot be greater than invoiced_amount'
@@ -115,7 +188,7 @@ describe('Storage/models/Credit', function() {
         expect(credit.invoiced_amount).to.equal(credit.paid_amount);
         expect(credit.paid).to.be.true;
         done();
-      })
+      });
     });
 
     it('should set paid=false if paid!=invoiced && both > 0', function(done) {
@@ -136,6 +209,46 @@ describe('Storage/models/Credit', function() {
       });
     });
 
+    it('cannot set paid:true if paid_amount !== invoiced_amount',
+      function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        paid: true,
+        paid_amount: 70,
+        invoiced_amount: 100
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.paid).to.be.false;
+        done();
+      });
+    });
+
+    it('should have paid:false if paid_amount is 0', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        paid_amount: 0,
+        invoiced_amount: 100
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.paid).to.be.false;
+        done();
+      });
+    });
+
+  });
+
+  describe('#create - promo vs paid_amount/invoiced_amount', function() {
+
     it('should fail if trying to save invoice and promo', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
@@ -144,7 +257,7 @@ describe('Storage/models/Credit', function() {
         promo_amount: 10
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'promo_amount cannot exist with invoiced_amount and/or paid_amount'
@@ -161,7 +274,7 @@ describe('Storage/models/Credit', function() {
         promo_amount: 10
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'promo_amount cannot exist with invoiced_amount and/or paid_amount'
@@ -210,75 +323,13 @@ describe('Storage/models/Credit', function() {
         expect(credit.promo_amount).to.be.NaN;
         expect(credit.promo_code).to.be.NaN;
         expect(credit.promo_expires).to.be.undefined;
-        done()
-      });
-    });
-
-    it('cannot set paid: true if paid_amount !== invoiced_amount',
-      function(done) {
-      const newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        paid: true,
-        paid_amount: 70,
-        invoiced_amount: 100
-      });
-
-      newCredit.save(function(err, credit) {
-        if (err) {
-          return done(err);
-        }
-        expect(credit.paid).to.be.false;
         done();
       });
     });
 
-    it('should have paid:false if paid_amount is 0', function(done) {
-      const newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        paid_amount: 0,
-        invoiced_amount: 100
-      });
+  });
 
-      newCredit.save(function(err, credit) {
-        if (err) {
-          return done(err);
-        }
-        expect(credit.paid).to.be.false;
-        done();
-      });
-    });
-
-    it('should reject if paid_amount is negative', function(done) {
-      const newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        paid_amount: -100
-      });
-
-      newCredit.save(function(err) {
-        expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Credit validation failed');
-        done();
-      });
-    });
-
-    it('should reject if invoiced_amount is negative', function(done) {
-      const newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        invoiced_amount: -100
-      });
-
-      newCredit.save(function(err) {
-        expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal(
-          'paid_amount cannot be greater than invoiced_amount'
-        );
-        done();
-      });
-    });
+  describe('#create - promo validations', function() {
 
     it('should have promo_code if promo_amount is > 0', function(done) {
       const newCredit = new Credit({
@@ -312,7 +363,7 @@ describe('Storage/models/Credit', function() {
           'promo_amount must have valid promo_code'
         );
         done();
-      })
+      });
     });
 
     it('should fail if promo_amount>0 && invalid promo_code', function(done) {
@@ -324,7 +375,7 @@ describe('Storage/models/Credit', function() {
         promo_expires: PROMO_CODE.NEW_SIGNUP
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal('Credit validation failed');
         done();
@@ -359,48 +410,12 @@ describe('Storage/models/Credit', function() {
         promo_amount: PROMO_AMOUNT.NEW_SIGNUP,
       });
 
-      newCredit.save(function(err, credit) {
+      newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'promo_amount must have accompanying promo_expires date field'
         );
         done();
-      });
-    });
-
-    it('should allow mixed data types for data field', function(done) {
-      var newCredit = new Credit({
-        user: 'user@domain.tld',
-        type: CREDIT_TYPES.MANUAL,
-        data: null
-      });
-
-      newCredit.save(function(err, credit) {
-        if (err) {
-          return done(err);
-        }
-        expect(credit.data).to.be.null;
-
-        Credit.findOneAndUpdate(
-          { _id: credit._id },
-          { data: 'I am a string' },
-          { new: true },
-          function(err, modifiedCredit) {
-            expect(err).to.not.be.instanceOf(Error);
-            expect(modifiedCredit.data).to.be.a('string');
-
-            Credit.findOneAndUpdate(
-              { _id: credit._id },
-              { data: ['I', 'am', 'an', 'Array'] },
-              { new: true },
-              function(err, modifiedCredit) {
-                expect(err).to.not.be.instanceOf(Error);
-                expect(modifiedCredit.data).to.be.an('array');
-                done();
-              }
-            );
-          }
-        );
       });
     });
 
