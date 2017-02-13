@@ -48,6 +48,16 @@ describe('/Storage/models/marketing', function() {
       });
     });
 
+    it('should only create one marketing doc per user', function(done) {
+      Marketing.create('user@domain.tld', function(err) {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal(
+          'Marketing doc already exists for user user@domain.tld'
+        );
+        done();
+      });
+    });
+
   });
 
   describe('#_genReferralLink', function() {
