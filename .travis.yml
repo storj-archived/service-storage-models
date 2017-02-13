@@ -1,8 +1,12 @@
 language: node_js
 node_js:
   - "6.9.1"
+
+sudo: required
+
 services:
   - mongodb
+
 addons:
   apt:
     sources:
@@ -11,6 +15,15 @@ addons:
     packages:
       - mongodb-org-server
       - mongodb-org-shell
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
+install:
+  - npm install
+
 after_script:
   - npm run coverage
   - cat ./coverage/lcov.info | ./node_modules/.bin/coveralls
