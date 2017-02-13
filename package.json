@@ -1,13 +1,13 @@
 {
   "name": "storj-service-storage-models",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "npm run testsuite && npm run linter",
+    "test": "npm run coverage && npm run linter",
     "testsuite": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/mocha test/** --recursive",
     "coverage": "STORJ_ALLOW_LOOPBACK=1 ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --recursive",
     "linter": "./node_modules/.bin/jshint --config .jshintrc ./index.js ./lib ./test",
@@ -59,11 +59,5 @@
     "mocha": "^3.0.2",
     "mocha-lcov-reporter": "^1.2.0",
     "sinon": "^1.17.6"
-  },
-  "devopsBase": {
-    "npmLinkDeps": {
-      "storj-lib": "core",
-      "storj-service-error-types": "service-error-types"
-    }
   }
 }

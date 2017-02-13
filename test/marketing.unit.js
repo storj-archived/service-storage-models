@@ -48,6 +48,16 @@ describe('/Storage/models/marketing', function() {
       });
     });
 
+    it('should only create one marketing doc per user', function(done) {
+      Marketing.create('user@domain.tld', function(err) {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal(
+          'Marketing doc already exists for user user@domain.tld'
+        );
+        done();
+      });
+    });
+
   });
 
   describe('#_genReferralLink', function() {
@@ -118,7 +128,7 @@ describe('/Storage/models/marketing', function() {
         }
         Marketing.isValidReferralLink(marketing.referralLink)
           .then((result) => {
-            expect(result).to.equal(marketing.referralLink);
+            expect(result.referralLink).to.equal(marketing.referralLink);
             done();
           });
       });

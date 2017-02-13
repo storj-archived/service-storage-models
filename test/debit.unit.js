@@ -68,7 +68,7 @@ describe('Storage/models/Debit', function() {
       });
 
       newDebit.save(function(err, debit) {
-        if(err) {
+        if (err) {
           return done(err);
         }
         expect(debit.amount).to.equal(Math.round(debitAmount * 10000) / 10000);
@@ -79,16 +79,31 @@ describe('Storage/models/Debit', function() {
     it('should reject type if not enum', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
-        type: 'NOT-A-DEBIT-ENUM'
+        type: 'NOT-A-DEBIT-ENUM',
+        amount: 0
       });
 
       newDebit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Debit validation failed');
         done();
       });
     });
 
-    it('should not create null or undefined debit amount (no default)',
+    it('shouldn\'t save null for amount', function(done) {
+      var newDebit = new Debit({
+        user: 'user@domain.tld',
+        type: DEBIT_TYPES.STORAGE,
+        amount: null
+      });
+
+      newDebit.save(function(err, debit) {
+        expect(debit.amount).to.equal(0);
+        done();
+      });
+    });
+
+    it('should not undefined debit amount (no default)',
       function(done) {
         var newDebit = new Debit({
           user: 'user@domain.tld',
@@ -98,19 +113,35 @@ describe('Storage/models/Debit', function() {
 
         newDebit.save(function(err) {
           expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Amount must be a number');
           done();
         });
+    });
+
+    it('should fail without amount', function(done) {
+      var newDebit = new Debit({
+        user: 'user@domain.tld',
+        type: DEBIT_TYPES.STORAGE
+      });
+
+      newDebit.save(function(err) {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('Amount must be a number');
+        done();
+      });
     });
 
     it('should fail if bandwidth is not an integer', function(done) {
       var newDebit = new Debit({
         user: 'user@domain.tld',
         type: DEBIT_TYPES.STORAGE,
-        bandwidth: 'I am not an integer'
+        bandwidth: 'I am not an integer',
+        amount: 123
       });
 
       newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('Debit validation failed');
         done();
       });
     });
@@ -119,11 +150,13 @@ describe('Storage/models/Debit', function() {
       var newDebit = new Debit({
         user: 'user@domain.tld',
         type: DEBIT_TYPES.STORAGE,
+        amount: 123,
         storage: {}
       });
 
       newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('Debit validation failed');
         done();
       });
     });
