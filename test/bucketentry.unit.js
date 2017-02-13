@@ -64,6 +64,27 @@ describe('Storage/models/BucketEntry', function() {
     });
   });
 
+  it('should create the bucket entry with id', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket3' },
+    function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        expect(err).to.not.be.instanceOf(Error);
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          id: 'ed6c1becbcef808463e4d38b58d5d310115e42ca',
+          name: 'test2.txt',
+          mimetype: 'text/plain'
+        }, function(err, entry) {
+          expect(entry.filename).to.equal('test2.txt');
+          expect(entry.id).to.equal('ed6c1becbcef808463e4d38b58d5d310115e42ca');
+          done();
+        });
+      });
+    });
+  });
+
   it('should replace a duplicate name in this same bucket', function(done) {
     var frame = new Frame({
 
