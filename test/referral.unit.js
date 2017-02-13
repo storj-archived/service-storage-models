@@ -109,7 +109,7 @@ describe('Storage/models/referral', function() {
 
   describe('#convert_receipient_signup', function() {
 
-    it('should set converted.recipient_signup to today', function(done) {
+    it('should set convert.recipient_signup to today', function(done) {
       Marketing.create('sender3@domain.tld', function(err, marketing) {
         const newCredit = new Credit({
           user: 'recipient@a.com',
