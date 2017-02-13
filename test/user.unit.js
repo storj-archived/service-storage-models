@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 const errors = require('storj-service-error-types');
-const expect = require('chai').expect;
+const { expect } = require('chai');
 const mongoose = require('mongoose');
 const sinon = require('sinon');
 const ms = require('ms');
@@ -140,7 +140,6 @@ describe('Storage/models/User', function() {
       });
     });
   });
-
 
   /* jshint ignore: start */
   /* ignoring: too many statements */

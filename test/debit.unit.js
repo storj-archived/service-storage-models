@@ -113,9 +113,9 @@ describe('Storage/models/Debit', function() {
       newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal('Amount must be a number');
-        done()
-      })
-    })
+        done();
+      });
+    });
 
     it('should fail if bandwidth is not an integer', function(done) {
       var newDebit = new Debit({
