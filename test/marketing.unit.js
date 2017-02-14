@@ -29,7 +29,7 @@ after(function(done) {
   });
 });
 
-describe('/Storage/models/marketing', function() {
+describe('/Storage/models/Marketing', function() {
 
   describe('#create', function() {
 

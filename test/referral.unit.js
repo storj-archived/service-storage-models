@@ -51,7 +51,7 @@ after(function(done) {
 const d = new Date();
 const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-describe('Storage/models/referral', function() {
+describe('Storage/models/Referral', function() {
 
   describe('#create', function() {
 
