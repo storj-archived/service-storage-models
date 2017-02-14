@@ -195,4 +195,90 @@ describe('Storage/models/Referral', function() {
 
   });
 
+  describe('#pre-save', function() {
+
+    it('should fail trying to save sender credit prematurely', function(done) {
+      Marketing.create('sender7@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@b.com', 'email')
+          .then((referral) => {
+            // just pass in any ObjectId so it passes validation
+            referral.sender.credit = marketing._id;
+            referral.save()
+              .catch((err) => {
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal(
+                  'converted.recipient_billed must exist with sender.credit'
+                );
+                done();
+              });
+          });
+      });
+    });
+
+    it('should move on if recipient_billed validation passes', function(done) {
+      Marketing.create('sender8@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@b.com', 'email')
+          .then((referral) => {
+            const recipientCredit = new Credit({
+              user: 'recipient@b.com',
+              type: CREDIT_TYPES.AUTO,
+              promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
+              promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+            });
+
+            const senderCredit = new Credit({
+              user: 'sender8@domain.tld',
+              type: CREDIT_TYPES.AUTO,
+              promo_amount: PROMO_AMOUNT.REFERRAL_SENDER,
+              promo_expires: PROMO_EXPIRES.REFERRAL_SENDER,
+              promo_code: PROMO_CODE.REFERRAL_SENDER
+            });
+
+            recipientCredit.save().then((recipientCredit) => {
+              senderCredit.save().then((senderCredit) => {
+
+                referral.sender.credit = senderCredit._id;
+                referral.recipient.credit = recipientCredit._id;
+                referral.converted.recipient_signup = recipientCredit.created;
+                referral.converted.recipient_billed = senderCredit.created;
+
+                referral.save().then(() => done());
+              });
+            });
+          });
+      });
+    });
+
+    it('should fail if recipient_billed validation fails', function(done) {
+      Marketing.create('sender19@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@b.com', 'email')
+          .then((referral) => {
+            const recipientCredit = new Credit({
+              user: 'recipient@b.com',
+              type: CREDIT_TYPES.AUTO,
+              promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
+              promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+            });
+
+            recipientCredit.save().then((recipientCredit) => {
+              referral.recipient.credit = recipientCredit._id;
+              referral.converted.recipient_signup = recipientCredit.created;
+              referral.converted.recipient_billed = new Date();
+
+              referral.save().catch((err) => {
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal(
+                  'Error validating referral doc - converted dates and credits'
+                );
+                done();
+              });
+            });
+          });
+      });
+    });
+
+  });
+
 });
