@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
