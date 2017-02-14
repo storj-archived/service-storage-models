@@ -105,6 +105,15 @@ describe('Storage/models/referral', function() {
       });
     });
 
+    it('should fail with undefined marketing doc', function(done) {
+      Referral.create(null, 'user@domain.tld', 'email')
+        .catch((err) => {
+          expect(err).to.be.an.instanceOf(Error);
+          expect(err.message).to.equal('Invalid marketing doc');
+          done();
+        });
+    });
+
   });
 
   describe('#convert_receipient_signup', function() {
