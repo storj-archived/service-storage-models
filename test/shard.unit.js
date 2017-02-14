@@ -116,4 +116,27 @@ describe('Storage/models/Shard', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      const item = {
+        hash: 'fjla93fs9-23892-2sdl@#ds-932049203',
+        contracts: {},
+        trees: {},
+        challenges: {},
+        meta: { 0: 'meta1', 1: 'meta2' }
+      };
+      Shard.create(item, function(err, shard) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        const keys = Object.keys(shard);
+        expect(keys).to.not.contain('__v', '_id');
+        expect(keys).to.contain(
+          'contracts', 'trees', 'challenges', 'meta', 'hash'
+        );
+        done();
+      });
+    });
+
+  });
+
 });

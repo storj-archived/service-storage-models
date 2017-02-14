@@ -249,7 +249,7 @@ describe('Storage/models/Credit', function() {
 
   describe('#create - promo vs paid_amount/invoiced_amount', function() {
 
-    it('should fail if trying to save invoice and promo', function(done) {
+    it('should fail if trying to save invoiced and promo', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -266,7 +266,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should fail if trying to save paid and promo', function(done) {
+    it('should fail if trying to save paid_amount and promo', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -414,6 +414,53 @@ describe('Storage/models/Credit', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
           'promo_amount must have accompanying promo_expires date field'
+        );
+        done();
+      });
+    });
+
+  });
+
+  describe('#toObject', function() {
+
+    it('should have specified fields for paid/invoiced', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        paid_amount: 0,
+        invoiced_amount: 100
+      });
+
+      newCredit.save(function(err, credit) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        const creditKeys = Object.keys(credit.toObject());
+        expect(creditKeys).to.not.contain(
+          '__v', '_id', 'promo_amount', 'promo_code', 'promo_expires'
+        );
+        expect(creditKeys).to.contain('user', 'paid_amount', 'type',
+          'invoiced_amount', 'data', 'payment_processor', 'created', 'paid'
+        );
+        done();
+      });
+    });
+
+    it('should have specified fields for promo', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_code: PROMO_CODE.NEW_SIGNUP,
+        promo_amount: PROMO_AMOUNT.NEW_SIGNUP,
+        promo_expires: PROMO_EXPIRES.NEW_SIGNUP
+      });
+
+      newCredit.save(function(err, credit) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        const creditKeys = Object.keys(credit.toObject());
+        expect(creditKeys).to.not.contain(
+          '__v', '_id', 'paid_amount', 'invoiced_amount'
+        );
+        expect(creditKeys).to.contain('user', 'promo_amount', 'promo_expires',
+          'promo_code', 'created', 'data', 'type'
         );
         done();
       });

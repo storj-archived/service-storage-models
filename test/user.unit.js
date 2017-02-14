@@ -141,6 +141,27 @@ describe('Storage/models/User', function() {
     });
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties + virtuals', function(done) {
+      User.findOne({ _id: 'user@domain.tld' }, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        const keys = Object.keys(user.toObject());
+        expect(keys).to.contain(
+          'isFreeTier', 'activated', 'created', 'email', 'id'
+        );
+        expect(keys).to.not.contain(
+          '__v', '_id', 'hashpass', 'activator', 'deactivator', 'resetter',
+          'pendingHashPass', 'bytesDownloaded', 'bytesUploaded'
+        );
+        done();
+      });
+    });
+
+  });
+
   /* jshint ignore: start */
   /* ignoring: too many statements */
   describe('#recordDownloadBytes', function() {

@@ -78,4 +78,27 @@ describe('Storage/models/Mirror', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: storj.KeyPair().getNodeID(),
+        lastSeen: Date.now()
+      }, function(err, contact) {
+        Mirror.create(
+          { data_hash: 'data_hash' },
+          contact,
+          function(err, mirror) {
+            expect(err).to.not.be.an.instanceOf(Error);
+            const keys = Object.keys(mirror.toObject());
+            expect(keys).to.not.contain('__v', '_id');
+            done();
+          });
+      });
+    });
+
+  });
+
 });

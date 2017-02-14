@@ -175,4 +175,24 @@ describe('Storage/models/referral', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      Marketing.create('sender9@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@a.com', 'email')
+          .then((referral) => {
+            const keys = Object.keys(referral.toObject());
+            expect(keys).to.not.contain('__v', '_id');
+            expect(keys).to.contain('id');
+            done();
+          }).catch((err) => {
+            if (err) {
+              return done(err);
+            }
+          });
+      });
+    });
+
+  });
+
 });

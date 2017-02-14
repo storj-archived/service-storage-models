@@ -99,4 +99,18 @@ describe('Storage/models/Frame', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      Frame.create({}, function(err, frame) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        const keys = Object.keys(frame.toObject());
+        expect(keys).to.not.contain('__v', '_id');
+        expect(keys).to.contain('id');
+        done();
+      });
+    });
+
+  });
+
 });

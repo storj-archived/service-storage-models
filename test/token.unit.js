@@ -82,4 +82,20 @@ describe('Storage/models/Token', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties + virtuals', function(done) {
+      Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+        Token.create(bucket, 'PUSH', function(err, token) {
+          expect(err).to.not.be.instanceOf(Error);
+          const keys = Object.keys(token.toObject());
+          expect(keys).to.not.contain('__v', '_id');
+          expect(keys).to.contain('token');
+          done();
+        });
+      });
+    });
+
+  });
+
 });

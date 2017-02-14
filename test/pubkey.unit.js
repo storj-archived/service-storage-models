@@ -89,4 +89,21 @@ describe('Storage/models/PublicKey', function() {
     });
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties + virtuals', function(done) {
+      var publicKey = storj.KeyPair().getPublicKey();
+      PublicKey.create({
+        _id: 'user@domain.tld'
+      }, publicKey, function(err, pubkey) {
+        expect(err).to.not.be.instanceOf(Error);
+        const keys = Object.keys(pubkey.toObject());
+        expect(keys).to.not.contain('__v', '_id');
+        expect(keys).to.contain('key');
+        done();
+      });
+    });
+
+  });
+
 });
