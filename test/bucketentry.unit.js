@@ -1,6 +1,7 @@
 'use strict';
 
 const storj = require('storj-lib');
+const errors = require('storj-service-error-types');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 
@@ -58,6 +59,49 @@ describe('Storage/models/BucketEntry', function() {
         }, function(err, entry) {
           expect(entry.filename).to.equal('test.txt');
           expect(entry.id).to.equal(expectedFileId);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should create the bucket entry with id', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket3' },
+    function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        expect(err).to.not.be.instanceOf(Error);
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          id: 'ed6c1becbcef808463e4d38b58d5d310115e42ca',
+          name: 'test2.txt',
+          mimetype: 'text/plain'
+        }, function(err, entry) {
+          expect(entry.filename).to.equal('test2.txt');
+          expect(entry.id).to.equal('ed6c1becbcef808463e4d38b58d5d310115e42ca');
+          done();
+        });
+      });
+    });
+  });
+
+  it('should NOT create the bucket entry with invalid id', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket4' },
+    function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        expect(err).to.not.be.instanceOf(Error);
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          id: '#######################################',
+          name: 'test2.txt',
+          mimetype: 'text/plain'
+        }, function(err, entry) {
+          expect(err).to.be.instanceOf(errors.BadRequestError);
+          expect(err.message).to.equal('Invalid id supplied');
+          expect(entry).to.equal(undefined);
           done();
         });
       });
