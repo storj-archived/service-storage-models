@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 const errors = require('storj-service-error-types');
-const expect = require('chai').expect;
+const { expect } = require('chai');
 const mongoose = require('mongoose');
 const sinon = require('sinon');
 const ms = require('ms');
@@ -56,7 +56,7 @@ describe('Storage/models/User', function() {
     it('should not create a invalid email (no tld)', function(done) {
       User.create('wrong@domain', sha256('password'), function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('User validation failed');
+        expect(err.message).to.equal('Invalid email');
         done();
       });
     });
@@ -109,7 +109,7 @@ describe('Storage/models/User', function() {
         sha256('password'),
         function(err) {
           expect(err).to.be.instanceOf(Error);
-          expect(err.message).to.equal('User validation failed');
+          expect(err.message).to.equal('Invalid email');
           done();
         });
     });
@@ -135,12 +135,32 @@ describe('Storage/models/User', function() {
 
       User.create(longEmail, sha256('password'), function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('User validation failed');
+        expect(err.message).to.equal('Invalid email');
         done();
       });
     });
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties + virtuals', function(done) {
+      User.findOne({ _id: 'user@domain.tld' }, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        const keys = Object.keys(user.toObject());
+        expect(keys).to.contain(
+          'isFreeTier', 'activated', 'created', 'email', 'id'
+        );
+        expect(keys).to.not.contain(
+          '__v', '_id', 'hashpass', 'activator', 'deactivator', 'resetter',
+          'pendingHashPass', 'bytesDownloaded', 'bytesUploaded'
+        );
+        done();
+      });
+    });
+
+  });
 
   /* jshint ignore: start */
   /* ignoring: too many statements */

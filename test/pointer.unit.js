@@ -71,4 +71,25 @@ describe('Storage/models/Pointer', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      var shard = {
+        index: 1,
+        hash: 'fjla93fs9-23892-2sdl@#ds-932049203',
+        size: 1,
+        tree: ['tree1', 'tree2'],
+        challenges: ['challenge1', 'challenge2']
+      };
+      Pointer.create(shard, function(err, pointer) {
+        expect(err).to.not.be.an.instanceOf(Error);
+        const keys = Object.keys(pointer.toObject());
+        expect(keys).to.not.contain('__v', '_id');
+        expect(keys).to.contain('id');
+        done();
+      });
+    });
+
+  });
+
 });

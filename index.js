@@ -5,10 +5,9 @@ const mongoose = require('mongoose');
 const merge = require('merge');
 require('dotenv').config({ silent: true });
 
-require('mongoose-currency').loadType(mongoose);
 require('mongoose-types').loadTypes(mongoose);
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = require('bluebird');
 
 /**
  * MongoDB storage interface
