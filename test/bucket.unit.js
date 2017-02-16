@@ -150,4 +150,29 @@ describe('Storage/models/Bucket', function() {
 
   });
 
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      Bucket.create({ _id: 'user@domain.tld' }, { name: 'uber-cool' },
+        function(err, bucket) {
+          if (err) {
+            return done(err);
+          }
+          Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
+            if (err) {
+              return done(err);
+            }
+            const bucketKeys = Object.keys(bucket.toObject());
+            expect(bucketKeys).to.not.contain('__v', '_id');
+            expect(bucketKeys).to.contain('storage', 'transfer', 'status',
+              'pubkeys', 'user', 'name', 'created', 'publicPermissions',
+              'encryptionKey'
+            );
+            done();
+          });
+      });
+    });
+
+  });
+
 });

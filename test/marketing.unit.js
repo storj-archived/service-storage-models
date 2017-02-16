@@ -29,7 +29,7 @@ after(function(done) {
   });
 });
 
-describe('/Storage/models/marketing', function() {
+describe('/Storage/models/Marketing', function() {
 
   describe('#create', function() {
 
@@ -141,6 +141,21 @@ describe('/Storage/models/marketing', function() {
           expect(err.message).to.equal('Invalid referral link');
           done();
         });
+    });
+
+  });
+
+  describe('#toObject', function() {
+
+    it('should contain specified properties', function(done) {
+      Marketing.create('user100@tld.com', function(err, marketing) {
+        if (err) {
+          return done(err);
+        }
+        const keys = Object.keys(marketing.toObject());
+        expect(keys).to.not.contain('__v', '_id');
+        done();
+      });
     });
 
   });

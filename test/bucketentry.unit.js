@@ -101,4 +101,29 @@ describe('Storage/models/BucketEntry', function() {
     });
   });
 
+  it('should contain specified properties', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        expect(err).to.not.be.instanceOf(Error);
+        BucketEntry.create({
+          frame: frame._id,
+          mimetype: 'text/javascript',
+          bucket: bucket._id,
+          name: 'test.txt'
+        }, function(err, entry) {
+          if (err) {
+            return done(err);
+          }
+          const entryKeys = Object.keys(entry.toObject());
+          expect(entryKeys).to.not.contain('__v', '_id', 'name');
+          expect(entryKeys).to.contain(
+            'frame', 'bucket', 'mimetype', 'name', 'renewal', 'created'
+          );
+          done();
+        });
+      });
+    });
+  });
+
 });
