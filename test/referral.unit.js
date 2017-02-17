@@ -74,6 +74,7 @@ describe('Storage/models/Referral', function() {
             expect(referral.type).to.be.oneOf(
               Object.keys(REFERRAL_TYPES).map((key) => (REFERRAL_TYPES[key]))
             );
+            expect(referral.count).to.equal(1);
             done();
           }).catch((err) => {
             if (err) {
@@ -112,6 +113,45 @@ describe('Storage/models/Referral', function() {
           expect(err.message).to.equal('Invalid marketing doc');
           done();
         });
+    });
+
+    it('should not create duplicate doc', function(done) {
+      Marketing.create('sender11@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@bob.com', 'email')
+          .then((referral) => {
+            const first = referral;
+            Referral.create(marketing, 'recipient@bob.com', 'email')
+              .then((referral) => {
+                const second = referral;
+                Referral.find({
+                  'sender.id': marketing._id,
+                  'recipient.email': 'recipient@bob.com'
+                }).then((result) => {
+                  expect(result.length).to.equal(1);
+                  expect(first.id).to.equal(second.id);
+                  done();
+                });
+              });
+          });
+      });
+    });
+
+
+    it('should increase referral sent count', function(done) {
+      Marketing.create('sender12@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@bob.com', 'email')
+          .then(() => Referral.create(marketing, 'recipient@bob.com', 'email'))
+          .then(() => {
+            Referral.find({
+              'sender.id': marketing._id,
+              'recipient.email': 'recipient@bob.com'
+            }).then((result) => {
+              expect(result.length).to.equal(1);
+              expect(result[0].count).to.equal(2);
+              done();
+            });
+          });
+      });
     });
 
   });
