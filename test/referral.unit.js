@@ -65,8 +65,8 @@ describe('Storage/models/Referral', function() {
             expect(referral.recipient.email).to.equal('recipient@a.com');
             expect(referral.recipient.amount_to_credit)
               .to.equal(PROMO_AMOUNT.REFERRAL_RECIPIENT);
-            expect(referral.recipient.min_billed_requirement)
-              .to.equal(PROMO_AMOUNT.MIN_BILLED_REQUIREMENT_DEFAULT);
+            expect(referral.recipient.min_spent_requirement)
+              .to.equal(PROMO_AMOUNT.MIN_SPENT_REQUIREMENT);
             expect(referral.created).to.equalDate(date);
             expect(referral.converted.recipient_signup).to.be.undefined;
             expect(referral.converted.recipient_billed).to.be.undfined;
@@ -125,7 +125,8 @@ describe('Storage/models/Referral', function() {
           type: CREDIT_TYPES.AUTO,
           promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
           promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+          promo_referral_id: '58a7364b7577a34a443e05c5'
         });
 
         newCredit.save().then((credit) => {
@@ -147,7 +148,8 @@ describe('Storage/models/Referral', function() {
           type: CREDIT_TYPES.AUTO,
           promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
           promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+          promo_referral_id: '58a7364b7577a34a443e05c5'
         });
 
         newCredit.save().then((credit) => {
@@ -224,7 +226,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
               promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+              promo_referral_id: '58a7364b7577a34a443e05c5'
             });
 
             const senderCredit = new Credit({
@@ -232,7 +235,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_SENDER,
               promo_expires: PROMO_EXPIRES.REFERRAL_SENDER,
-              promo_code: PROMO_CODE.REFERRAL_SENDER
+              promo_code: PROMO_CODE.REFERRAL_SENDER,
+              promo_referral_id: '58a75e0f9ed9396269dfae44'
             });
 
             recipientCredit.save().then((recipientCredit) => {
@@ -259,7 +263,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
               promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+              promo_referral_id: '58a75e0f9ed9396269dfae44'
             });
 
             recipientCredit.save().then((recipientCredit) => {
