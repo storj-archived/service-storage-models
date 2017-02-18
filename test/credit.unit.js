@@ -421,6 +421,28 @@ describe('Storage/models/Credit', function() {
 
   });
 
+  describe('#create - referral promo validations', function() {
+
+    it('should have promo_referral_id if promo_code=referral', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.AUTO,
+        promo_code: PROMO_CODE.REFERRAL_SENDER,
+        promo_amount: PROMO_AMOUNT.REFERRAL_SENDER,
+        promo_expires: PROMO_EXPIRES.REFERRAL_SENDER
+      });
+
+      newCredit.save(function(err) {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal(
+          'promo credit docs require a promo_referral_id'
+        );
+        done();
+      });
+    });
+
+  });
+
   describe('#toObject', function() {
 
     it('should have specified fields for paid/invoiced', function(done) {
@@ -435,7 +457,8 @@ describe('Storage/models/Credit', function() {
         expect(err).to.not.be.an.instanceOf(Error);
         const creditKeys = Object.keys(credit.toObject());
         expect(creditKeys).to.not.contain(
-          '__v', '_id', 'promo_amount', 'promo_code', 'promo_expires'
+          '__v', '_id', 'promo_amount', 'promo_code', 'promo_expires',
+          'promo_referral_id'
         );
         expect(creditKeys).to.contain('user', 'paid_amount', 'type',
           'invoiced_amount', 'data', 'payment_processor', 'created', 'paid'
