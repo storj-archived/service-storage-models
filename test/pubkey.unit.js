@@ -41,6 +41,26 @@ describe('Storage/models/PublicKey', function() {
     });
   });
 
+  it('should create the public with spam resistent email', function(done) {
+
+    var publicKey2 = storj.KeyPair().getPublicKey();
+
+    PublicKey.create({
+      _id: 'user+nospam@domain.tld'
+    }, publicKey2, function(err, pubkey) {
+      if (err) {
+        return done(err);
+      }
+      pubkey.save((err) => {
+        if (err) {
+          return done(err);
+        }
+        expect(pubkey._id).to.equal(publicKey2);
+        done();
+      });
+    });
+  });
+
   it('should not create duplicate key', function(done) {
     PublicKey.create({
       _id: 'user@domain.tld'

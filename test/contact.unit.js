@@ -58,6 +58,27 @@ describe('Storage/models/Contact', function() {
       });
     });
 
+    it('it should not give validation error', function(done) {
+      const data = {
+        nodeID: '082305b1b4119cf393a8ad392e45cb2b8abd8e43',
+        protocol: '0.7.0',
+        address: '154.220.116.201',
+        port: 18078,
+        lastSeen: 1465599426699
+      };
+      Contact.record(data, function(err, contact) {
+        if (err) {
+          return done(err);
+        }
+        contact.save((err) => {
+          if (err) {
+            return done(err);
+          }
+          done();
+        });
+      });
+    });
+
   });
 
   describe('#recordTimeoutFailure', function() {
