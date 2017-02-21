@@ -77,7 +77,7 @@ describe('Storage/models/Contact', function() {
           done();
         });
       });
-    })
+    });
 
   });
 
