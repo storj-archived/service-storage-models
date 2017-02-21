@@ -198,6 +198,51 @@ describe('Storage/models/User', function() {
       clock.restore();
       done();
     });
+
+    it('will increment the value with concurrency', function(done) {
+      const email = 'multiprocess2@absentminded.com';
+      const pass = '06b76ad257f1e2f873c40e909392e76793322f7436d755d4896c5af96' +
+            'cb56af4';
+      User.create(email, pass, (err) => {
+        if (err) {
+          return done(err);
+        }
+        async.times(10, (n, next) => {
+          User.findOne({_id: email}, (err, user) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user) {
+              return done(new Error('User not found'));
+            }
+            user.recordDownloadBytes(4096, next);
+          });
+        }, (err) => {
+          if (err) {
+            return done(err);
+          }
+          User.findOne({_id: email}, (err, user2) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user2) {
+              return done(new Error('User not found'));
+            }
+            expect(user2.bytesDownloaded.lastHourBytes).to.equal(4096 * 10);
+            expect(user2.bytesDownloaded.lastDayBytes).to.equal(4096 * 10);
+            expect(user2.bytesDownloaded.lastMonthBytes).to.equal(4096 * 10);
+
+            expect(user2.bytesDownloaded.lastHourStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesDownloaded.lastDayStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesDownloaded.lastMonthStarted)
+              .to.be.below(Date.now());
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('#isDownloadRateLimited', function() {
