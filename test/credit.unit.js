@@ -27,15 +27,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017__storj-bridge-test',
     function() {
       Credit = CreditSchema(connection);
-      done();
+      Credit.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  Credit.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Credit', function() {

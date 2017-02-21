@@ -12,15 +12,15 @@ before((done) => {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     () => {
       auditModel = FullAudit(connection);
-      done();
+      auditModel.remove({}, () => {
+        done();
+      });
     }
   );
 });
 
 after((done) => {
-  auditModel.remove({}, () => {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('FullAudit', function() {

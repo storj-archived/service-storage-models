@@ -16,15 +16,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       PublicKey = PublicKeySchema(connection);
-      done();
+      PublicKey.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  PublicKey.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/PublicKey', function() {

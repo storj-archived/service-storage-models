@@ -33,19 +33,19 @@ before(function(done) {
       Referral = ReferralSchema(connection);
       Marketing =  MarketingSchema(connection);
       Credit = CreditSchema(connection);
-      done();
+      Referral.remove({}, function() {
+        Marketing.remove({}, function() {
+          Credit.remove({}, function() {
+            done();
+          });
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  Referral.remove({}, function() {
-    Marketing.remove({}, function() {
-      Credit.remove({}, function() {
-        connection.close(done);
-      });
-    });
-  });
+  connection.close(done);
 });
 
 const d = new Date();
