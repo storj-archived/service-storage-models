@@ -287,7 +287,8 @@ describe('Storage/models/User', function() {
 
     it('will increment the value with concurrency', function(done) {
       const email = 'multiprocess@absentminded.com';
-      const pass = '06b76ad257f1e2f873c40e909392e76793322f7436d755d4896c5af96cb56af4';
+      const pass = '06b76ad257f1e2f873c40e909392e76793322f7436d755d4896c5af96' +
+            'cb56af4';
       User.create(email, pass, (err) => {
         if (err) {
           return done(err);
@@ -300,8 +301,7 @@ describe('Storage/models/User', function() {
             if (!user) {
               return done(new Error('User not found'));
             }
-            user.recordUploadBytes(4096);
-            user.save(next);
+            user.recordUploadBytes(4096, next);
           });
         }, (err) => {
           if (err) {
@@ -314,7 +314,16 @@ describe('Storage/models/User', function() {
             if (!user2) {
               return done(new Error('User not found'));
             }
+            expect(user2.bytesUploaded.lastHourBytes).to.equal(4096 * 10);
             expect(user2.bytesUploaded.lastDayBytes).to.equal(4096 * 10);
+            expect(user2.bytesUploaded.lastMonthBytes).to.equal(4096 * 10);
+
+            expect(user2.bytesUploaded.lastHourStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesUploaded.lastDayStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesUploaded.lastMonthStarted)
+              .to.be.below(Date.now());
             done();
           });
         });
