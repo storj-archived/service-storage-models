@@ -1,8 +1,10 @@
 'use strict';
 
+const crypto = require('crypto');
 const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const errors = require('storj-service-error-types');
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -95,6 +97,110 @@ describe('Storage/models/BucketEntry', function() {
           name: 'test.txt'
         }, function(err) {
           expect(err).to.be.instanceOf(Error);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should create bucket entry with hmac value', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        if (err) {
+          return done(err);
+        }
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          name: 'test-with-hmac.txt',
+          hmac: {
+            value: 'f891be8e91491e4aeeb193e9e3afb49e83b6cc18df2be9732dd62545' +
+              'ec5d318076ef86adc5771dc4b7b1ce8802bb3b9dce9f7c5a438afd1b1f52f' +
+              'b5e37e3f5c8',
+            type: 'sha512'
+          }
+        }, function(err, entry) {
+          if (err) {
+            return done(err);
+          }
+          expect(entry.toObject().hmac).to.eql({
+            value: 'f891be8e91491e4aeeb193e9e3afb49e83b6cc18df2be9732dd62545' +
+              'ec5d318076ef86adc5771dc4b7b1ce8802bb3b9dce9f7c5a438afd1b1f52f' +
+              'b5e37e3f5c8',
+            type: 'sha512'
+          });
+          done();
+        });
+      });
+    });
+  });
+
+  it('should NOT create bucket entry with invalid hmac type', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        if (err) {
+          return done(err);
+        }
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          name: 'test-with-hmac.txt',
+          hmac: {
+            value: 'f891be8e91491e4aeeb193e9e3afb49e83b6cc18df2be9732dd62545' +
+              'ec5d318076ef86adc5771dc4b7b1ce8802bb3b9dce9f7c5a438afd1b1f52f' +
+              'b5e37e3f5c8',
+            type: 'somethingnotahashfunction'
+          }
+        }, function(err) {
+          expect(err).to.be.instanceOf(errors.BadRequestError);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should NOT create bucket entry with long hmac value', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        if (err) {
+          return done(err);
+        }
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          name: 'test-with-hmac.txt',
+          hmac: {
+            value: crypto.randomBytes(2000).toString('hex'),
+            type: 'somethingnotahashfunction'
+          }
+        }, function(err) {
+          expect(err).to.be.instanceOf(errors.BadRequestError);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should NOT create bucket entry with non-hex hmac value', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, {}, function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        if (err) {
+          return done(err);
+        }
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          name: 'test-with-hmac.txt',
+          hmac: {
+            value: 'notahexstring',
+            type: 'sha512'
+          }
+        }, function(err) {
+          expect(err).to.be.instanceOf(errors.BadRequestError);
           done();
         });
       });
