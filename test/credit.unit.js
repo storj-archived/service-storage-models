@@ -423,7 +423,7 @@ describe('Storage/models/Credit', function() {
 
   describe('#create - referral promo validations', function() {
 
-    it('should have promo_referral_id if promo_code=referral', function(done) {
+    it('should fail if promo_code=referral & !referral_id', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.AUTO,
@@ -439,6 +439,54 @@ describe('Storage/models/Credit', function() {
         );
         done();
       });
+    });
+
+    it('should pass with promo_code=referral & referral_id', function(done) {
+      const referralId = '58acbf051fa3a47de0118b58';
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.AUTO,
+        promo_code: PROMO_CODE.REFERRAL_SENDER,
+        promo_amount: PROMO_AMOUNT.REFERRAL_SENDER,
+        promo_expires: PROMO_EXPIRES.REFERRAL_SENDER,
+        promo_referral_id: referralId
+      });
+
+      newCredit
+        .save()
+        .then((credit) => {
+          expect(credit.promo_referral_id.toString()).to.equal(referralId);
+          done();
+        })
+        .catch((err) => {
+          if (err) {
+            return done(err);
+          }
+        });
+
+    });
+
+    it('should pass if promo_code != referral types', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.AUTO,
+        promo_code: PROMO_CODE.NEW_SIGNUP,
+        promo_amount: PROMO_AMOUNT.NEW_SIGNUP,
+        promo_expires: PROMO_EXPIRES.NEW_SIGNUP
+      });
+
+      newCredit
+        .save()
+        .then((credit) => {
+          expect(credit.promo_referral_id).to.be.undefined;
+          done();
+        })
+        .catch((err) => {
+          if (err) {
+            return done(err);
+          }
+        });
+
     });
 
   });
