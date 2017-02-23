@@ -19,17 +19,17 @@ before(function(done) {
     function() {
       UserNonce = UserNonceSchema(connection);
       User = UserSchema(connection);
-      done();
+      UserNonce.remove({}, function() {
+        User.remove({}, function() {
+          done();
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  UserNonce.remove({}, function() {
-    User.remove({}, function() {
-      connection.close(done);
-    });
-  });
+  connection.close(done);
 });
 
 function sha256(i) {

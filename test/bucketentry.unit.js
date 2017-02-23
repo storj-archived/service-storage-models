@@ -22,19 +22,19 @@ before(function(done) {
       Frame = FrameSchema(connection);
       Bucket = BucketSchema(connection);
       BucketEntry = BucketEntrySchema(connection);
-      done();
+      Frame.remove({}, function() {
+        Bucket.remove({}, function() {
+          BucketEntry.remove({}, function(){
+            done();
+          });
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  Frame.remove({}, function() {
-    Bucket.remove({}, function() {
-      BucketEntry.remove({}, function(){
-        connection.close(done);
-      });
-    });
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/BucketEntry', function() {

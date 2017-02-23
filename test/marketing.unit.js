@@ -18,15 +18,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Marketing = MarketingSchema(connection);
-      done();
+      Marketing.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  Marketing.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('/Storage/models/Marketing', function() {

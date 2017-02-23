@@ -20,15 +20,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Contact = ContactSchema(connection);
-      done();
+      Contact.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  Contact.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Contact', function() {
