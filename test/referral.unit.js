@@ -65,8 +65,8 @@ describe('Storage/models/Referral', function() {
             expect(referral.recipient.email).to.equal('recipient@a.com');
             expect(referral.recipient.amount_to_credit)
               .to.equal(PROMO_AMOUNT.REFERRAL_RECIPIENT);
-            expect(referral.recipient.min_spent_requirement)
-              .to.equal(PROMO_AMOUNT.MIN_SPENT_REQUIREMENT);
+            expect(referral.recipient.min_billed_requirement)
+              .to.equal(PROMO_AMOUNT.MIN_BILLED_REQUIREMENT_DEFAULT);
             expect(referral.created).to.equalDate(date);
             expect(referral.converted.recipient_signup).to.be.undefined;
             expect(referral.converted.recipient_billed).to.be.undfined;
