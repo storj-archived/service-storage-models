@@ -46,3 +46,9 @@ jspm_packages
 
 # Jetbrains tools
 .idea/
+
+# tern-port
+*.tern-port
+
+# ignore yarn.lock for this particular repo only
+yarn.lock

@@ -21,17 +21,17 @@ before(function(done) {
     function() {
       Frame = FrameSchema(connection);
       User = UserSchema(connection);
-      done();
+      Frame.remove({}, function() {
+        User.remove({}, function() {
+          done();
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  Frame.remove({}, function() {
-    User.remove({}, function() {
-      connection.close(done);
-    });
-  });
+  connection.close(done);
 });
 
 function sha256(i) {

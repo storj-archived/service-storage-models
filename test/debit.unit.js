@@ -19,15 +19,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Debit = DebitSchema(connection);
-      done();
+      Debit.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  Debit.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Debit', function() {

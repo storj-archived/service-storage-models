@@ -21,17 +21,18 @@ before(function(done) {
     function() {
       Mirror = MirrorSchema(connection);
       Contact = ContactSchema(connection);
-      done();
+      Mirror.remove({}, function() {
+        Contact.remove({}, function() {
+          done();
+        });
+      });
+
     }
   );
 });
 
 after(function(done) {
-  Mirror.remove({}, function() {
-    Contact.remove({}, function() {
-      connection.close(done);
-    });
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Mirror', function() {

@@ -33,19 +33,19 @@ before(function(done) {
       Referral = ReferralSchema(connection);
       Marketing =  MarketingSchema(connection);
       Credit = CreditSchema(connection);
-      done();
+      Referral.remove({}, function() {
+        Marketing.remove({}, function() {
+          Credit.remove({}, function() {
+            done();
+          });
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  Referral.remove({}, function() {
-    Marketing.remove({}, function() {
-      Credit.remove({}, function() {
-        connection.close(done);
-      });
-    });
-  });
+  connection.close(done);
 });
 
 const d = new Date();
@@ -65,8 +65,8 @@ describe('Storage/models/Referral', function() {
             expect(referral.recipient.email).to.equal('recipient@a.com');
             expect(referral.recipient.amount_to_credit)
               .to.equal(PROMO_AMOUNT.REFERRAL_RECIPIENT);
-            expect(referral.recipient.min_billed_requirement)
-              .to.equal(PROMO_AMOUNT.MIN_BILLED_REQUIREMENT_DEFAULT);
+            expect(referral.recipient.min_spent_requirement)
+              .to.equal(PROMO_AMOUNT.MIN_SPENT_REQUIREMENT);
             expect(referral.created).to.equalDate(date);
             expect(referral.converted.recipient_signup).to.be.undefined;
             expect(referral.converted.recipient_billed).to.be.undfined;
@@ -74,6 +74,7 @@ describe('Storage/models/Referral', function() {
             expect(referral.type).to.be.oneOf(
               Object.keys(REFERRAL_TYPES).map((key) => (REFERRAL_TYPES[key]))
             );
+            expect(referral.count).to.equal(1);
             done();
           }).catch((err) => {
             if (err) {
@@ -114,6 +115,45 @@ describe('Storage/models/Referral', function() {
         });
     });
 
+    it('should not create duplicate doc', function(done) {
+      Marketing.create('sender11@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@bob.com', 'email')
+          .then((referral) => {
+            const first = referral;
+            Referral.create(marketing, 'recipient@bob.com', 'email')
+              .then((referral) => {
+                const second = referral;
+                Referral.find({
+                  'sender.id': marketing._id,
+                  'recipient.email': 'recipient@bob.com'
+                }).then((result) => {
+                  expect(result.length).to.equal(1);
+                  expect(first.id).to.equal(second.id);
+                  done();
+                });
+              });
+          });
+      });
+    });
+
+
+    it('should increase referral sent count', function(done) {
+      Marketing.create('sender12@domain.tld', function(err, marketing) {
+        Referral.create(marketing, 'recipient@bob.com', 'email')
+          .then(() => Referral.create(marketing, 'recipient@bob.com', 'email'))
+          .then(() => {
+            Referral.find({
+              'sender.id': marketing._id,
+              'recipient.email': 'recipient@bob.com'
+            }).then((result) => {
+              expect(result.length).to.equal(1);
+              expect(result[0].count).to.equal(2);
+              done();
+            });
+          });
+      });
+    });
+
   });
 
   describe('#convert_receipient_signup', function() {
@@ -125,7 +165,8 @@ describe('Storage/models/Referral', function() {
           type: CREDIT_TYPES.AUTO,
           promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
           promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+          promo_referral_id: '58a7364b7577a34a443e05c5'
         });
 
         newCredit.save().then((credit) => {
@@ -147,7 +188,8 @@ describe('Storage/models/Referral', function() {
           type: CREDIT_TYPES.AUTO,
           promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
           promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-          promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+          promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+          promo_referral_id: '58a7364b7577a34a443e05c5'
         });
 
         newCredit.save().then((credit) => {
@@ -224,7 +266,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
               promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+              promo_referral_id: '58a7364b7577a34a443e05c5'
             });
 
             const senderCredit = new Credit({
@@ -232,7 +275,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_SENDER,
               promo_expires: PROMO_EXPIRES.REFERRAL_SENDER,
-              promo_code: PROMO_CODE.REFERRAL_SENDER
+              promo_code: PROMO_CODE.REFERRAL_SENDER,
+              promo_referral_id: '58a75e0f9ed9396269dfae44'
             });
 
             recipientCredit.save().then((recipientCredit) => {
@@ -259,7 +303,8 @@ describe('Storage/models/Referral', function() {
               type: CREDIT_TYPES.AUTO,
               promo_amount: PROMO_AMOUNT.REFERRAL_RECIPIENT,
               promo_expires: PROMO_EXPIRES.REFERRAL_RECIPIENT,
-              promo_code: PROMO_CODE.REFERRAL_RECIPIENT
+              promo_code: PROMO_CODE.REFERRAL_RECIPIENT,
+              promo_referral_id: '58a75e0f9ed9396269dfae44'
             });
 
             recipientCredit.save().then((recipientCredit) => {

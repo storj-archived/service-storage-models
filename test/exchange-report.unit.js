@@ -16,15 +16,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       ExchangeReport = ExchangeReportSchema(connection);
-      done();
+      ExchangeReport.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  ExchangeReport.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Exchange-Report', function() {

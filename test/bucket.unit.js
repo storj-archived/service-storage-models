@@ -16,15 +16,16 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Bucket = BucketSchema(connection);
-      done();
+      Bucket.remove({}, function() {
+        done();
+      });
+
     }
   );
 });
 
 after(function(done) {
-  Bucket.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Bucket', function() {

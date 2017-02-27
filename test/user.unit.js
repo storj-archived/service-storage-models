@@ -1,5 +1,8 @@
 'use strict';
 
+/* jshint maxstatements: 100 */
+
+const async = require('async');
 const crypto = require('crypto');
 const errors = require('storj-service-error-types');
 const { expect } = require('chai');
@@ -19,15 +22,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       User = UserSchema(connection);
-      done();
+      User.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  User.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 function sha256(i) {
@@ -162,8 +165,6 @@ describe('Storage/models/User', function() {
 
   });
 
-  /* jshint ignore: start */
-  /* ignoring: too many statements */
   describe('#recordDownloadBytes', function() {
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
@@ -196,6 +197,51 @@ describe('Storage/models/User', function() {
       expect(user.bytesDownloaded.lastMonthBytes).to.equal(5000);
       clock.restore();
       done();
+    });
+
+    it('will increment the value with concurrency', function(done) {
+      const email = 'multiprocess2@absentminded.com';
+      const pass = '06b76ad257f1e2f873c40e909392e76793322f7436d755d4896c5af96' +
+            'cb56af4';
+      User.create(email, pass, (err) => {
+        if (err) {
+          return done(err);
+        }
+        async.times(10, (n, next) => {
+          User.findOne({_id: email}, (err, user) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user) {
+              return done(new Error('User not found'));
+            }
+            user.recordDownloadBytes(4096, next);
+          });
+        }, (err) => {
+          if (err) {
+            return done(err);
+          }
+          User.findOne({_id: email}, (err, user2) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user2) {
+              return done(new Error('User not found'));
+            }
+            expect(user2.bytesDownloaded.lastHourBytes).to.equal(4096 * 10);
+            expect(user2.bytesDownloaded.lastDayBytes).to.equal(4096 * 10);
+            expect(user2.bytesDownloaded.lastMonthBytes).to.equal(4096 * 10);
+
+            expect(user2.bytesDownloaded.lastHourStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesDownloaded.lastDayStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesDownloaded.lastMonthStarted)
+              .to.be.below(Date.now());
+            done();
+          });
+        });
+      });
     });
   });
 
@@ -284,8 +330,51 @@ describe('Storage/models/User', function() {
       done();
     });
 
+    it('will increment the value with concurrency', function(done) {
+      const email = 'multiprocess@absentminded.com';
+      const pass = '06b76ad257f1e2f873c40e909392e76793322f7436d755d4896c5af96' +
+            'cb56af4';
+      User.create(email, pass, (err) => {
+        if (err) {
+          return done(err);
+        }
+        async.times(10, (n, next) => {
+          User.findOne({_id: email}, (err, user) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user) {
+              return done(new Error('User not found'));
+            }
+            user.recordUploadBytes(4096, next);
+          });
+        }, (err) => {
+          if (err) {
+            return done(err);
+          }
+          User.findOne({_id: email}, (err, user2) => {
+            if (err) {
+              return done(err);
+            }
+            if (!user2) {
+              return done(new Error('User not found'));
+            }
+            expect(user2.bytesUploaded.lastHourBytes).to.equal(4096 * 10);
+            expect(user2.bytesUploaded.lastDayBytes).to.equal(4096 * 10);
+            expect(user2.bytesUploaded.lastMonthBytes).to.equal(4096 * 10);
+
+            expect(user2.bytesUploaded.lastHourStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesUploaded.lastDayStarted)
+              .to.be.below(Date.now());
+            expect(user2.bytesUploaded.lastMonthStarted)
+              .to.be.below(Date.now());
+            done();
+          });
+        });
+      });
+    });
   });
-  /* jshint ignore: end */
 
   describe('#isUploadRateLimited', function() {
 

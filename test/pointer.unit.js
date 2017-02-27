@@ -15,15 +15,15 @@ before(function(done) {
     'mongodb://127.0.0.1:27017/__storj-bridge-test',
     function() {
       Pointer = PointerSchema(connection);
-      done();
+      Pointer.remove({}, function() {
+        done();
+      });
     }
   );
 });
 
 after(function(done) {
-  Pointer.remove({}, function() {
-    connection.close(done);
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Pointer', function() {

@@ -18,17 +18,17 @@ before(function(done) {
     function() {
       Token = TokenSchema(connection);
       Bucket = BucketSchema(connection);
-      done();
+      Token.remove({}, function() {
+        Bucket.remove({}, function() {
+          done();
+        });
+      });
     }
   );
 });
 
 after(function(done) {
-  Token.remove({}, function() {
-    Bucket.remove({}, function() {
-      connection.close(done);
-    });
-  });
+  connection.close(done);
 });
 
 describe('Storage/models/Token', function() {
