@@ -350,6 +350,23 @@ describe('Storage/models/Credit', function() {
       });
     });
 
+    it('should fail if promo_amount is negative and there is a promo_expires', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_amount: -1,
+        promo_expires: PROMO_EXPIRES.NEW_SIGNUP
+      });
+
+      newCredit.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal(
+          'promo_expires cannot exist with a negative promo_amount'
+        );
+        done();
+      });
+    });
+
     it('should fail if promo_amount > 0 && !promo_code', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
