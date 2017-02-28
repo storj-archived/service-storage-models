@@ -140,7 +140,7 @@ describe('Storage/models/Credit', function() {
 
   describe('#create - paid_amount and invoiced_amount relations', function() {
 
-    it('should fail if trying to save paid without invoiced', function(done) {
+    it('should fail if trying to save paid without invoiced_amount', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -173,7 +173,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should set paid=true if paid=invoiced && both > 0', function(done) {
+    it('should set paid=true if paid_amount=invoiced_amount && both > 0', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -191,7 +191,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should set paid=false if paid!=invoiced && both > 0', function(done) {
+    it('should set paid=false if paid_amount!=invoiced_amount && both > 0', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -247,9 +247,9 @@ describe('Storage/models/Credit', function() {
 
   });
 
-  describe('#create - promo vs paid_amount/invoiced_amount', function() {
+  describe('#create - promo_amount vs paid_amount/invoiced_amount', function() {
 
-    it('should fail if trying to save invoiced and promo', function(done) {
+    it('should fail if trying to save invoiced_amount and promo_amount', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -260,13 +260,13 @@ describe('Storage/models/Credit', function() {
       newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
-          'promo_amount cannot exist with invoiced_amount and/or paid_amount'
+          'a positive or zero promo_amount cannot exist with invoiced_amount and/or paid_amount'
         );
         done();
       });
     });
 
-    it('should fail if trying to save paid_amount and promo', function(done) {
+    it('should fail if trying to save paid_amount and promo_amount', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -277,13 +277,13 @@ describe('Storage/models/Credit', function() {
       newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal(
-          'promo_amount cannot exist with invoiced_amount and/or paid_amount'
+          'a positive or zero promo_amount cannot exist with invoiced_amount and/or paid_amount'
         );
         done();
       });
     });
 
-    it('should have no paid/invoice if promo exists', function(done) {
+    it('should have no paid_amount/invoiced_amount if promo_amount exists', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -308,7 +308,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should have no promo if paid/invoice exists', function(done) {
+    it('should have no promo if paid_amount/invoiced_amount exists', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
@@ -329,7 +329,7 @@ describe('Storage/models/Credit', function() {
 
   });
 
-  describe('#create - promo validations', function() {
+  describe('#create - promo_amount validations', function() {
 
     it('should have promo_code if promo_amount is > 0', function(done) {
       const newCredit = new Credit({
@@ -346,6 +346,23 @@ describe('Storage/models/Credit', function() {
         }
         expect(credit.promo_code).to.equal(PROMO_CODE.NEW_SIGNUP);
         expect(credit.promo_amount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should fail if promo_amount is negative and there is a promo_expires', function(done) {
+      const newCredit = new Credit({
+        user: 'user@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_amount: -1,
+        promo_expires: PROMO_EXPIRES.NEW_SIGNUP
+      });
+
+      newCredit.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal(
+          'promo_expires cannot exist with a negative promo_amount'
+        );
         done();
       });
     });
@@ -377,7 +394,7 @@ describe('Storage/models/Credit', function() {
 
       newCredit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('Credit validation failed');
+        expect(err.message).to.equal('promo_code cannot exist with a negative promo_amount');
         done();
       });
     });
@@ -515,7 +532,7 @@ describe('Storage/models/Credit', function() {
       });
     });
 
-    it('should have specified fields for promo', function(done) {
+    it('should have specified fields for creating promo', function(done) {
       const newCredit = new Credit({
         user: 'user@domain.tld',
         type: CREDIT_TYPES.MANUAL,
