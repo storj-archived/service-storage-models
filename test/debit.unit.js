@@ -97,8 +97,9 @@ describe('Storage/models/Debit', function() {
         amount: null
       });
 
-      newDebit.save(function(err, debit) {
-        expect(debit.amount).to.equal(0);
+      newDebit.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Amount must be a number');
         done();
       });
     });
