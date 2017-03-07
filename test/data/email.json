@@ -1,0 +1,26 @@
+{
+  "valid": [
+    "me@example.com",
+    "a.nonymous@example.com",
+    "name+tag@example.com",
+    "name\\@tag@example.com",
+    "spaces\\ are\\ allowed@example.com",
+    "\"spaces may be quoted\"@example.com",
+    "!#$%&'*+-/=.?^_`{|}~@[1.0.0.127]",
+    "!#$%&'*+-/=.?^_`{|}~@[IPv6:0123:4567:89AB:CDEF:0123:4567:89AB:CDEF]",
+    "me(this is a comment)@example.com",
+    "user@domain.tld",
+    "user@domain.lawyer",
+    "first.middle.last@domain.systems"
+  ],
+  "invalid": [
+    "me@",
+    "@example.com",
+    "me.@example.com",
+    ".me@example.com",
+    "me@example..com",
+    "me.example@com",
+    "me\\@example.com",
+    "wrong@domain"
+  ]
+}
