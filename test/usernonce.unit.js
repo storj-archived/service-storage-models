@@ -46,6 +46,27 @@ describe('Storage/models/UserNonce', function() {
     });
   });
 
+  describe('@constructor', function() {
+    it('should fail validation', function(done) {
+      const nonce = new UserNonce({
+        user: 'nobody@nowhere',
+        nonce: '9f7c5d7f20f7e002b59361d9f4d267b3b64903121208ef094203759f9f650d0e'
+      });
+      nonce.save((err) => {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('UserNonce validation failed');
+        done();
+      });
+    });
+    it('should NOT fail validation', function(done) {
+      const nonce = new UserNonce({
+        user: 'somebody@somewhere.com',
+        nonce: '9f7c5d7f20f7e002b59361d9f4d267b3b64903121208ef094203759f9f650d0e'
+      });
+      nonce.save(done);
+    });
+  });
+
   describe('#create', function() {
 
     it('should create a user nonce with correct props', function(done) {
