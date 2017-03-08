@@ -1,0 +1,21 @@
+{
+  "valid": [
+    "me@example.com",
+    "a.nonymous@example.com",
+    "name+tag@example.com",
+    "\"spaces may be quoted\"@example.com",
+    "user@domain.tld",
+    "user@domain.lawyer",
+    "first.middle.last@domain.systems"
+  ],
+  "invalid": [
+    "me@",
+    "@example.com",
+    "me.@example.com",
+    ".me@example.com",
+    "me@example..com",
+    "me.example@com",
+    "me\\@example.com",
+    "wrong@domain"
+  ]
+}

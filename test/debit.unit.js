@@ -31,6 +31,30 @@ after(function(done) {
 });
 
 describe('Storage/models/Debit', function() {
+
+  describe('@constructor', function() {
+    it('should fail validation', function(done) {
+      const debit = new Debit({
+        user: 'nobody@nowhere',
+        amount: 10000,
+        type: DEBIT_TYPES.STORAGE
+      });
+      debit.save((err) => {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Debit validation failed');
+        done();
+      });
+    });
+    it('should NOT fail validation', function(done) {
+      const debit = new Debit({
+        user: 'somebody@somewhere.com',
+        amount: 10000,
+        type: DEBIT_TYPES.STORAGE
+      });
+      debit.save(done);
+    });
+  });
+
   describe('#create', function() {
 
     it('should create debit with default props', function(done) {

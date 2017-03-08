@@ -40,6 +40,25 @@ function sha256(i) {
 
 describe('Storage/models/Frame', function() {
 
+  describe('@constructor', function() {
+    it('should fail validation', function(done) {
+      const frame = new Frame({
+        user: 'nobody@nowhere'
+      });
+      frame.save((err) => {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('Frame validation failed');
+        done();
+      });
+    });
+    it('should NOT fail validation', function(done) {
+      const frame = new Frame({
+        user: 'somebody@somewhere.com',
+      });
+      frame.save(done);
+    });
+  });
+
   describe('#create', function() {
 
     it('should create a frame with default props', function(done) {

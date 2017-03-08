@@ -37,12 +37,35 @@ function sha256(i) {
 }
 
 describe('Storage/models/UserNonce', function() {
+  const n = '9f7c5d7f20f7e002b59361d9f4d267b3b64903121208ef094203759f9f650d0e';
+
   before(function(done) {
     User.create('usernonce@tld.com', sha256('pass'), function(err) {
       if (err) {
         return done(err);
       }
       done();
+    });
+  });
+
+  describe('@constructor', function() {
+    it('should fail validation', function(done) {
+      const nonce = new UserNonce({
+        user: 'nobody@nowhere',
+        nonce: n
+      });
+      nonce.save((err) => {
+        expect(err).to.be.instanceOf(Error);
+        expect(err.message).to.equal('UserNonce validation failed');
+        done();
+      });
+    });
+    it('should NOT fail validation', function(done) {
+      const nonce = new UserNonce({
+        user: 'somebody@somewhere.com',
+        nonce: n
+      });
+      nonce.save(done);
     });
   });
 
