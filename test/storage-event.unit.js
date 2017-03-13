@@ -49,4 +49,47 @@ describe('Storage/models/Storage-Event', function() {
       done();
     });
   });
+
+  it('should not save without a bucket', function(done) {
+    var newStorageEvent = new StorageEvent({
+      bucketEntry: mongoose.Types.ObjectId(),
+      user: 'user@gmail.com',
+      downloadBandwidth: 0,
+      storage: 1000000,
+    });
+
+    newStorageEvent.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        done();
+      });
+  });
+
+  it('should not save without a bucketEntry', function(done) {
+    var newStorageEvent = new StorageEvent({
+      bucket: mongoose.Types.ObjectId(),
+      user: 'user@gmail.com',
+      downloadBandwidth: 0,
+      storage: 1000000,
+    });
+
+    newStorageEvent.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        done();
+      });
+  });
+
+
+  it('should not save without a user', function(done) {
+    var newStorageEvent = new StorageEvent({
+      bucket: mongoose.Types.ObjectId(),
+      bucketEntry: mongoose.Types.ObjectId(),
+      downloadBandwidth: 0,
+      storage: 1000000,
+    });
+
+    newStorageEvent.save(function(err) {
+        expect(err).to.be.instanceOf(Error);
+        done();
+      });
+  });
 });
