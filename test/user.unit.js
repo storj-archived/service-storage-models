@@ -264,12 +264,6 @@ describe('Storage/models/User', function() {
     });
     after(() => clock.restore());
 
-    it('should return false in paid tier', function() {
-      expect(userPaid.isDownloadRateLimited(10, 20, 30)).to.equal(false);
-      userPaid.recordDownloadBytes(700);
-      expect(userPaid.isDownloadRateLimited(10, 20, 30)).to.equal(false);
-    });
-
     it('should return false if under the limits', function() {
       expect(userFree.isDownloadRateLimited(10, 20, 30)).to.equal(false);
       userFree.recordDownloadBytes(10);
@@ -395,12 +389,6 @@ describe('Storage/models/User', function() {
       });
     });
     after(() => clock.restore());
-
-    it('should return false in paid tier', function() {
-      expect(userPaid.isUploadRateLimited(10, 20, 30)).to.equal(false);
-      userPaid.recordUploadBytes(700);
-      expect(userPaid.isUploadRateLimited(10, 20, 30)).to.equal(false);
-    });
 
     it('should return false if under the limits', function() {
       expect(userFree.isUploadRateLimited(10, 20, 30)).to.equal(false);
