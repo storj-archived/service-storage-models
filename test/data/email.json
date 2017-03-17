@@ -6,12 +6,13 @@
     "\"spaces may be quoted\"@example.com",
     "user@domain.tld",
     "user@domain.lawyer",
-    "first.middle.last@domain.systems"
+    "first.middle.last@domain.systems",
+    "143115d7-baec-1304-275a-e66019c31d3e_66a9614e40d1912eda77f07fe38f1f0d@d71d63.5f0db.db"
   ],
   "invalid": [
     "me@",
     "@example.com",
-    "c4e34e270ebbe228b2543b6bd2c148e582659ccbad061ab9dc67518e6f0275f700@domain.com",
+    "c4e34e270ebbe228b2543b6bd2c148e582659ccbad061ab9dc67518e6f0275f700000000@domain.com",
     "user@614c22107dbc2ad8bee0e7b4bec8818ff52181be56233009903d8a4a1e74a80cd1fcf34707132c25a7cda0fc70ab572ca1d39b6935e254ddcfa2b2efe58cbf371bd3ef610dfc6822b03420a922358ab3fc7b120f48289c341fbd9a30137f5b05db8ad95d7ce8758346ebb6589f6f6a20ecc204c0d219eac61c9bc43b499eae11"
   ]
 }
