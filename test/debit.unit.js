@@ -35,7 +35,7 @@ describe('Storage/models/Debit', function() {
   describe('@constructor', function() {
     it('should fail validation', function(done) {
       const debit = new Debit({
-        user: 'nobody@nowhere',
+        user: 'nobody@',
         amount: 10000,
         type: DEBIT_TYPES.STORAGE
       });

@@ -56,8 +56,8 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('should not create a invalid email (no tld)', function(done) {
-      User.create('wrong@domain', sha256('password'), function(err) {
+    it('should not create a invalid email (no domain)', function(done) {
+      User.create('wrong@', sha256('password'), function(err) {
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal('Invalid email');
         done();
@@ -106,9 +106,9 @@ describe('Storage/models/User', function() {
         });
     });
 
-    it('should not create email with invalid symbols', function(done) {
+    it('should not create email with no user', function(done) {
       User.create(
-        'test()test@gmail.com',
+        '@gmail.com',
         sha256('password'),
         function(err) {
           expect(err).to.be.instanceOf(Error);

@@ -51,7 +51,7 @@ describe('Storage/models/UserNonce', function() {
   describe('@constructor', function() {
     it('should fail validation', function(done) {
       const nonce = new UserNonce({
-        user: 'nobody@nowhere',
+        user: 'nobody@',
         nonce: n
       });
       nonce.save((err) => {

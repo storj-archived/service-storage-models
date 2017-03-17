@@ -43,7 +43,7 @@ describe('Storage/models/Frame', function() {
   describe('@constructor', function() {
     it('should fail validation', function(done) {
       const frame = new Frame({
-        user: 'nobody@nowhere'
+        user: 'nobody@'
       });
       frame.save((err) => {
         expect(err).to.be.instanceOf(Error);
