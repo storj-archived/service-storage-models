@@ -50,7 +50,9 @@ describe('Storage/models/Contact', function() {
           lastSeen: Date.now()
         }, next);
       }, function(err) {
-        expect(err).to.not.be.instanceOf(Error);
+        if (err) {
+          return done(err);
+        }
         Contact.count({}, function(err, count) {
           expect(count).to.equal(3);
           done();

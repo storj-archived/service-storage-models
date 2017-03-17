@@ -29,7 +29,7 @@ describe('Storage/models/PaymentProcessor', function() {
   describe('@constructor', function() {
     it('should fail validation', function(done) {
       const pp = new PaymentProcessor({
-        user: 'nobody@nowhere',
+        user: 'nobody@',
         name: 'stripe'
       });
       pp.save((err) => {
