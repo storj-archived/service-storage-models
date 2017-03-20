@@ -232,4 +232,54 @@ describe('Storage/models/BucketEntry', function() {
     });
   });
 
+  describe('Indexes', function() {
+    let entry = null;
+
+    before(function(done) {
+      Bucket.create({ _id: 'user@domain.tld' }, {}, (err, bucket) => {
+        if (err) {
+          return done(err);
+        }
+        var frame = new Frame({});
+        frame.save((err) => {
+          if (err) {
+            return done(err);
+          }
+          BucketEntry.create({
+            frame: frame._id,
+            mimetype: 'text/javascript',
+            bucket: bucket._id,
+            name: 'indexes.txt'
+          }, (err, _entry) => {
+            if (err) {
+              return done(err);
+            }
+            entry = _entry;
+            done();
+          });
+        });
+      });
+    });
+
+    it('should have an index for created', function(done) {
+      const now = Date.now();
+      const query = {
+        'created': {
+          $lte: now
+        },
+      };
+      const cursor = BucketEntry.collection.find(query);
+      cursor.explain((err, result) => {
+        expect(result.queryPlanner.winningPlan.inputStage.indexBounds)
+          .to.eql({
+            created: [
+              '[-inf.0, ' + now + '.0]'
+            ]
+          });
+        done();
+      });
+    });
+
+  });
+
 });
