@@ -51,9 +51,8 @@ describe('FullAudit', function() {
     });
 
     it('should not schedule audits with missing properties', (done) => {
-      auditModel.scheduleFullAudits({challenges:[]},
-        null,
-        (err, docsArr) => {
+      auditModel.scheduleFullAudits({challenges:[{}]},
+        null, (err, docsArr) => {
           expect(err).to.not.be.a('null');
           expect(docsArr).to.be.an('undefined');
           done();
