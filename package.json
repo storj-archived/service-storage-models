@@ -46,7 +46,8 @@
     "random-word": "^2.0.0",
     "storj-lib": "^6.1.2",
     "storj-service-error-types": "^1.1.0",
-    "stripe": "^4.11.0"
+    "stripe": "^4.11.0",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "async": "^2.0.1",
