@@ -161,7 +161,7 @@ describe('Storage/models/User', function() {
         }
         const keys = Object.keys(user.toObject());
         expect(keys).to.contain(
-          'isFreeTier', 'activated', 'created', 'email', 'id'
+          'isFreeTier', 'activated', 'created', 'email', 'id', 'uuid'
         );
         expect(keys).to.not.contain(
           '__v', '_id', 'hashpass', 'activator', 'deactivator', 'resetter',
