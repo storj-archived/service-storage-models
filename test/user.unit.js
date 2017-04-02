@@ -67,7 +67,6 @@ describe('Storage/models/User', function() {
 
     it('should create a valid UUID', function(done) {
       User.create('uuid@domain.tld', sha256('password'), function(err, user) {
-        expect(user.uuid).to.be.ok;
         expect(validateUUID(user.uuid)).to.equal(true);
         done();
       });
