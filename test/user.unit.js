@@ -9,6 +9,7 @@ const { expect } = require('chai');
 const mongoose = require('mongoose');
 const sinon = require('sinon');
 const ms = require('ms');
+const validateUUID = require('uuid-validate');
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -60,6 +61,13 @@ describe('Storage/models/User', function() {
       User.create('wrong@', sha256('password'), function(err) {
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal('Invalid email');
+        done();
+      });
+    });
+
+    it('should create a valid UUID', function(done) {
+      User.create('uuid@domain.tld', sha256('password'), function(err, user) {
+        expect(validateUUID(user.uuid)).to.equal(true);
         done();
       });
     });
@@ -153,7 +161,7 @@ describe('Storage/models/User', function() {
         }
         const keys = Object.keys(user.toObject());
         expect(keys).to.contain(
-          'isFreeTier', 'activated', 'created', 'email', 'id'
+          'isFreeTier', 'activated', 'created', 'email', 'id', 'uuid'
         );
         expect(keys).to.not.contain(
           '__v', '_id', 'hashpass', 'activator', 'deactivator', 'resetter',
