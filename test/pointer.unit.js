@@ -36,7 +36,8 @@ describe('Storage/models/Pointer', function() {
         hash: 'fjla93fs9-23892-2sdl@#ds-932049203',
         size: 1,
         tree: ['tree1', 'tree2'],
-        challenges: ['challenge1', 'challenge2']
+        challenges: ['challenge1', 'challenge2'],
+        parity: true
       };
       Pointer.create(shard, function(err, pointer) {
         expect(err).to.not.be.an.instanceOf(Error);
@@ -47,6 +48,7 @@ describe('Storage/models/Pointer', function() {
         expect(pointer.size).to.equal(shard.size);
         expect(pointer.size).to.be.a('number');
         expect(pointer.tree).to.be.an('array');
+        expect(pointer.parity).to.equal(true);
         expect(pointer.challenges).to.be.an('array');
         done();
       });
