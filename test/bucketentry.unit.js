@@ -43,8 +43,6 @@ describe('Storage/models/BucketEntry', function() {
 
   var expectedBucketId =
     storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
-  var expectedFileId =
-    storj.utils.calculateFileId(expectedBucketId, 'test.txt');
 
   it('should create the bucket entry metadata', function(done) {
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
@@ -52,6 +50,8 @@ describe('Storage/models/BucketEntry', function() {
       var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
+        var expectedFileId =
+            storj.utils.calculateFileId(expectedBucketId, frame._id);
         BucketEntry.create({
           frame: frame._id,
           bucket: bucket._id,
