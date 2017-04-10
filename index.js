@@ -59,7 +59,8 @@ Storage.prototype._connect = function() {
 
   var opts = merge.recursive(true, defaultOpts, this._options);
 
-  this._log.info('opening database connection to %s', this._uri);
+  this._log.info('opening database connection');
+  this._log.debug('database uri is  %s', this._uri);
 
   return mongoose.createConnection(this._uri, opts);
 };
