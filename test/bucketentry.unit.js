@@ -45,14 +45,14 @@ describe('Storage/models/BucketEntry', function() {
     storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
 
   it('should create the bucket entry metadata', function(done) {
+    const index = crypto.randomBytes(32).toString('hex');
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
-    function(err, bucket) {
+                  function(err, bucket) {
       var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
-        var expectedFileId =
-            storj.utils.calculateFileId(expectedBucketId, frame._id);
         BucketEntry.create({
+          index: index,
           frame: frame._id,
           bucket: bucket._id,
           name: 'test.txt',
@@ -65,8 +65,9 @@ describe('Storage/models/BucketEntry', function() {
             return done(err);
           }
           expect(entry.erasure.type).to.equal('reedsolomon');
+          expect(entry.index).to.equal(index);
           expect(entry.filename).to.equal('test.txt');
-          expect(entry.id).to.equal(expectedFileId);
+          expect(entry.id.length).to.equal(24);
           done();
         });
       });
@@ -102,6 +103,7 @@ describe('Storage/models/BucketEntry', function() {
     frame.save(function(err) {
       expect(err).to.not.be.instanceOf(Error);
       BucketEntry.create({
+        index: crypto.randomBytes(32).toString('hex'),
         frame: frame._id,
         bucket: expectedBucketId,
         name: 'test.txt',
@@ -120,6 +122,7 @@ describe('Storage/models/BucketEntry', function() {
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           mimetype: 'invalid/mimetype',
           bucket: bucket._id,
@@ -140,6 +143,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -173,6 +177,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -198,6 +203,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -221,6 +227,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -242,6 +249,7 @@ describe('Storage/models/BucketEntry', function() {
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           mimetype: 'text/javascript',
           bucket: bucket._id,
@@ -275,6 +283,7 @@ describe('Storage/models/BucketEntry', function() {
             return done(err);
           }
           BucketEntry.create({
+            index: crypto.randomBytes(32).toString('hex'),
             frame: frame._id,
             mimetype: 'text/javascript',
             bucket: bucket._id,
