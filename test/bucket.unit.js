@@ -82,14 +82,12 @@ describe('Storage/models/Bucket', function() {
       });
     });
 
-    it('should not reject a duplicate name', function(done) {
+    it('should reject a duplicate name', function(done) {
       Bucket.create(
         { _id: 'user@domain.tld' },
         { name: 'New Bucket' },
         function(err) {
-          if (err) {
-            return done(err);
-          }
+          expect(err.message).to.equal('Name already used by another bucket');
           done();
       });
     });
