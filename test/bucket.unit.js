@@ -33,22 +33,19 @@ describe('Storage/models/Bucket', function() {
   describe('#create', function() {
 
     it('should create the bucket with the default props', function(done) {
-      var expectedBucketId =
-        storj.utils.calculateBucketId('user@domain.tld', 'New Bucket');
-
       Bucket.create(
         { _id: 'user@domain.tld' },
         { name: 'New Bucket' },
         function(err, bucket) {
           expect(err).to.not.be.instanceOf(Error);
-          expect(bucket.id).to.equal(expectedBucketId);
+          expect(bucket.id.length).to.equal(24);
           expect(bucket.name).to.equal('New Bucket');
           expect(bucket.storage).to.equal(0);
           expect(bucket.transfer).to.equal(0);
           expect(bucket.publicPermissions.length).to.equal(0);
           Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
             expect(err).to.not.be.instanceOf(Error);
-            expect(bucket.id).to.equal(expectedBucketId);
+            expect(bucket.id.length).to.equal(24);
             expect(bucket.name).to.equal('New Bucket');
             expect(bucket.storage).to.equal(0);
             expect(bucket.transfer).to.equal(0);
@@ -85,12 +82,14 @@ describe('Storage/models/Bucket', function() {
       });
     });
 
-    it('should reject a duplicate name', function(done) {
+    it('should not reject a duplicate name', function(done) {
       Bucket.create(
         { _id: 'user@domain.tld' },
         { name: 'New Bucket' },
         function(err) {
-          expect(err.message).to.equal('Name already used by another bucket');
+          if (err) {
+            return done(err);
+          }
           done();
       });
     });
