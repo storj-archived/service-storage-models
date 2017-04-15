@@ -31,7 +31,7 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
     info: console.log,
     debug: console.log,
     error: console.error,
-    warn: console.log
+    warn: console.warn
   };
   this._log = storageOptions ?
     (storageOptions.logger || defaultLogger) : defaultLogger;
