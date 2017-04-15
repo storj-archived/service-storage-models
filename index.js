@@ -26,7 +26,16 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
 
   this._uri = mongoURI;
   this._options = mongoOptions;
-  this._log = storageOptions ? (storageOptions.logger || console) : console;
+
+  const defaultLogger = {
+    info: console.log,
+    debug: console.log,
+    error: console.error,
+    warn: console.log
+  };
+  this._log = storageOptions ?
+    (storageOptions.logger || defaultLogger) : defaultLogger;
+
   this.connection = this._connect();
   this.models = this._createBoundModels();
 
