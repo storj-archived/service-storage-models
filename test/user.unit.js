@@ -72,6 +72,13 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should add a dnt preference', function(done) {
+      User.create('dnt@domain.tld', sha256('password'), function(err, user) {
+        expect(user.preferences.dnt).to.equal(false);
+        done();
+      });
+    });
+
     it('should not create a user account with bad password', function(done) {
       User.create('wrong@domain.tld', 'password', function(err) {
         expect(err.message).to.equal(
