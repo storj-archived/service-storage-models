@@ -554,6 +554,71 @@ describe('Storage/models/Credit', function() {
       });
     });
 
+    it('should call getters', function(done) {
+      const newCredit = new Credit({
+        user: 'user123@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_code: PROMO_CODE.NEW_SIGNUP,
+        promo_amount: PROMO_AMOUNT.NEW_SIGNUP,
+        promo_expires: PROMO_EXPIRES.NEW_SIGNUP
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.toObject().promo_amount).to.equal(488);
+        done();
+      });
+    });
+
+  });
+
+  describe('#toJSON', function() {
+
+    it('should remove expected fields', function (done) {
+      const amount = 1000;
+
+      const newCredit = new Credit({
+        user: 'user123@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_code: PROMO_CODE.STORJ_EVENT,
+        promo_amount: amount,
+        promo_expires: PROMO_EXPIRES.DEFAULT
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+
+        const creditKeys = Object.keys(credit.toJSON());
+        expect(creditKeys).to.not.contain('__v', '_id');
+        done();
+      });
+    });
+
+    it('should call getters', function (done) {
+      const amount = 1000;
+
+      const newCredit = new Credit({
+        user: 'user123@domain.tld',
+        type: CREDIT_TYPES.MANUAL,
+        promo_code: PROMO_CODE.STORJ_EVENT,
+        promo_amount: amount,
+        promo_expires: PROMO_EXPIRES.DEFAULT
+      });
+
+      newCredit.save(function(err, credit) {
+        if (err) {
+          return done(err);
+        }
+        expect(credit.promo_amount).to.equal(amount);
+        done();
+      });
+
+    });
+
   });
 
 });
