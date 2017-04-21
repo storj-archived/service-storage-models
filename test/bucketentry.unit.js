@@ -108,9 +108,9 @@ describe('Storage/models/BucketEntry', function() {
         bucket: expectedBucketId,
         name: 'test.txt',
         mimetype: 'text/javascript'
-      }, function(err, entry){
-        expect(err).to.equal(null);
-        expect(entry.mimetype).to.equal('text/javascript');
+      }, function(err){
+        expect(err).to.be.instanceOf(Error);
+        expect(err.code).to.equal(11000);
         done();
       });
     });
