@@ -44,6 +44,10 @@ describe('Storage/models/BucketEntry', function() {
   var expectedBucketId =
     storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
 
+  // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
+  var expectedFileId =
+    storj.utils.calculateFileId(expectedBucketId, 'test.txt');
+
   it('should create the bucket entry metadata', function(done) {
     const index = crypto.randomBytes(32).toString('hex');
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
@@ -67,6 +71,10 @@ describe('Storage/models/BucketEntry', function() {
           expect(entry.erasure.type).to.equal('reedsolomon');
           expect(entry.index).to.equal(index);
           expect(entry.filename).to.equal('test.txt');
+
+          // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
+          expect(entry.id).to.equal(expectedFileId);
+
           expect(entry.id.length).to.equal(24);
           done();
         });
