@@ -56,10 +56,39 @@ describe('Storage/models/BucketEntry', function() {
           frame: frame._id,
           bucket: bucket._id,
           name: 'test.txt',
+          erasure: {
+            type: 'reedsolomon'
+          },
           mimetype: 'text/plain'
         }, function(err, entry) {
+          if (err) {
+            return done(err);
+          }
+          expect(entry.erasure.type).to.equal('reedsolomon');
           expect(entry.filename).to.equal('test.txt');
           expect(entry.id).to.equal(expectedFileId);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should give error with invalid erasure type', function(done) {
+    Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket3' },
+    function(err, bucket) {
+      var frame = new Frame({});
+      frame.save(function(err) {
+        expect(err).to.not.be.instanceOf(Error);
+        BucketEntry.create({
+          frame: frame._id,
+          bucket: bucket._id,
+          name: 'test.txt',
+          erasure: {
+            type: 'somethingnotacode'
+          },
+          mimetype: 'text/plain'
+        }, function(err) {
+          expect(err).to.be.instanceOf(errors.BadRequestError);
           done();
         });
       });
