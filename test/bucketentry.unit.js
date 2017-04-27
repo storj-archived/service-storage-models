@@ -43,16 +43,20 @@ describe('Storage/models/BucketEntry', function() {
 
   var expectedBucketId =
     storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
+
+  // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
   var expectedFileId =
     storj.utils.calculateFileId(expectedBucketId, 'test.txt');
 
   it('should create the bucket entry metadata', function(done) {
+    const index = crypto.randomBytes(32).toString('hex');
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
-    function(err, bucket) {
+                  function(err, bucket) {
       var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         BucketEntry.create({
+          index: index,
           frame: frame._id,
           bucket: bucket._id,
           name: 'test.txt',
@@ -65,8 +69,13 @@ describe('Storage/models/BucketEntry', function() {
             return done(err);
           }
           expect(entry.erasure.type).to.equal('reedsolomon');
+          expect(entry.index).to.equal(index);
           expect(entry.filename).to.equal('test.txt');
+
+          // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
           expect(entry.id).to.equal(expectedFileId);
+
+          expect(entry.id.length).to.equal(24);
           done();
         });
       });
@@ -102,13 +111,14 @@ describe('Storage/models/BucketEntry', function() {
     frame.save(function(err) {
       expect(err).to.not.be.instanceOf(Error);
       BucketEntry.create({
+        index: crypto.randomBytes(32).toString('hex'),
         frame: frame._id,
         bucket: expectedBucketId,
         name: 'test.txt',
         mimetype: 'text/javascript'
-      }, function(err, entry){
-        expect(err).to.equal(null);
-        expect(entry.mimetype).to.equal('text/javascript');
+      }, function(err){
+        expect(err).to.be.instanceOf(Error);
+        expect(err.code).to.equal(11000);
         done();
       });
     });
@@ -120,6 +130,7 @@ describe('Storage/models/BucketEntry', function() {
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           mimetype: 'invalid/mimetype',
           bucket: bucket._id,
@@ -140,6 +151,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -173,6 +185,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -198,6 +211,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -221,6 +235,7 @@ describe('Storage/models/BucketEntry', function() {
           return done(err);
         }
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           bucket: bucket._id,
           name: 'test-with-hmac.txt',
@@ -242,6 +257,7 @@ describe('Storage/models/BucketEntry', function() {
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
         BucketEntry.create({
+          index: crypto.randomBytes(32).toString('hex'),
           frame: frame._id,
           mimetype: 'text/javascript',
           bucket: bucket._id,
@@ -275,6 +291,7 @@ describe('Storage/models/BucketEntry', function() {
             return done(err);
           }
           BucketEntry.create({
+            index: crypto.randomBytes(32).toString('hex'),
             frame: frame._id,
             mimetype: 'text/javascript',
             bucket: bucket._id,

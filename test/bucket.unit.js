@@ -33,6 +33,8 @@ describe('Storage/models/Bucket', function() {
   describe('#create', function() {
 
     it('should create the bucket with the default props', function(done) {
+
+      // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
       var expectedBucketId =
         storj.utils.calculateBucketId('user@domain.tld', 'New Bucket');
 
@@ -41,14 +43,18 @@ describe('Storage/models/Bucket', function() {
         { name: 'New Bucket' },
         function(err, bucket) {
           expect(err).to.not.be.instanceOf(Error);
-          expect(bucket.id).to.equal(expectedBucketId);
+          expect(bucket.id.length).to.equal(24);
           expect(bucket.name).to.equal('New Bucket');
           expect(bucket.storage).to.equal(0);
           expect(bucket.transfer).to.equal(0);
           expect(bucket.publicPermissions.length).to.equal(0);
           Bucket.findOne({ _id: bucket.id }, function(err, bucket) {
             expect(err).to.not.be.instanceOf(Error);
+
+            // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
             expect(bucket.id).to.equal(expectedBucketId);
+
+            expect(bucket.id.length).to.equal(24);
             expect(bucket.name).to.equal('New Bucket');
             expect(bucket.storage).to.equal(0);
             expect(bucket.transfer).to.equal(0);
