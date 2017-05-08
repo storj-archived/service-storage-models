@@ -2,6 +2,7 @@
 
 /*jshint expr: true*/
 
+const async = require('async');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const crypto = require('crypto');
@@ -10,9 +11,11 @@ require('mongoose-types').loadTypes(mongoose);
 
 const FrameSchema = require('../lib/models/frame');
 const UserSchema = require('../lib/models/user');
+const PointerSchema = require('../lib/models/pointer');
 
 var Frame;
 var User;
+var Pointer;
 var connection;
 
 before(function(done) {
@@ -23,7 +26,10 @@ before(function(done) {
       User = UserSchema(connection);
       Frame.remove({}, function() {
         User.remove({}, function() {
-          done();
+          Pointer = PointerSchema(connection);
+          Pointer.remove({}, function() {
+            done();
+          });
         });
       });
     }
@@ -96,6 +102,45 @@ describe('Storage/models/Frame', function() {
       });
     });
 
+  });
+
+  describe('#addShard', function() {
+    it('will increment sizes with concurrency', function(done) {
+      Frame.create({}, function(err, frame) {
+        if (err) {
+          return done(err);
+        }
+        async.times(10, (n, next) => {
+          var shard = {
+            index: n,
+            hash: crypto.randomBytes(20).toString('hex'),
+            size: 8 * 1024 * 1024,
+            tree: ['tree1', 'tree2'],
+            challenges: ['challenge1', 'challenge2'],
+            parity: n > 6 ? true : false
+          };
+          Pointer.create(shard, function(err, pointer) {
+            if (err) {
+              return next(err);
+            }
+            frame.addShard(pointer, next);
+          });
+        }, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          Frame.findOne(frame._id, (err, _frame) => {
+            if (err) {
+              return done(err);
+            }
+            expect(_frame.size).to.equal(7 * 8 * 1024 * 1024);
+            expect(_frame.storageSize).to.equal(10 * 8 * 1024 * 1024);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('#unlock', function() {
