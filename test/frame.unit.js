@@ -106,10 +106,20 @@ describe('Storage/models/Frame', function() {
 
   describe('#addShard', function() {
     it('will increment sizes with concurrency', function(done) {
-      Frame.create({}, function(err, frame) {
-        if (err) {
-          return done(err);
-        }
+
+      var frame = null;
+
+      function createFrame(next) {
+        Frame.create({}, (err, _frame) => {
+          if (err) {
+            return next(err);
+          }
+          frame = _frame;
+          next();
+        });
+      }
+
+      function addShards(finished) {
         async.times(10, (n, next) => {
           var shard = {
             index: n,
@@ -125,19 +135,49 @@ describe('Storage/models/Frame', function() {
             }
             frame.addShard(pointer, next);
           });
-        }, (err) => {
+        }, finished);
+      }
+
+      function replaceShard(next) {
+        Frame.findOne({
+          _id: frame._id
+        }).populate('shards').exec((err, _frame) => {
           if (err) {
             return done(err);
           }
-
-          Frame.findOne(frame._id, (err, _frame) => {
+          frame = _frame;
+          var shard = {
+            index: 3,
+            hash: crypto.randomBytes(20).toString('hex'),
+            size: 8 * 1024 * 1024,
+            tree: ['tree1', 'tree2'],
+            challenges: ['challenge1', 'challenge2'],
+            parity: false
+          };
+          Pointer.create(shard, function(err, pointer) {
             if (err) {
-              return done(err);
+              return next(err);
             }
-            expect(_frame.size).to.equal(7 * 8 * 1024 * 1024);
-            expect(_frame.storageSize).to.equal(10 * 8 * 1024 * 1024);
-            done();
+            frame.addShard(pointer, next);
           });
+        });
+      }
+
+      async.series([
+        createFrame,
+        addShards,
+        replaceShard
+      ], (err) => {
+        if (err) {
+          return done(err);
+        }
+        Frame.findOne(frame._id, (err, _frame) => {
+          if (err) {
+            return done(err);
+          }
+          expect(_frame.size).to.equal(7 * 8 * 1024 * 1024);
+          expect(_frame.storageSize).to.equal(10 * 8 * 1024 * 1024);
+          done();
         });
       });
     });
