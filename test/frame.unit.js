@@ -106,7 +106,8 @@ describe('Storage/models/Frame', function() {
 
   describe('#addShard', function() {
     it('will increment sizes with concurrency', function(done) {
-
+      const replacementHash = crypto.randomBytes(20).toString('hex');
+      let hashes = [];
       var frame = null;
 
       function createFrame(next) {
@@ -121,9 +122,11 @@ describe('Storage/models/Frame', function() {
 
       function addShards(finished) {
         async.times(10, (n, next) => {
+          let hash = crypto.randomBytes(20).toString('hex');
+          hashes.push(hash);
           var shard = {
             index: n,
-            hash: crypto.randomBytes(20).toString('hex'),
+            hash: hash,
             size: 8 * 1024 * 1024,
             tree: ['tree1', 'tree2'],
             challenges: ['challenge1', 'challenge2'],
@@ -148,7 +151,7 @@ describe('Storage/models/Frame', function() {
           frame = _frame;
           var shard = {
             index: 3,
-            hash: crypto.randomBytes(20).toString('hex'),
+            hash: replacementHash,
             size: 8 * 1024 * 1024,
             tree: ['tree1', 'tree2'],
             challenges: ['challenge1', 'challenge2'],
@@ -171,12 +174,20 @@ describe('Storage/models/Frame', function() {
         if (err) {
           return done(err);
         }
-        Frame.findOne(frame._id, (err, _frame) => {
+        Frame.findOne(frame._id).populate('shards').exec((err, _frame) => {
           if (err) {
             return done(err);
           }
           expect(_frame.size).to.equal(7 * 8 * 1024 * 1024);
           expect(_frame.storageSize).to.equal(10 * 8 * 1024 * 1024);
+          _frame.shards.sort((a, b) => a.index > b.index);
+          for (var i = 0; i < _frame.shards.length; i++) {
+            expect(_frame.shards[i].index).to.equal(i);
+            expect(_frame.shards[i].hash).to.not.equal(hashes[3]);
+            if (i === 3) {
+              expect(_frame.shards[i].hash).to.equal(replacementHash);
+            }
+          }
           done();
         });
       });
