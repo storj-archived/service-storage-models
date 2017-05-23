@@ -64,6 +64,7 @@ describe('/Storage/models/Partner', function() {
         expect(err).to.be.instanceOf(Error);
         // duplicate code: 11000
         expect(err.code).to.equal(11000);
+        expect(partner).to.equal(undefined);
         done();
       });
     });
@@ -76,7 +77,7 @@ describe('/Storage/models/Partner', function() {
 
       newPartner.save(function(err, partner) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Partner validation failed: revSharePercentage: Path `revSharePercentage` (100) is more than maximum allowed value (1).');
+        expect(partner).to.equal(undefined);
         done();
       });
     });
