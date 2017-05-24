@@ -98,6 +98,7 @@ describe('/Storage/models/Partner', function() {
 
         const partnerKeys = Object.keys(partner.toObject());
         expect(partnerKeys).to.not.contain('__v', '_id');
+        expect(partnerKeys).to.contain('id', 'name', 'revSharePercentage', 'modified', 'created');
         done();
       });
     });
@@ -115,9 +116,9 @@ describe('/Storage/models/Partner', function() {
         if (err) {
           return done(err);
         }
-
         const partnerKeys = Object.keys(partner.toJSON());
         expect(partnerKeys).to.not.contain('__v', '_id');
+        expect(partnerKeys).to.contain('id', 'name', 'revSharePercentage', 'modified', 'created');
         done();
       });
     });
