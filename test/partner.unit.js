@@ -127,6 +127,52 @@ describe('/Storage/models/Partner', function() {
         done();
       });
     });
+  });
+
+  describe('#modifyRevShare', function () {
+
+    it('should change field and update modified date', function (done) {
+      let firstDate;
+      const name = 'partner4';
+      const newPartner = new Partner({ name });
+
+      newPartner.save(function(err, partner) {
+        if (err) {
+          return done(err);
+        }
+        expect(partner.revShareTotalPercentage).to.equal(0);
+        firstDate = partner.modified;
+
+        partner.modifyRevShare('revShareTotalPercentage', 0.2,
+          function(err, partner) {
+            if (err) {
+              return done(err);
+            }
+            expect(partner.revShareTotalPercentage).to.equal(0.2);
+            expect(partner.modified).to.not.equal(firstDate);
+            done();
+        });
+      });
+    });
+
+    it('should fail with incorrect rev share field', function (done) {
+      const name = 'partner5';
+      const revShareTotalPercentage = 0.3;
+      const newPartner = new Partner({ name, revShareTotalPercentage });
+
+      newPartner.save(function(err, partner) {
+        if (err) {
+          return done(err);
+        }
+        expect(partner.revShareTotalPercentage).to.equal(0.3);
+
+        partner.modifyRevShare('wrongRevShareField', 0.4, function(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Incorrect rev share field');
+          done();
+        });
+      });
+    });
 
   });
 
