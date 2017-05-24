@@ -47,7 +47,8 @@ describe('/Storage/models/Partner', function() {
         }
 
         expect(partner.name).to.equal(name);
-        expect(partner.revShareTotalPercentage).to.equal(revShareTotalPercentage);
+        expect(partner.revShareTotalPercentage)
+          .to.equal(revShareTotalPercentage);
         expect(partner.created).to.equalDate(date);
         expect(partner.modified).to.equalDate(date);
         done();
@@ -98,7 +99,9 @@ describe('/Storage/models/Partner', function() {
 
         const partnerKeys = Object.keys(partner.toObject());
         expect(partnerKeys).to.not.contain('__v', '_id');
-        expect(partnerKeys).to.contain('id', 'name', 'revShareTotalPercentage', 'modified', 'created');
+        expect(partnerKeys).to.contain(
+          'id', 'name', 'revShareTotalPercentage', 'modified', 'created'
+        );
         done();
       });
     });
@@ -118,7 +121,9 @@ describe('/Storage/models/Partner', function() {
         }
         const partnerKeys = Object.keys(partner.toJSON());
         expect(partnerKeys).to.not.contain('__v', '_id');
-        expect(partnerKeys).to.contain('id', 'name', 'revShareTotalPercentage', 'modified', 'created');
+        expect(partnerKeys).to.contain(
+          'id', 'name', 'revShareTotalPercentage', 'modified', 'created'
+        );
         done();
       });
     });
