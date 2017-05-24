@@ -37,9 +37,9 @@ describe('/Storage/models/Partner', function() {
       const d = new Date();
       const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const name = 'partner1';
-      const revSharePercentage = 0.20;
+      const revShareTotalPercentage = 0.20;
 
-      const newPartner = new Partner({ name, revSharePercentage });
+      const newPartner = new Partner({ name, revShareTotalPercentage });
 
       newPartner.save(function(err, partner) {
         if (err) {
@@ -47,7 +47,7 @@ describe('/Storage/models/Partner', function() {
         }
 
         expect(partner.name).to.equal(name);
-        expect(partner.revSharePercentage).to.equal(revSharePercentage);
+        expect(partner.revShareTotalPercentage).to.equal(revShareTotalPercentage);
         expect(partner.created).to.equalDate(date);
         expect(partner.modified).to.equalDate(date);
         done();
@@ -56,9 +56,9 @@ describe('/Storage/models/Partner', function() {
 
     it('should fail validation for duplicate name', function (done) {
       const name = 'partner1';
-      const revSharePercentage = 0.20;
+      const revShareTotalPercentage = 0.20;
 
-      const newPartner = new Partner({ name, revSharePercentage });
+      const newPartner = new Partner({ name, revShareTotalPercentage });
 
       newPartner.save(function(err, partner) {
         expect(err).to.be.instanceOf(Error);
@@ -71,9 +71,9 @@ describe('/Storage/models/Partner', function() {
 
     it('should fail validation for out of range percentage', function (done) {
       const name = 'partner1a';
-      const revSharePercentage = 100;
+      const revShareTotalPercentage = 100;
 
-      const newPartner = new Partner({ name, revSharePercentage });
+      const newPartner = new Partner({ name, revShareTotalPercentage });
 
       newPartner.save(function(err, partner) {
         expect(err).to.be.instanceOf(Error);
@@ -88,8 +88,8 @@ describe('/Storage/models/Partner', function() {
 
     it('should remove expected fields', function (done) {
       const name = 'partner2';
-      const revSharePercentage = 0.20;
-      const newPartner = new Partner({ name, revSharePercentage });
+      const revShareTotalPercentage = 0.20;
+      const newPartner = new Partner({ name, revShareTotalPercentage });
 
       newPartner.save(function(err, partner) {
         if (err) {
@@ -98,7 +98,7 @@ describe('/Storage/models/Partner', function() {
 
         const partnerKeys = Object.keys(partner.toObject());
         expect(partnerKeys).to.not.contain('__v', '_id');
-        expect(partnerKeys).to.contain('id', 'name', 'revSharePercentage', 'modified', 'created');
+        expect(partnerKeys).to.contain('id', 'name', 'revShareTotalPercentage', 'modified', 'created');
         done();
       });
     });
@@ -109,8 +109,8 @@ describe('/Storage/models/Partner', function() {
 
     it('should remove expected fields', function (done) {
       const name = 'partner3';
-      const revSharePercentage = 0.20;
-      const newPartner = new Partner({ name, revSharePercentage });
+      const revShareTotalPercentage = 0.20;
+      const newPartner = new Partner({ name, revShareTotalPercentage });
 
       newPartner.save(function(err, partner) {
         if (err) {
@@ -118,7 +118,7 @@ describe('/Storage/models/Partner', function() {
         }
         const partnerKeys = Object.keys(partner.toJSON());
         expect(partnerKeys).to.not.contain('__v', '_id');
-        expect(partnerKeys).to.contain('id', 'name', 'revSharePercentage', 'modified', 'created');
+        expect(partnerKeys).to.contain('id', 'name', 'revShareTotalPercentage', 'modified', 'created');
         done();
       });
     });
