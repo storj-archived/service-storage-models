@@ -89,7 +89,7 @@ describe('Storage/models/Referral', function() {
         Referral.create(marketing, 'recipient@a.com', 'something')
           .catch((err) => {
             expect(err).to.be.an.instanceOf(Error);
-            expect(err.message).to.equal('Referral validation failed');
+            expect(err._message).to.equal('Referral validation failed');
             done();
           });
       });

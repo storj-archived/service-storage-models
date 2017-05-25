@@ -56,7 +56,7 @@ describe('Storage/models/UserNonce', function() {
       });
       nonce.save((err) => {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('UserNonce validation failed');
+        expect(err._message).to.equal('UserNonce validation failed');
         done();
       });
     });

@@ -41,7 +41,7 @@ describe('Storage/models/Debit', function() {
       });
       debit.save((err) => {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Debit validation failed');
+        expect(err._message).to.equal('Debit validation failed');
         done();
       });
     });
@@ -109,7 +109,7 @@ describe('Storage/models/Debit', function() {
 
       newDebit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Debit validation failed');
+        expect(err._message).to.equal('Debit validation failed');
         done();
       });
     });
@@ -166,7 +166,7 @@ describe('Storage/models/Debit', function() {
 
       newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('Debit validation failed');
+        expect(err._message).to.equal('Debit validation failed');
         done();
       });
     });
@@ -181,7 +181,7 @@ describe('Storage/models/Debit', function() {
 
       newDebit.save(function(err) {
         expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('Debit validation failed');
+        expect(err._message).to.equal('Debit validation failed');
         done();
       });
     });
