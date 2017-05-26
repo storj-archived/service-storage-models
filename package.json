@@ -36,6 +36,7 @@
     "dotenv": "^2.0.0",
     "elliptic": "^6.3.2",
     "hat": "0.0.3",
+    "kad-logger-json": "^0.1.2",
     "merge": "^1.2.0",
     "mime-db": "^1.24.0",
     "moment": "^2.17.1",
