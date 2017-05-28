@@ -53,7 +53,7 @@ describe('Storage/models/User', function() {
     it('should create user with opts object passed in', function(done) {
       User.create({
         email: 'user22@domain.tld',
-        passwd: sha256('password'),
+        password: sha256('password'),
         referralPartner: '5925ec5eee5642661d4a43a4'
       }, function(err, user) {
         if (err) {
