@@ -39,7 +39,7 @@ before(function(done) {
 after(function(done) {
   connection.close(done);
 });
-:
+
 function sha256(i) {
   return crypto.createHash('sha256').update(i).digest('hex');
 }
