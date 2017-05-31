@@ -34,7 +34,7 @@ describe('Storage/models/PaymentProcessor', function() {
       });
       pp.save((err) => {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.match((/^paymentprocessor validation failed.*/i))
+        expect(err.message).to.match(/^paymentprocessor validation failed.*/i);
         done();
       });
     });

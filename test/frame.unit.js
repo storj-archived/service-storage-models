@@ -39,7 +39,7 @@ before(function(done) {
 after(function(done) {
   connection.close(done);
 });
-
+:
 function sha256(i) {
   return crypto.createHash('sha256').update(i).digest('hex');
 }
@@ -53,7 +53,7 @@ describe('Storage/models/Frame', function() {
       });
       frame.save((err) => {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.match(/^frame validation failed.*/i)
+        expect(err.message).to.match(/^frame validation failed.*/i);
         done();
       });
     });
