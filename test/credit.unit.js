@@ -111,7 +111,7 @@ describe('Storage/models/Credit', function() {
 
       newCredit.save(function(err) {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.equal('Credit validation failed');
+        expect(err.message).to.match(/^credit validation failed.*/i);
         done();
       });
     });
