@@ -53,7 +53,7 @@ describe('Storage/models/Frame', function() {
       });
       frame.save((err) => {
         expect(err).to.be.instanceOf(Error);
-        expect(err.message).to.match(/^frame validation failed.*/i)
+        expect(err.message).to.match(/^frame validation failed.*/i);
         done();
       });
     });
