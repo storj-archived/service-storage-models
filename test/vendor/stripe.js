@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
@@ -13,7 +12,7 @@ beforeEach(() => {
 
 afterEach(() => {
   sandbox.restore();
-})
+});
 
 describe('stripe', () => {
   const stripeStub = () => {
@@ -23,7 +22,7 @@ describe('stripe', () => {
       nullTest1: null,
       undefinedTest1: undefined,
       functionTest1: function () {
-        return 'functionTest'
+        return 'functionTest';
       },
       objectTest1: {
         numberTest2: 1234,
@@ -31,7 +30,7 @@ describe('stripe', () => {
         nullTest2: null,
         undefinedTest2: undefined,
         functionTest2: function () {
-          return 'functionTest'
+          return 'functionTest';
         },
         objectTest2: {
           numberTest3: 1234,
@@ -39,16 +38,47 @@ describe('stripe', () => {
           nullTest3: null,
           undefinedTest3: undefined,
           functionTest3: function () {
-            return 'functionTest'
+            return 'functionTest';
           }
         }
       }
-    }
-  }
+    };
+  };
 
+
+  /* jshint -W083 */
   const stripe = proxyquire('../../lib/vendor/stripe', {
     stripe: stripeStub
   });
+
+  function itBehavesLikeProxiedObject (a, b) {
+    for(const key in a) {
+      const value = a[key];
+      const mirrorProp = b[key];
+
+      switch (value === null ? 'null' : typeof value) {
+        case 'function':
+          it(`should wrap function at key "${key}"`, () => {
+            mirrorProp().then((expected) => {
+              expect(expected).to.equal(value());
+            });
+          });
+          break;
+
+        case 'object':
+          describe(`should recurse #get for ${key}`, () => {
+            itBehavesLikeProxiedObject(value, mirrorProp);
+          });
+          break;
+
+        default:
+          it(`should have key "${key}" and value "${value}"`, () => {
+            expect(b[key]).to.equal(value);
+          });
+      }
+    }
+  }
+  /* jshint +W083 */
 
   describe('@constructor', () => {
     it('should setup stripe object', () => {
@@ -60,36 +90,5 @@ describe('stripe', () => {
     const _stripeStub = stripeStub();
     itBehavesLikeProxiedObject(_stripeStub, stripe);
   });
-
-  function itBehavesLikeProxiedObject (a, b, previousPath='') {
-    for(const key in a) {
-      const value = a[key];
-      const mirrorProp = b[key]
-
-      switch (value === null ? "null" : typeof value) {
-        case 'function':
-          it(`should wrap function at key "${key}"`, () => {
-            mirrorProp().then((expected) => {
-              expect(expected).to.equal(value());
-            });
-          });
-          break;
-
-        case 'object':
-            describe(`should recurse #get for ${key}`, () => {
-              const delimiter = previousPath
-                ? '.'
-                : ''
-              itBehavesLikeProxiedObject(value, mirrorProp, `${previousPath}${delimiter}${key}`);
-            });
-          break;
-
-        default:
-          it(`should have key "${key}" and value "${value}"`, () => {
-            expect(b[key]).to.equal(value);
-          });
-      };
-    };
-  };
 
 });
