@@ -1,26 +1,20 @@
 'use strict';
 
 const expect = require('chai').expect;
-const Stripe = require('../../lib/vendor/stripe');
-const stripeKey = 'sk_stripekey';
-const proxyConfig = {};
-const _stripe = Stripe(stripeKey, proxyConfig);
+const stripe = require('../../lib/vendor/stripe');
 
-describe('Stripe', () => {
+let testObj, testProp;
+
+describe('stripe', () => {
   describe('@constructor', () => {
-    it.only('should setup stripe proxy', (done) => {
-      console.log(_proxy);
-      expect(_stripe).to.be.instanceOf('Proxy');
-    });
-
-    it('should take a proxy config object', () => {
-
+    it('should setup stripe object', () => {
+      expect(stripe).to.be.an('object');
     });
   });
 
   describe('#get', () => {
-    it('should return new Proxy', () => {
-
+    it.only('should return new object', () => {
+      
     });
 
     it('should return new Promise', () => {
