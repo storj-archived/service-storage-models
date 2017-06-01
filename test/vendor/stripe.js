@@ -14,7 +14,7 @@ describe('stripe', () => {
 
   describe('#get', () => {
     it.only('should return new object', () => {
-      
+
     });
 
     it('should return new Promise', () => {
