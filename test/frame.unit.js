@@ -192,6 +192,78 @@ describe('Storage/models/Frame', function() {
         });
       });
     });
+
+    it('will fail if there are multiple shards under the min', function(done) {
+      const replacementHash = crypto.randomBytes(20).toString('hex');
+      let hashes = [];
+      var frame = null;
+
+      function createFrame(next) {
+        Frame.create({}, (err, _frame) => {
+          if (err) {
+            return next(err);
+          }
+          frame = _frame;
+          next();
+        });
+      }
+
+      function addShards(finished) {
+        async.times(3, (n, next) => {
+          let hash = crypto.randomBytes(20).toString('hex');
+          hashes.push(hash);
+          var shard = {
+            index: n,
+            hash: hash,
+            size: 1024,
+            tree: ['tree1', 'tree2'],
+            challenges: ['challenge1', 'challenge2'],
+            parity: n > 6 ? true : false
+          };
+          Pointer.create(shard, function(err, pointer) {
+            if (err) {
+              return next(err);
+            }
+
+            frame.addShard(pointer, next);
+          });
+        }, finished);
+      }
+
+      function replaceShard(next) {
+        Frame.findOne({
+          _id: frame._id
+        }).populate('shards').exec((err, _frame) => {
+          if (err) {
+            return done(err);
+          }
+          frame = _frame;
+          var shard = {
+            index: 2,
+            hash: replacementHash,
+            size: 1024,
+            tree: ['tree1', 'tree2'],
+            challenges: ['challenge1', 'challenge2'],
+            parity: false
+          };
+          Pointer.create(shard, function(err, pointer) {
+            if (err) {
+              return next(err);
+            }
+            frame.addShard(pointer, next);
+          });
+        });
+      }
+
+      async.series([
+        createFrame,
+        addShards,
+        replaceShard
+      ], (err) => {
+        expect(err).to.eql(new Error('Shard size is too small'));
+        done();
+      });
+    });
   });
 
   describe('#unlock', function() {
