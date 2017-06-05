@@ -21,7 +21,6 @@ describe('Storage', function() {
     var testMongoURI, testMongoOptions, testStorageOptions;
     beforeEach(() => {
       sandbox.stub(Storage.prototype, '_connect');
-      sandbox.stub(Storage.prototype, '_createBoundModels');
       testMongoURI = 'mongodb://127.0.0.1:27017/__storj-bridge-test';
       testMongoOptions = {};
       testStorageOptions = {};
@@ -36,7 +35,6 @@ describe('Storage', function() {
       expect(storage._uri).to.equal(testMongoURI);
       expect(storage._options).to.equal(testMongoOptions);
       expect(storage._connect.callCount).to.equal(1);
-      expect(storage._createBoundModels.callCount).to.equal(1);
     });
 
 
@@ -47,7 +45,6 @@ describe('Storage', function() {
       expect(storage._uri).to.equal(testMongoURI);
       expect(storage._options).to.equal(testMongoOptions);
       expect(storage._connect.callCount).to.equal(1);
-      expect(storage._createBoundModels.callCount).to.equal(1);
     });
 
     it('should throw an error if mongoOptions is not an object', function() {
@@ -120,6 +117,7 @@ describe('Storage', function() {
       expect(mongooseStub.createConnection.calledWith(
         testMongoURI, mergedOptions
       )).to.equal(true);
+      expect(storage._createBoundModels.callCount).to.equal(1);
     });
 
     it('should log an error message if connection throws an error', function() {

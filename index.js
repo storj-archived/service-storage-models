@@ -22,7 +22,7 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
 
   assert(typeof mongoOptions === 'object', 'Invalid mongo options supplied');
   assert(typeof storageOptions === 'object',
-    'Invalid storage options supplied');
+         'Invalid storage options supplied');
 
   this._uri = mongoURI;
   this._options = mongoOptions;
@@ -38,9 +38,6 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
 
   // connect to the database
   this._connect();
-
-  this.models = this._createBoundModels();
-
 }
 
 Storage.models = require('./lib/models');
@@ -80,6 +77,8 @@ Storage.prototype._connect = function() {
   this.connection.on('connected', function() {
     self._log.info('connected to database');
   });
+
+  this.models = this._createBoundModels();
 };
 
 /**
