@@ -33,8 +33,10 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
     error: console.error,
     warn: console.warn
   };
-  this._log = storageOptions ?
-    (storageOptions.logger || defaultLogger) : defaultLogger;
+  this._log = defaultLogger;
+  if (storageOptions && storageOptions.logger) {
+    this._log = storageOptions.logger;
+  }
 
   // connect to the database
   this._connect();
