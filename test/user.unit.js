@@ -50,6 +50,23 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('should create user with opts object passed in', function(done) {
+      User.create({
+        email: 'user22@domain.tld',
+        password: sha256('password'),
+        referralPartner: '5925ec5eee5642661d4a43a4'
+      }, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        expect(user.email).to.equal('user22@domain.tld');
+        expect(user.referralPartner.toString())
+          .to.equal('5925ec5eee5642661d4a43a4');
+        expect(user.activated).to.equal(false);
+        done();
+      });
+    });
+
     it('should not create a duplicate user account', function(done) {
       User.create('user@domain.tld', sha256('password'), function(err) {
         expect(err.message).to.equal('Email is already registered');

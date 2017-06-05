@@ -6,6 +6,7 @@ const async = require('async');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const errors = require('storj-service-error-types');
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -100,6 +101,133 @@ describe('Storage/models/Frame', function() {
           done();
         });
       });
+    });
+
+  });
+
+  describe('#validShardSizes', function() {
+    it('return true (small single shard)', function() {
+      const shards = [
+        {
+          size: 1024
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
+    it('return true (several 2MiB shards)', function() {
+      const shards = [
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
+    it('return true (several 2MiB shards with small last shard)', function() {
+      const shards = [
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        },
+        {
+          size: 1024
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
+    it('return true (2MiB, small last shard, w/ parity shards)', function() {
+      const shards = [
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        },
+        {
+          size: 2097152
+        },
+        {
+          size: 1024
+        },
+        {
+          size: 2097152,
+          parity: true
+        },
+        {
+          size: 2097152,
+          parity: true
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
+    it('return false (5KiB shards)', function() {
+      const shards = [
+        {
+          size: 5120
+        },
+        {
+          size: 5120
+        },
+        {
+          size: 5120
+        },
+        {
+          size: 5120
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(false);
+    });
+
+    it('return false (various size shards)', function() {
+      const shards = [
+        {
+          size: 5120
+        },
+        {
+          size: 3072
+        },
+        {
+          size: 4096
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(false);
+    });
+
+    it('return false (various size parity shards)', function() {
+      const shards = [
+        {
+          size: 5120
+        },
+        {
+          size: 5120
+        },
+        {
+          size: 3072
+        },
+        {
+          size: 23552,
+          parity: true
+        },
+        {
+          size: 2048,
+          parity: true
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(false);
     });
 
   });
@@ -260,7 +388,8 @@ describe('Storage/models/Frame', function() {
         addShards,
         replaceShard
       ], (err) => {
-        expect(err).to.eql(new Error('Shard size is too small'));
+        expect(err).to.be.instanceOf(errors.BadRequestError);
+        expect(err.message).to.equal('Invalid shard sizes');
         done();
       });
     });
