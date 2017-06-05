@@ -20,9 +20,9 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
     return new Storage(mongoURI, mongoOptions, storageOptions);
   }
 
-  assert(typeof mongoOptions === 'object', 'Invalid storage options supplied');
-
-  var self = this;
+  assert(typeof mongoOptions === 'object', 'Invalid mongo options supplied');
+  assert(typeof storageOptions === 'object',
+    'Invalid storage options supplied');
 
   this._uri = mongoURI;
   this._options = mongoOptions;
@@ -36,21 +36,11 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
   this._log = storageOptions ?
     (storageOptions.logger || defaultLogger) : defaultLogger;
 
-  this.connection = this._connect();
+  // connect to the database
+  this._connect();
+
   this.models = this._createBoundModels();
 
-  this.connection.on('error', function(err) {
-    self._log.error('failed to connect to database:', err.message);
-  });
-
-  this.connection.on('disconnected', function() {
-    self._log.warn('database connection closed, reconnecting...');
-    self.connection = self._connect();
-  });
-
-  this.connection.on('connected', function() {
-    self._log.info('connected to database');
-  });
 }
 
 Storage.models = require('./lib/models');
@@ -60,6 +50,7 @@ Storage.models = require('./lib/models');
  * @returns {mongoose.Connection}
  */
 Storage.prototype._connect = function() {
+  var self = this;
 
   var defaultOpts = {
     mongos: false,
@@ -71,7 +62,24 @@ Storage.prototype._connect = function() {
   this._log.info('opening database connection');
   this._log.debug('database uri is  %s', this._uri);
 
-  return mongoose.createConnection(this._uri, opts);
+  this.connection = mongoose.createConnection(this._uri, opts);
+
+  this.connection.on('error', function(err) {
+    self._log.error('failed to connect to database:', err.message);
+  });
+
+  this.connection.on('disconnected', function() {
+    self._log.warn('database connection closed...');
+    // wait 5 seconds and retry connecting to the database
+    setTimeout(function() {
+      self._log.warn('reconnecting to database...');
+      self._connect();
+    }, 5000);
+  });
+
+  this.connection.on('connected', function() {
+    self._log.info('connected to database');
+  });
 };
 
 /**
