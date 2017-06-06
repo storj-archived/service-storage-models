@@ -115,6 +115,112 @@ describe('Storage/models/Frame', function() {
       expect(Frame.validShardSizes(shards)).to.equal(true);
     });
 
+    it('return true (unsorted shards greater than 10)', function() {
+      const shards = [
+        {
+          index: 0,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 1,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 2,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 3,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 4,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 5,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 6,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 7,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 8,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 9,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 10,
+          size: 2097152,
+          parity: false
+        },
+        {
+          index: 11,
+          size: 1484223,
+          parity: false
+        },
+        {
+          index: 12,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 13,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 14,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 15,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 16,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 17,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 18,
+          size: 2097152,
+          parity: true
+        },
+        {
+          index: 19,
+          size: 2097152,
+          parity: true
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
     it('return true (several 2MiB shards)', function() {
       const shards = [
         {
