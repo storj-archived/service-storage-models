@@ -130,6 +130,24 @@ describe('Storage/models/Frame', function() {
       expect(Frame.validShardSizes(shards)).to.equal(true);
     });
 
+    it('return true on unsorted shards', function() {
+      const shards = [
+        {
+          index: 1,
+          size: 2097152
+        },
+        {
+          index: 3,
+          size: 100
+        },
+        {
+          index: 2,
+          size: 2097152
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
     it('return true (several 2MiB shards with small last shard)', function() {
       const shards = [
         {
