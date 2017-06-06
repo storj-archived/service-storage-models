@@ -112,8 +112,16 @@ describe('Storage', function() {
     it('should create a connection with the provided options', function() {
       storage._connect();
 
-      var mergedOptions = merge.recursive(true, {mongos: false, ssl: false},
-                                          testMongoOptions);
+      var mergedOptions = merge.recursive(true, {
+        mongos: false,
+        ssl: false,
+        server: {
+          auto_reconnect: true,
+          reconnectTries: Number.MAX_VALUE,
+          reconnectInterval: 5000
+        }
+      }, testMongoOptions);
+
       expect(mongooseStub.createConnection.calledWith(
         testMongoURI, mergedOptions
       )).to.equal(true);
@@ -125,7 +133,8 @@ describe('Storage', function() {
 
       var testError = new Error('this is a test error');
       testConnection.emit('error', testError);
-      expect(testLogger.error.calledWithMatch('failed to connect to database',
+
+      expect(testLogger.error.calledWithMatch('database connection error',
                                            testError.message)).to.equal(true);
     });
 
@@ -137,19 +146,12 @@ describe('Storage', function() {
         'connected to database')).to.equal(true);
     });
 
-    it('should attempt to reconnect if connection closes', function() {
-      const clock = sandbox.useFakeTimers();
+    it('should log a warning if the connection closes', function() {
       storage._connect();
 
-      sandbox.stub(storage, '_connect');
       testConnection.emit('disconnected');
       expect(testLogger.warn.calledWithMatch(
-        'database connection closed')).to.equal(true);
-      expect(storage._connect.callCount).to.equal(0);
-      clock.tick(5000);
-      expect(testLogger.warn.calledWithMatch(
-        'reconnecting to database')).to.equal(true);
-      expect(storage._connect.callCount).to.equal(1);
+        'disconnected from database')).to.equal(true);
     });
   });
 

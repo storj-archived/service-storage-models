@@ -53,27 +53,26 @@ Storage.prototype._connect = function() {
 
   var defaultOpts = {
     mongos: false,
-    ssl: false
+    ssl: false,
+    server: {
+      auto_reconnect: true,
+      reconnectTries: Number.MAX_VALUE,
+      reconnectInterval: 5000
+    }
   };
 
   var opts = merge.recursive(true, defaultOpts, this._options);
 
-  this._log.info('opening database connection');
-  this._log.debug('database uri is  %s', this._uri);
+  this._log.info('opening database connection at %s', this._uri);
 
   this.connection = mongoose.createConnection(this._uri, opts);
 
   this.connection.on('error', function(err) {
-    self._log.error('failed to connect to database:', err.message);
+    self._log.error('database connection error:', err.message);
   });
 
   this.connection.on('disconnected', function() {
-    self._log.warn('database connection closed...');
-    // wait 5 seconds and retry connecting to the database
-    setTimeout(function() {
-      self._log.warn('reconnecting to database...');
-      self._connect();
-    }, 5000);
+    self._log.warn('disconnected from database');
   });
 
   this.connection.on('connected', function() {
