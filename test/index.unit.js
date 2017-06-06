@@ -53,12 +53,6 @@ describe('Storage', function() {
       }).to.throw('Invalid mongo options supplied');
     });
 
-    it('should throw an error if storageOptions is not an object', function() {
-      expect(function() {
-        Storage(testMongoURI, testMongoOptions, 'testStorageOptions');
-      }).to.throw('Invalid storage options supplied');
-    });
-
     it('should use the default logger if no logger is provided', function() {
       var storage = new Storage(testMongoURI, testMongoOptions,
                                 testStorageOptions);

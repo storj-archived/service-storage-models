@@ -21,8 +21,6 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
   }
 
   assert(typeof mongoOptions === 'object', 'Invalid mongo options supplied');
-  assert(typeof storageOptions === 'object',
-         'Invalid storage options supplied');
 
   this._uri = mongoURI;
   this._options = mongoOptions;
