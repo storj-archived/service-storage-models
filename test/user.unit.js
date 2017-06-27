@@ -406,6 +406,48 @@ describe('Storage/models/User', function() {
         });
       });
     });
+
+    it('will reset the bytes to zero', function(done) {
+      const email = 'increment@absentminded.com';
+      var clock = sinon.useFakeTimers();
+      User.create(email, sha256('hashpass'), (err, user) => {
+        if (err) {
+          return done(err);
+        }
+        user.recordUploadBytes(4096, (err) => {
+          if (err) {
+            return done(err);
+          }
+          User.findOne({_id: email}, (err, user) => {
+            if (err) {
+              return done(err);
+            }
+            expect(user.bytesUploaded.lastHourBytes).to.equal(4096);
+            expect(user.bytesUploaded.lastDayBytes).to.equal(4096);
+            expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
+
+            clock.tick(ms('2h'));
+
+            user.recordUploadBytes(1, (err) => {
+              if (err) {
+                return done(err);
+              }
+
+              User.findOne({_id: email}, (err, user) => {
+                if (err) {
+                  return done(err);
+                }
+                expect(user.bytesUploaded.lastHourBytes).to.equal(1);
+                expect(user.bytesUploaded.lastDayBytes).to.equal(4097);
+                expect(user.bytesUploaded.lastMonthBytes).to.equal(4097);
+                clock.restore();
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('#isUploadRateLimited', function() {
