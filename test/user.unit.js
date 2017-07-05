@@ -427,10 +427,14 @@ describe('Storage/models/User', function() {
             expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
 
             expect(user.isUploadRateLimited(1000, 8000, 16000)).to.equal(true);
+            expect(user.isUploadRateLimited(8000, 1000, 16000)).to.equal(true);
+            expect(user.isUploadRateLimited(8000, 8000, 1000)).to.equal(true);
 
             clock.tick(ms('2h'));
 
             expect(user.isUploadRateLimited(1000, 8000, 16000)).to.equal(false);
+            expect(user.isUploadRateLimited(8000, 1000, 16000)).to.equal(false);
+            expect(user.isUploadRateLimited(8000, 8000, 1000)).to.equal(false);
 
             user.recordUploadBytes(1, (err) => {
               if (err) {
