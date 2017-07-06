@@ -328,6 +328,8 @@ describe('Storage/models/User', function() {
   });
 
   describe('#recordUploadBytes', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
 
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
@@ -409,7 +411,7 @@ describe('Storage/models/User', function() {
 
     it('will reset the bytes to zero', function(done) {
       const email = 'increment@absentminded.com';
-      var clock = sinon.useFakeTimers();
+      var clock = sandbox.useFakeTimers();
       User.create(email, sha256('hashpass'), (err, user) => {
         if (err) {
           return done(err);
@@ -426,24 +428,79 @@ describe('Storage/models/User', function() {
             expect(user.bytesUploaded.lastDayBytes).to.equal(4096);
             expect(user.bytesUploaded.lastMonthBytes).to.equal(4096);
 
+            expect(user.isUploadRateLimited(1000, 8000, 16000)).to.equal(true);
+            expect(user.isUploadRateLimited(8000, 1000, 16000)).to.equal(true);
+            expect(user.isUploadRateLimited(8000, 8000, 1000)).to.equal(true);
+
             clock.tick(ms('2h'));
 
-            user.recordUploadBytes(1, (err) => {
-              if (err) {
-                return done(err);
-              }
+            expect(user.isUploadRateLimited(1000, 8000, 16000)).to.equal(false);
+            expect(user.isUploadRateLimited(8000, 1000, 16000)).to.equal(true);
+            expect(user.isUploadRateLimited(8000, 8000, 1000)).to.equal(true);
 
-              User.findOne({_id: email}, (err, user) => {
-                if (err) {
-                  return done(err);
-                }
-                expect(user.bytesUploaded.lastHourBytes).to.equal(1);
-                expect(user.bytesUploaded.lastDayBytes).to.equal(4097);
-                expect(user.bytesUploaded.lastMonthBytes).to.equal(4097);
-                clock.restore();
-                done();
-              });
-            });
+            async.series([
+              function(next) {
+                user.recordUploadBytes(1, (err) => {
+                  if (err) {
+                    return next(err);
+                  }
+
+                  User.findOne({_id: email}, (err, user) => {
+                    if (err) {
+                      return next(err);
+                    }
+                    expect(user.bytesUploaded.lastHourBytes).to.equal(1);
+                    expect(user.bytesUploaded.lastDayBytes).to.equal(4097);
+                    expect(user.bytesUploaded.lastMonthBytes).to.equal(4097);
+                    next();
+                  });
+                });
+              },
+              function(next) {
+                clock.tick(ms('24h'));
+
+                expect(user.isUploadRateLimited(1000, 1000, 16000))
+                  .to.equal(false);
+
+                user.recordUploadBytes(1, (err) => {
+                  if (err) {
+                    return next(err);
+                  }
+
+                  User.findOne({_id: email}, (err, user) => {
+                    if (err) {
+                      return next(err);
+                    }
+                    expect(user.bytesUploaded.lastHourBytes).to.equal(1);
+                    expect(user.bytesUploaded.lastDayBytes).to.equal(1);
+                    expect(user.bytesUploaded.lastMonthBytes).to.equal(4098);
+                    next();
+                  });
+                });
+              },
+              function(next) {
+                clock.tick(ms('30d'));
+
+                expect(user.isUploadRateLimited(1000, 1000, 1000))
+                  .to.equal(false);
+
+                user.recordUploadBytes(1, (err) => {
+                  if (err) {
+                    return next(err);
+                  }
+
+                  User.findOne({_id: email}, (err, user) => {
+                    if (err) {
+                      return next(err);
+                    }
+                    expect(user.bytesUploaded.lastHourBytes).to.equal(1);
+                    expect(user.bytesUploaded.lastDayBytes).to.equal(1);
+                    expect(user.bytesUploaded.lastMonthBytes).to.equal(1);
+                    next();
+                  });
+                });
+              }
+            ], done);
           });
         });
       });
