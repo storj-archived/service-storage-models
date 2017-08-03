@@ -297,8 +297,11 @@ describe('Storage/models/Contact', function() {
   describe('#toObject', function() {
 
     it('should contain specified properties + virtuals', function(done) {
-      const contact = new Contact({});
+      const contact = new Contact({
+        _id: storj.KeyPair().getNodeID()
+      });
       const contactKeys = Object.keys(contact.toObject());
+
       expect(contactKeys).to.contain('nodeID');
       expect(contactKeys).to.not.contain('__v', '_id', 'id');
       done();
