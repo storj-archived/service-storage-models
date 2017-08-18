@@ -11,7 +11,7 @@ var addCreatedFromContractStart = function() {
       _id: id
     }, {
       $set: {
-        created: created
+        created: new Date(created)
       }
     });
 
