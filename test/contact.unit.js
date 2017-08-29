@@ -47,7 +47,8 @@ describe('Storage/models/Contact', function() {
           address: '127.0.0.1',
           port: 1337,
           nodeID: nodeID,
-          lastSeen: Date.now()
+          lastSeen: Date.now(),
+          spaceAvailable: true
         }, next);
       }, function(err) {
         if (err) {
@@ -55,7 +56,14 @@ describe('Storage/models/Contact', function() {
         }
         Contact.count({}, function(err, count) {
           expect(count).to.equal(3);
-          done();
+
+          Contact.findOne({_id: nodes[0]}, (err, contact) => {
+            if (err) {
+              return done(err);
+            }
+            expect(contact.spaceAvailable).to.equal(true);
+            done();
+          });
         });
       });
     });
