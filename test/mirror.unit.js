@@ -79,6 +79,29 @@ describe('Storage/models/Mirror', function() {
 
   });
 
+  describe('#createWithToken', function() {
+
+    it('create with token', function(done) {
+      let contract = {
+        data_hash: '838fcd890e2615dcf9a85c372effc388ce5420f2'
+      };
+      let contact = {
+        nodeID: '26a2172fa618c456782103003a5149589076d071'
+      };
+      let token = '54e462fc1e65b0e1cb5748489d0e104890af5fa383dfd2c8c1' +
+          '4986a0b1708b44';
+      Mirror.createWithToken(contract, contact, token, function(err, mirror) {
+        if (err) {
+          return done(err);
+        }
+        expect(mirror);
+        expect(mirror.token).to.equal(token);
+        done();
+      });
+    });
+
+  });
+
   describe('#toObject', function() {
 
     it('should contain specified properties', function(done) {

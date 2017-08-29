@@ -282,6 +282,45 @@ describe('Storage/models/Contact', function() {
     });
   });
 
+  describe('#updateLastContractSent', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
+
+    it('will update the last contract sent time', function(done) {
+      let clock = sandbox.useFakeTimers();
+      let nodeID = storj.KeyPair().getNodeID();
+
+      Contact.record({
+        address: '127.0.0.12',
+        port: 3943,
+        nodeID: nodeID,
+        lastSeen: Date.now()
+      }, (err, contact) => {
+        if (err) {
+          return done(err);
+        }
+
+        expect(contact.lastContractSent).to.equal(undefined);
+        clock.tick(1000);
+
+        Contact.updateLastContractSent(contact._id, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          Contact.findOne({_id: contact._id}, (err, _contact) => {
+            if (err) {
+              return done(err);
+            }
+            expect(_contact.lastContractSent).to.equal(1000);
+            done();
+
+          });
+        });
+      });
+    });
+  });
+
   describe('#recall', function() {
 
     it('should recall the last N seen contacts', function(done) {
