@@ -89,6 +89,27 @@ describe('Storage/models/Contact', function() {
       });
     });
 
+    it('can be called twice', function(done) {
+      const data = {
+        nodeID: 'bd0ce272eb2dd2e2927b7b0956ecbce32ff65d38',
+        protocol: '0.7.0',
+        address: '154.220.116.201',
+        port: 18078,
+        lastSeen: 1465599426699
+      };
+      Contact.record(data, (err, contact1) => {
+        if (err) {
+          return done(err);
+        }
+
+        Contact.record(data, (err, contact2) => {
+          expect(contact2.toObject()).to.eql(contact1.toObject());
+          done();
+        });
+
+      });
+    });
+
   });
 
   describe('#recordTimeoutFailure', function() {
@@ -345,7 +366,11 @@ describe('Storage/models/Contact', function() {
 
     it('should contain specified properties + virtuals', function(done) {
       const contact = new Contact({
-        _id: storj.KeyPair().getNodeID()
+        _id: storj.KeyPair().getNodeID(),
+        address: '127.0.0.1',
+        port: 1337,
+        lastSeen: Date.now(),
+        spaceAvailable: true
       });
       const contactKeys = Object.keys(contact.toObject());
       expect(contactKeys).to.contain('nodeID');
