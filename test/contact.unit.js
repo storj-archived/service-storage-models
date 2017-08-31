@@ -47,7 +47,8 @@ describe('Storage/models/Contact', function() {
           address: '127.0.0.1',
           port: 1337,
           nodeID: nodeID,
-          lastSeen: Date.now()
+          lastSeen: Date.now(),
+          spaceAvailable: true
         }, next);
       }, function(err) {
         if (err) {
@@ -55,7 +56,14 @@ describe('Storage/models/Contact', function() {
         }
         Contact.count({}, function(err, count) {
           expect(count).to.equal(3);
-          done();
+
+          Contact.findOne({_id: nodes[0]}, (err, contact) => {
+            if (err) {
+              return done(err);
+            }
+            expect(contact.spaceAvailable).to.equal(true);
+            done();
+          });
         });
       });
     });
@@ -78,6 +86,27 @@ describe('Storage/models/Contact', function() {
           }
           done();
         });
+      });
+    });
+
+    it('can be called twice', function(done) {
+      const data = {
+        nodeID: 'bd0ce272eb2dd2e2927b7b0956ecbce32ff65d38',
+        protocol: '0.7.0',
+        address: '154.220.116.201',
+        port: 18078,
+        lastSeen: 1465599426699
+      };
+      Contact.record(data, (err, contact1) => {
+        if (err) {
+          return done(err);
+        }
+
+        Contact.record(data, (err, contact2) => {
+          expect(contact2.toObject()).to.eql(contact1.toObject());
+          done();
+        });
+
       });
     });
 
@@ -282,6 +311,45 @@ describe('Storage/models/Contact', function() {
     });
   });
 
+  describe('#updateLastContractSent', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
+
+    it('will update the last contract sent time', function(done) {
+      let clock = sandbox.useFakeTimers();
+      let nodeID = storj.KeyPair().getNodeID();
+
+      Contact.record({
+        address: '127.0.0.12',
+        port: 3943,
+        nodeID: nodeID,
+        lastSeen: Date.now()
+      }, (err, contact) => {
+        if (err) {
+          return done(err);
+        }
+
+        expect(contact.lastContractSent).to.equal(undefined);
+        clock.tick(1000);
+
+        Contact.updateLastContractSent(contact._id, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          Contact.findOne({_id: contact._id}, (err, _contact) => {
+            if (err) {
+              return done(err);
+            }
+            expect(_contact.lastContractSent).to.equal(1000);
+            done();
+
+          });
+        });
+      });
+    });
+  });
+
   describe('#recall', function() {
 
     it('should recall the last N seen contacts', function(done) {
@@ -298,7 +366,11 @@ describe('Storage/models/Contact', function() {
 
     it('should contain specified properties + virtuals', function(done) {
       const contact = new Contact({
-        _id: storj.KeyPair().getNodeID()
+        _id: storj.KeyPair().getNodeID(),
+        address: '127.0.0.1',
+        port: 1337,
+        lastSeen: Date.now(),
+        spaceAvailable: true
       });
       const contactKeys = Object.keys(contact.toObject());
       expect(contactKeys).to.contain('nodeID');
