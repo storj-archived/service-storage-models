@@ -69,7 +69,7 @@ describe('Storage/models/Contact', function() {
       });
     });
 
-    it('should record the unique contacts by their nodeID', function(done) {
+    it('should record with a responseTime', function(done) {
       const nodeID = storj.KeyPair().getNodeID();
       Contact.record({
         address: '127.0.0.1',
