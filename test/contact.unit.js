@@ -62,8 +62,32 @@ describe('Storage/models/Contact', function() {
               return done(err);
             }
             expect(contact.spaceAvailable).to.equal(true);
+            expect(contact.responseTime).to.equal(undefined);
             done();
           });
+        });
+      });
+    });
+
+    it('should record the unique contacts by their nodeID', function(done) {
+      const nodeID = storj.KeyPair().getNodeID();
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: nodeID,
+        lastSeen: Date.now(),
+        responseTime: 10000,
+        spaceAvailable: true
+      }, (err) => {
+        if (err) {
+          return done(err);
+        }
+        Contact.findOne({_id: nodeID}, (err, contact) => {
+          if (err) {
+            return done(err);
+          }
+          expect(contact.responseTime).to.equal(10000);
+          done();
         });
       });
     });
