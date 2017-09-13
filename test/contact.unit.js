@@ -342,12 +342,13 @@ describe('Storage/models/Contact', function() {
     it('will update the last contract sent time', function(done) {
       let clock = sandbox.useFakeTimers();
       let nodeID = storj.KeyPair().getNodeID();
+      let now = Date.now();
 
       Contact.record({
         address: '127.0.0.12',
         port: 3943,
         nodeID: nodeID,
-        lastSeen: Date.now()
+        lastSeen: now
       }, (err, contact) => {
         if (err) {
           return done(err);
@@ -366,8 +367,11 @@ describe('Storage/models/Contact', function() {
               return done(err);
             }
             expect(_contact.lastContractSent).to.equal(1000);
+            expect(_contact.address).to.equal('127.0.0.12');
+            expect(_contact.port).to.equal(3943);
+            expect(_contact.nodeID).to.equal(nodeID);
+            expect(_contact.lastSeen.getTime()).to.equal(0);
             done();
-
           });
         });
       });
