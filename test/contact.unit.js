@@ -3,6 +3,7 @@
 const sinon = require('sinon');
 const async = require('async');
 const expect = require('chai').expect;
+const errors = require('storj-service-error-types');
 const mongoose = require('mongoose');
 const storj = require('storj-lib');
 
@@ -66,6 +67,20 @@ describe('Storage/models/Contact', function() {
             done();
           });
         });
+      });
+    });
+
+    it('should not record with empty address', function(done) {
+      Contact.record({
+        port: 1337,
+        nodeID: storj.KeyPair().getNodeID(),
+        lastSeen: Date.now(),
+        spaceAvailable: true
+      }, function(err) {
+        expect(err);
+        expect(err).to.be.instanceOf(errors.BadRequestError);
+        expect(err.message).to.equal('Address is expected for contact');
+        done();
       });
     });
 
