@@ -1,6 +1,6 @@
 {
   "name": "storj-service-storage-models",
-  "version": "9.0.1",
+  "version": "10.0.1",
   "description": "common storage models for various storj services",
   "main": "index.js",
   "directories": {
@@ -45,7 +45,7 @@
     "ms": "^0.7.1",
     "proxyquire": "^1.8.0",
     "random-word": "^2.0.0",
-    "storj-lib": "^7.0.0",
+    "storj-lib": "^8.0.0",
     "storj-service-error-types": "^1.1.0",
     "stripe": "^4.11.0",
     "uuid": "^3.0.1",
