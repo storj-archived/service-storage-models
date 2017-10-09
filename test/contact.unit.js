@@ -151,6 +151,44 @@ describe('Storage/models/Contact', function() {
 
   });
 
+  describe('#recordPoints', function() {
+    const sandbox = sinon.sandbox.create();
+    afterEach(() => sandbox.restore());
+
+    it('it should not go above maximum', function() {
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        reputation: 4900
+      });
+      contact.recordPoints(1000);
+      expect(contact.reputation).to.equal(5000);
+    });
+    it('it should not go below minimum', function() {
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        reputation: 10
+      });
+      contact.recordPoints(-100);
+      expect(contact.reputation).to.equal(0);
+    });
+    it('should increment points', function() {
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        reputation: 1000
+      });
+      contact.recordPoints(10);
+      expect(contact.reputation).to.equal(1010);
+    });
+    it('should decrement points', function() {
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        reputation: 1000
+      });
+      contact.recordPoints(-10);
+      expect(contact.reputation).to.equal(990);
+    });
+  });
+
   describe('#recordTimeoutFailure', function() {
     const sandbox = sinon.sandbox.create();
     afterEach(() => sandbox.restore());
