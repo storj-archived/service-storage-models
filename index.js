@@ -41,6 +41,7 @@ function Storage(mongoURI, mongoOptions, storageOptions) {
 }
 
 Storage.models = require('./lib/models');
+Storage.constants = require('./lib/constants');
 
 /**
  * Connects to the database
