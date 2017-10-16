@@ -109,6 +109,7 @@ describe('Storage/models/Frame', function() {
     it('return true (small single shard)', function() {
       const shards = [
         {
+          index: 0,
           size: 1024
         }
       ];
@@ -224,27 +225,12 @@ describe('Storage/models/Frame', function() {
     it('return true (several 2MiB shards)', function() {
       const shards = [
         {
+          index: 0,
           size: 2097152
         },
-        {
-          size: 2097152
-        },
-        {
-          size: 2097152
-        }
-      ];
-      expect(Frame.validShardSizes(shards)).to.equal(true);
-    });
-
-    it('return true on unsorted shards', function() {
-      const shards = [
         {
           index: 1,
           size: 2097152
-        },
-        {
-          index: 3,
-          size: 100
         },
         {
           index: 2,
@@ -254,18 +240,55 @@ describe('Storage/models/Frame', function() {
       expect(Frame.validShardSizes(shards)).to.equal(true);
     });
 
+    it('return true', function() {
+      const shards = [
+        {
+          index: 10,
+          size: 1024
+        },
+        {
+          index: 11,
+          size: 2097152,
+          parity: true
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
+    it('return true on unsorted shards', function() {
+      const shards = [
+        {
+          index: 0,
+          size: 2097152
+        },
+        {
+          index: 2,
+          size: 100
+        },
+        {
+          index: 1,
+          size: 2097152
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(true);
+    });
+
     it('return true (several 2MiB shards with small last shard)', function() {
       const shards = [
         {
+          index: 0,
           size: 2097152
         },
         {
+          index: 1,
           size: 2097152
         },
         {
+          index: 2,
           size: 2097152
         },
         {
+          index: 3,
           size: 1024
         }
       ];
@@ -275,22 +298,28 @@ describe('Storage/models/Frame', function() {
     it('return true (2MiB, small last shard, w/ parity shards)', function() {
       const shards = [
         {
+          index: 0,
           size: 2097152
         },
         {
+          index: 1,
           size: 2097152
         },
         {
+          index: 2,
           size: 2097152
         },
         {
+          index: 3,
           size: 1024
         },
         {
+          index: 4,
           size: 2097152,
           parity: true
         },
         {
+          index: 5,
           size: 2097152,
           parity: true
         }
@@ -301,15 +330,19 @@ describe('Storage/models/Frame', function() {
     it('return false (5KiB shards)', function() {
       const shards = [
         {
+          index: 0,
           size: 5120
         },
         {
+          index: 1,
           size: 5120
         },
         {
+          index: 2,
           size: 5120
         },
         {
+          index: 3,
           size: 5120
         }
       ];
@@ -319,12 +352,15 @@ describe('Storage/models/Frame', function() {
     it('return false (various size shards)', function() {
       const shards = [
         {
+          index: 0,
           size: 5120
         },
         {
+          index: 1,
           size: 3072
         },
         {
+          index: 2,
           size: 4096
         }
       ];
@@ -334,19 +370,24 @@ describe('Storage/models/Frame', function() {
     it('return false (various size parity shards)', function() {
       const shards = [
         {
+          index: 0,
           size: 5120
         },
         {
+          index: 1,
           size: 5120
         },
         {
+          index: 2,
           size: 3072
         },
         {
+          index: 3,
           size: 23552,
           parity: true
         },
         {
+          index: 4,
           size: 2048,
           parity: true
         }
