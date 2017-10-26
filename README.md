@@ -37,6 +37,13 @@ db.models.User.findOne({ email: 'gordon@storj.io' }, function(err, user) {
 });
 ```
 
+
+#### Coinpayments Integration 
+
+You'll have to set Coinpayments environment variables `CP_PUBLIC_KEY` and `CP_SECRET_KEY` in order to get coinpayments client working with the payment processor adapter. 
+
+
+
 #### Billing Specific
 
 If using billing functionality, be sure to include your own `.env` file with necessary environment variables.
