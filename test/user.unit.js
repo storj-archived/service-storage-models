@@ -197,6 +197,27 @@ describe('Storage/models/User', function() {
 
   });
 
+  describe('#toJSON', function() {
+
+    it('should contain specified properties + virtuals', function(done) {
+      User.findOne({ _id: 'user@domain.tld' }, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        const keys = Object.keys(user.toJSON());
+        expect(keys).to.contain(
+          'isFreeTier', 'activated', 'created', 'email', 'id', 'uuid'
+        );
+        expect(keys).to.not.contain(
+          '__v', '_id', 'hashpass', 'activator', 'deactivator', 'resetter',
+          'pendingHashPass', 'bytesDownloaded', 'bytesUploaded'
+        );
+        done();
+      });
+    });
+
+  });
+
   describe('#recordDownloadBytes', function() {
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
