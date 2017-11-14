@@ -218,6 +218,160 @@ describe('Storage/models/User', function() {
 
   });
 
+  describe('#updateReports', function() {
+    it('it will update report rates without pre-existing data', function(done) {
+      var user = new User({
+        _id: 'testreporter1@user.tld',
+        hashpass: '11f8ae09e85636aa47f81ec634a0d977831a3fb0d04b219940bab270b' +
+          'a4666cb'
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        const now = new Date();
+
+        user.updateUnknownReports(false, now, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findOne({ _id: 'testreporter1@user.tld' }, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            expect(user.reports);
+            expect(user.reports.totalRate);
+            expect(user.reports.totalRateTimestamp);
+            done();
+          });
+        });
+      });
+    });
+
+    it('it will update report rates with unknown status', function(done) {
+      const now = new Date();
+      const last = new Date(now.getTime() - 10000);
+
+      var user = new User({
+        _id: 'testreporter2@user.tld',
+        hashpass: '5f018f89c7e37fe45c1dee228750415b299f30612ad0880701960405a' +
+          '922b684',
+        reports: {
+          totalRate: 4000,
+          totalRateTimestamp: last,
+          unknownRate: 15000,
+          unknownRateTimestamp: last
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        user.updateUnknownReports(true, now, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findOne({ _id: 'testreporter2@user.tld' }, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            expect(user.reports.totalRate).to.be.above(4000);
+            expect(user.reports.totalRateTimestamp).to.eql(now);
+            expect(user.reports.unknownRate).to.be.below(15000);
+            expect(user.reports.unknownRateTimestamp).to.eql(now);
+            done();
+          });
+        });
+      });
+    });
+
+    it('will not update if timestamp less than current', function(done) {
+      const now = new Date();
+      const then = new Date(now.getTime() + 10000);
+
+      var user = new User({
+        _id: 'testreporter3@user.tld',
+        hashpass: '5f018f89c7e37fe45c1dee228750415b299f30612ad0880701960405' +
+          'a922b684',
+        reports: {
+          totalRate: 4000,
+          totalRateTimestamp: then,
+          unknownRate: 10000,
+          unknownRateTimestamp: then
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        user.updateUnknownReports(true, now, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findOne({ _id: 'testreporter3@user.tld' }, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            expect(user.reports.totalRate).to.equal(4000);
+            expect(user.reports.totalRateTimestamp).to.eql(then);
+            expect(user.reports.unknownRate).to.equal(10000);
+            expect(user.reports.unknownRateTimestamp).to.eql(then);
+            done();
+          });
+        });
+      });
+
+    });
+
+
+    it('it will only update report rates with total status', function(done) {
+      const now = new Date();
+      const last = new Date(now.getTime() - 10000);
+
+      var user = new User({
+        _id: 'testreporter4@user.tld',
+        hashpass: '5f018f89c7e37fe45c1dee228750415b299f30612ad0880701960405' +
+          'a922b684',
+        reports: {
+          totalRate: 4000,
+          totalRateTimestamp: last,
+          unknownRate: 15000,
+          unknownRateTimestamp: last
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        user.updateUnknownReports(false, now, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findOne({ _id: 'testreporter4@user.tld' }, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            expect(user.reports.totalRate).to.be.above(4000);
+            expect(user.reports.totalRateTimestamp).to.eql(now);
+            expect(user.reports.unknownRate).to.equal(15000);
+            expect(user.reports.unknownRateTimestamp).to.eql(last);
+            done();
+          });
+        });
+      });
+    });
+
+  });
+
+
   describe('#recordDownloadBytes', function() {
     it('should record the bytes and increment existing', function(done) {
       var user = new User({
