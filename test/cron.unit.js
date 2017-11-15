@@ -119,4 +119,34 @@ describe('/Storage/models/Cron', function() {
 
   });
 
+  describe('#unlock', function () {
+    it('should unlock and save raw data', function(done) {
+      Cron.lock('SingletonFour', 10000, (err) => {
+        if (err) {
+          return done(err);
+        }
+
+        const rawData = {
+          message: 'Hello from the previous job'
+        };
+
+        Cron.unlock('SingletonFour', rawData, (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          expect(res.value.locked).to.equal(false);
+
+          Cron.lock('SingletonFour', 10000, (err, success, res) => {
+            if (err) {
+              return done(err);
+            }
+            expect(success).to.equal(true);
+            expect(res.value.rawData.message).to.equal(rawData.message);
+            done();
+          });
+        });
+      });
+    });
+  });
+
 });

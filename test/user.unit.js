@@ -236,7 +236,7 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('will return true if reports exceed threshold', function() {
+    it('will return true if reports exceed threshold', function(done) {
       const now = new Date();
       const last = new Date(now.getTime() - 10000);
       var user = new User({
@@ -260,7 +260,7 @@ describe('Storage/models/User', function() {
       });
     });
 
-    it('will return false if reports do not exceed threshold', function() {
+    it('will return false if reports do not exceed threshold', function(done) {
       const now = new Date();
       const last = new Date(now.getTime() - 10000);
       var user = new User({
