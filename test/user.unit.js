@@ -218,7 +218,75 @@ describe('Storage/models/User', function() {
 
   });
 
-  describe('#updateReports', function() {
+  describe('#exceedsUnknownReportsThreshold', function() {
+    it('it return false if reports are unknown', function(done) {
+      var user = new User({
+        _id: 'threshold1@user.tld',
+        hashpass: '11f8ae09e85636aa47f81ec634a0d977831a3fb0d04b219940bab270b' +
+          'a4666cb'
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        const status = user.exceedsUnknownReportsThreshold(0.4);
+        expect(status).to.equal(false);
+        done();
+      });
+    });
+
+    it('will return true if reports exceed threshold', function() {
+      const now = new Date();
+      const last = new Date(now.getTime() - 10000);
+      var user = new User({
+        _id: 'threshold2@user.tld',
+        hashpass: '11f8ae09e85636aa47f81ec634a0d977831a3fb0d04b219940bab270b' +
+          'a4666cb',
+        reports: {
+          totalRate: 1000,
+          totalRateTimestamp: last,
+          unknownRate: 2499,
+          unknownRateTimestamp: last
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+        const status = user.exceedsUnknownReportsThreshold(0.4);
+        expect(status).to.equal(true);
+        done();
+      });
+    });
+
+    it('will return false if reports do not exceed threshold', function() {
+      const now = new Date();
+      const last = new Date(now.getTime() - 10000);
+      var user = new User({
+        _id: 'threshold3@user.tld',
+        hashpass: '11f8ae09e85636aa47f81ec634a0d977831a3fb0d04b219940bab270b' +
+          'a4666cb',
+        reports: {
+          totalRate: 1000,
+          totalRateTimestamp: last,
+          unknownRate: 2500,
+          unknownRateTimestamp: last
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        const status = user.exceedsUnknownReportsThreshold(0.4);
+        expect(status).to.equal(false);
+        done();
+      });
+    });
+  });
+
+  describe('#updateUnknownReports', function() {
     it('it will update report rates without pre-existing data', function(done) {
       var user = new User({
         _id: 'testreporter1@user.tld',
