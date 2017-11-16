@@ -17,7 +17,7 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         '../../vendor/coinpayments': function () {
           return {
             getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
-          }
+          };
         }
       });
       const paymentProcessor = {
@@ -46,7 +46,7 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         '../../vendor/coinpayments': function () {
           return {
             getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
-          }
+          };
         }
       });
       const paymentProcessor = {
@@ -74,7 +74,7 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         '../../vendor/coinpayments': function () {
           return {
             getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
-          }
+          };
         }
       });
       const paymentProcessor = {
@@ -108,7 +108,7 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         '../../vendor/coinpayments': function () {
           return {
             getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
-          }
+          };
         }
       });
       const paymentProcessor = {
