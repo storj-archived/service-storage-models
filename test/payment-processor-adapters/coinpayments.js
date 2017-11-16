@@ -14,8 +14,10 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         address: '0x703faaa2f42291e0aaa9ffdbd74ae81172895bc7'
       };
       const Adapter = proxyquire(libPath, {
-        '../../vendor/coinpayments': {
-          getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+        '../../vendor/coinpayments': function () {
+          return {
+            getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+          }
         }
       });
       const paymentProcessor = {
@@ -41,8 +43,10 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         address: '0x703faaa2f42291e0aaa9ffdbd74ae81172895bc7'
       };
       const Adapter = proxyquire(libPath, {
-        '../../vendor/coinpayments': {
-          getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+        '../../vendor/coinpayments': function () {
+          return {
+            getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+          }
         }
       });
       const paymentProcessor = {
@@ -67,8 +71,10 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         address: '0x703faaa2f42291e0aaa9ffdbd74ae81172895bc7'
       };
       const Adapter = proxyquire(libPath, {
-        '../../vendor/coinpayments': {
-          getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+        '../../vendor/coinpayments': function () {
+          return {
+            getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+          }
         }
       });
       const paymentProcessor = {
@@ -99,8 +105,10 @@ describe('Storage/models/PaymentProcessor/coinpayments', function () {
         address: '0x703faaa2f42291e0aaa9ffdbd74ae81172895bc7'
       };
       const Adapter = proxyquire(libPath, {
-        '../../vendor/coinpayments': {
-          getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+        '../../vendor/coinpayments': function () {
+          return {
+            getCallbackAddress: sinon.stub().callsArgWith(1, null, data)
+          }
         }
       });
       const paymentProcessor = {
