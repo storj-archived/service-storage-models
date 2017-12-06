@@ -300,7 +300,7 @@ describe('Storage/models/User', function() {
 
         const now = new Date();
 
-        user.updateUnknownReports(false, now, (err) => {
+        user.updateUnknownReports(false, now, 100000000, (err) => {
           if (err) {
             return done(err);
           }
@@ -338,7 +338,7 @@ describe('Storage/models/User', function() {
           return done(err);
         }
 
-        user.updateUnknownReports(true, now, (err) => {
+        user.updateUnknownReports(true, now, 100000000, (err) => {
           if (err) {
             return done(err);
           }
@@ -377,7 +377,7 @@ describe('Storage/models/User', function() {
           return done(err);
         }
 
-        user.updateUnknownReports(true, now, (err) => {
+        user.updateUnknownReports(true, now, 100000000, (err) => {
           if (err) {
             return done(err);
           }
@@ -418,7 +418,7 @@ describe('Storage/models/User', function() {
           return done(err);
         }
 
-        user.updateUnknownReports(false, now, (err) => {
+        user.updateUnknownReports(false, now, 100000000, (err) => {
           if (err) {
             return done(err);
           }
