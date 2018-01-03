@@ -63,7 +63,7 @@ describe('Storage/models/Contact', function() {
               return done(err);
             }
             expect(contact.spaceAvailable).to.equal(true);
-            expect(contact.responseTime).to.equal(undefined);
+            expect(contact.responseTime).to.equal(10000);
             done();
           });
         });
@@ -102,6 +102,92 @@ describe('Storage/models/Contact', function() {
             return done(err);
           }
           expect(contact.responseTime).to.equal(10000);
+          done();
+        });
+      });
+    });
+
+    it('should set a default responseTime if NOT supplied', function(done) {
+      const nodeID = storj.KeyPair().getNodeID();
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: nodeID,
+        lastSeen: Date.now()
+      }, (err) => {
+        if (err) {
+          return done(err);
+        }
+        Contact.findOne({_id: nodeID}, (err, contact) => {
+          if (err) {
+            return done(err);
+          }
+          expect(contact.responseTime).to.equal(10000);
+          done();
+        });
+      });
+    });
+
+    it('should NOT set a default responseTime if supplied', function(done) {
+      const nodeID = storj.KeyPair().getNodeID();
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: nodeID,
+        lastSeen: Date.now(),
+        responseTime: 600
+      }, (err) => {
+        if (err) {
+          return done(err);
+        }
+        Contact.findOne({_id: nodeID}, (err, contact) => {
+          if (err) {
+            return done(err);
+          }
+          expect(contact.responseTime).to.equal(600);
+          done();
+        });
+      });
+    });
+
+    it('should set a default reputation if NOT supplied', function(done) {
+      const nodeID = storj.KeyPair().getNodeID();
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: nodeID,
+        lastSeen: Date.now()
+      }, (err) => {
+        if (err) {
+          return done(err);
+        }
+        Contact.findOne({_id: nodeID}, (err, contact) => {
+          if (err) {
+            return done(err);
+          }
+          expect(contact.reputation).to.equal(0);
+          done();
+        });
+      });
+    });
+
+    it('should NOT set a default reputation if supplied', function(done) {
+      const nodeID = storj.KeyPair().getNodeID();
+      Contact.record({
+        address: '127.0.0.1',
+        port: 1337,
+        nodeID: nodeID,
+        lastSeen: Date.now(),
+        reputation: 4000
+      }, (err) => {
+        if (err) {
+          return done(err);
+        }
+        Contact.findOne({_id: nodeID}, (err, contact) => {
+          if (err) {
+            return done(err);
+          }
+          expect(contact.reputation).to.equal(4000);
           done();
         });
       });
