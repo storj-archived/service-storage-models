@@ -395,6 +395,34 @@ describe('Storage/models/Frame', function() {
       expect(Frame.validShardSizes(shards)).to.equal(false);
     });
 
+    it('it should reject max shard sizes', function() {
+      const shards = [
+        {
+          index: 0,
+          size: 4294967297
+        },
+        {
+          index: 1,
+          size: 4294967297
+        },
+        {
+          index: 2,
+          size: 30000
+        },
+        {
+          index: 3,
+          size: 4294967297,
+          parity: true
+        },
+        {
+          index: 4,
+          size: 4294967297,
+          parity: true
+        }
+      ];
+      expect(Frame.validShardSizes(shards)).to.equal(false);
+    });
+
   });
 
   describe('#addShard', function() {
