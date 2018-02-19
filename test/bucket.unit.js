@@ -96,6 +96,7 @@ describe('Storage/models/Bucket', function() {
         { _id: 'user@domain.tld' },
         { name: 'New Bucket' },
         function(err) {
+          expect(err.code).to.equal(11000);
           expect(err.message).to.equal('Name already used by another bucket');
           done();
       });
