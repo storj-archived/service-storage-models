@@ -3,6 +3,7 @@
 const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
+const errors = require('storj-service-error-types');
 
 require('mongoose-types').loadTypes(mongoose);
 
@@ -96,6 +97,7 @@ describe('Storage/models/Bucket', function() {
         { _id: 'user@domain.tld' },
         { name: 'New Bucket' },
         function(err) {
+          expect(err).to.be.instanceOf(errors.ConflictError);
           expect(err.message).to.equal('Name already used by another bucket');
           done();
       });
