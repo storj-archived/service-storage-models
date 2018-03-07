@@ -1,7 +1,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const storj = require('storj-lib');
 const expect = require('chai').expect;
 const mongoose = require('mongoose');
 const errors = require('storj-service-error-types');
@@ -41,17 +40,13 @@ after(function(done) {
 
 describe('Storage/models/BucketEntry', function() {
 
-  var expectedBucketId =
-    storj.utils.calculateBucketId('user@domain.tld', 'New Bucket2');
-
-  // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
-  var expectedFileId =
-    storj.utils.calculateFileId(expectedBucketId, 'test.txt');
+  var bucket2Id = null;
 
   it('should create the bucket entry metadata', function(done) {
     const index = crypto.randomBytes(32).toString('hex');
     Bucket.create({ _id: 'user@domain.tld' }, { name: 'New Bucket2' },
                   function(err, bucket) {
+      bucket2Id = bucket._id;
       var frame = new Frame({});
       frame.save(function(err) {
         expect(err).to.not.be.instanceOf(Error);
@@ -71,10 +66,6 @@ describe('Storage/models/BucketEntry', function() {
           expect(entry.erasure.type).to.equal('reedsolomon');
           expect(entry.index).to.equal(index);
           expect(entry.filename).to.equal('test.txt');
-
-          // XXX DEPRECATED IN THE NEXT MAJOR RELEASE
-          expect(entry.id).to.equal(expectedFileId);
-
           expect(entry.id.length).to.equal(24);
           done();
         });
@@ -113,7 +104,7 @@ describe('Storage/models/BucketEntry', function() {
       BucketEntry.create({
         index: crypto.randomBytes(32).toString('hex'),
         frame: frame._id,
-        bucket: expectedBucketId,
+        bucket: bucket2Id,
         name: 'test.txt',
         mimetype: 'text/javascript'
       }, function(err){
