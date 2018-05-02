@@ -189,6 +189,31 @@ describe('Storage/models/Contact', function() {
     });
   });
 
+  describe('#resetTimeoutRate', function() {
+    it('will reset the timeoutRate after 72 hour window', function() {
+      const past = new Date(new Date().getTime() - 259200000 - 1);
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        lastTimeout: past,
+        timeoutRate: 1
+      });
+      expect(contact.timeoutRate).to.equal(1);
+      contact.resetTimeoutRate();
+      expect(contact.timeoutRate).to.equal(0);
+    });
+    it('will not reset the timeoutRate before 72 hour window', function() {
+      const past = new Date(new Date().getTime() - 259200000 + 1);
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        lastTimeout: past,
+        timeoutRate: 1
+      });
+      expect(contact.timeoutRate).to.equal(1);
+      contact.resetTimeoutRate();
+      expect(contact.timeoutRate).to.equal(1);
+    });
+  });
+
   describe('#recordTimeoutFailure', function() {
     const sandbox = sinon.sandbox.create();
     afterEach(() => sandbox.restore());
@@ -353,6 +378,14 @@ describe('Storage/models/Contact', function() {
       const contact = new Contact({});
       contact.recordResponseTime(15000);
       expect(contact.responseTime).to.be.above(10000);
+    });
+
+    it('will reset timeout rate', function() {
+      const contact = new Contact({});
+      contact.resetTimeoutRate = sinon.stub();
+      contact.recordResponseTime(15000);
+      expect(contact.responseTime).to.be.above(10000);
+      expect(contact.resetTimeoutRate.callCount).to.equal(1);
     });
 
     it('will improve response times with a fast response', function() {
