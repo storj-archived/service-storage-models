@@ -51,7 +51,25 @@ describe('Storage/models/Storage-Event', function() {
       expect(storeEvent.farmer)
         .to.equal('c5857d99d3ff951701093b75fba94e1c82877f9b');
       expect(storeEvent.client).to.equal('user@gmail.com');
+      expect(storeEvent.processed).to.equal(false);
       done();
+    });
+  });
+
+  it('should save storage event with processed true', function(done) {
+    var event = new StorageEvent({
+      user: 'user@gmail.com',
+      downloadBandwidth: 0,
+      storage: 1000001,
+      farmer: '90310d438d3fa6e98082b9431eaf7a82be8a34c2',
+      client: 'user@gmail.com'
+    });
+
+    event.save(function(err, storeEvent) {
+      if (err) {
+        return done(err);
+      }
+      expect(storeEvent.processed).to.equal(true);
     });
   });
 
