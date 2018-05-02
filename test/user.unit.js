@@ -318,6 +318,59 @@ describe('Storage/models/User', function() {
       });
     });
 
+    it('it will update total rate and unknown rate equally', function(done) {
+      const now = new Date();
+      const then = new Date(now.getTime() + 10000);
+      const last = new Date(now.getTime() - 10000);
+
+      var user = new User({
+        _id: 'testreporter5@user.tld',
+        hashpass: '5f018f89c7e37fe45c1dee228750415b299f30612ad0880701960405a' +
+          '922b684',
+        reports: {
+          totalRate: 0,
+          totalRateTimestamp: last,
+          unknownRate: 0,
+          unknownRateTimestamp: last
+        }
+      });
+      user.save((err) => {
+        if (err) {
+          return done(err);
+        }
+
+        const bytes = 100000000;
+
+        user.updateUnknownReports(false, now, bytes, (err) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findOne({ _id: 'testreporter5@user.tld' }, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+
+            user.updateUnknownReports(true, then, bytes, (err) => {
+              if (err) {
+                return done(err);
+              }
+              User.findOne({
+                _id: 'testreporter5@user.tld'
+              }, function(err, user) {
+                if (err) {
+                  return done(err);
+                }
+                expect(user.reports.unknownRate.toFixed(4)).to.equal('3.9992');
+                expect(user.reports.totalRate.toFixed(4)).to.equal('7.9968');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+
     it('it will update report rates with unknown status', function(done) {
       const now = new Date();
       const last = new Date(now.getTime() - 10000);
@@ -398,7 +451,7 @@ describe('Storage/models/User', function() {
     });
 
 
-    it('it will only update report rates with total status', function(done) {
+    it('it will update timestamp for both report status', function(done) {
       const now = new Date();
       const last = new Date(now.getTime() - 10000);
 
@@ -430,7 +483,7 @@ describe('Storage/models/User', function() {
             expect(user.reports.totalRate).to.be.above(4000);
             expect(user.reports.totalRateTimestamp).to.eql(now);
             expect(user.reports.unknownRate).to.equal(15000);
-            expect(user.reports.unknownRateTimestamp).to.eql(last);
+            expect(user.reports.unknownRateTimestamp).to.eql(now);
             done();
           });
         });
