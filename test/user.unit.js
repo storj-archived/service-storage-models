@@ -245,9 +245,8 @@ describe('Storage/models/User', function() {
           'a4666cb',
         reports: {
           totalRate: 1000,
-          totalRateTimestamp: last,
-          unknownRate: 2499,
-          unknownRateTimestamp: last
+          timestamp: last,
+          unknownRate: 2499
         }
       });
       user.save((err) => {
@@ -269,9 +268,8 @@ describe('Storage/models/User', function() {
           'a4666cb',
         reports: {
           totalRate: 1000,
-          totalRateTimestamp: last,
-          unknownRate: 2500,
-          unknownRateTimestamp: last
+          timestamp: last,
+          unknownRate: 2500
         }
       });
       user.save((err) => {
@@ -311,7 +309,7 @@ describe('Storage/models/User', function() {
             }
             expect(user.reports);
             expect(user.reports.totalRate);
-            expect(user.reports.totalRateTimestamp);
+            expect(user.reports.timestamp);
             done();
           });
         });
@@ -329,9 +327,8 @@ describe('Storage/models/User', function() {
           '922b684',
         reports: {
           totalRate: 0,
-          totalRateTimestamp: last,
-          unknownRate: 0,
-          unknownRateTimestamp: last
+          timestamp: last,
+          unknownRate: 0
         }
       });
       user.save((err) => {
@@ -381,9 +378,8 @@ describe('Storage/models/User', function() {
           '922b684',
         reports: {
           totalRate: 4000,
-          totalRateTimestamp: last,
+          timestamp: last,
           unknownRate: 15000,
-          unknownRateTimestamp: last
         }
       });
       user.save((err) => {
@@ -401,9 +397,8 @@ describe('Storage/models/User', function() {
               return done(err);
             }
             expect(user.reports.totalRate).to.be.above(4000);
-            expect(user.reports.totalRateTimestamp).to.eql(now);
+            expect(user.reports.timestamp).to.eql(now);
             expect(user.reports.unknownRate).to.be.below(15000);
-            expect(user.reports.unknownRateTimestamp).to.eql(now);
             done();
           });
         });
@@ -420,9 +415,8 @@ describe('Storage/models/User', function() {
           'a922b684',
         reports: {
           totalRate: 4000,
-          totalRateTimestamp: then,
-          unknownRate: 10000,
-          unknownRateTimestamp: then
+          timestamp: then,
+          unknownRate: 10000
         }
       });
       user.save((err) => {
@@ -440,9 +434,8 @@ describe('Storage/models/User', function() {
               return done(err);
             }
             expect(user.reports.totalRate).to.equal(4000);
-            expect(user.reports.totalRateTimestamp).to.eql(then);
+            expect(user.reports.timestamp).to.eql(then);
             expect(user.reports.unknownRate).to.equal(10000);
-            expect(user.reports.unknownRateTimestamp).to.eql(then);
             done();
           });
         });
@@ -461,9 +454,8 @@ describe('Storage/models/User', function() {
           'a922b684',
         reports: {
           totalRate: 4000,
-          totalRateTimestamp: last,
-          unknownRate: 15000,
-          unknownRateTimestamp: last
+          timestamp: last,
+          unknownRate: 15000
         }
       });
       user.save((err) => {
@@ -481,9 +473,8 @@ describe('Storage/models/User', function() {
               return done(err);
             }
             expect(user.reports.totalRate).to.be.above(4000);
-            expect(user.reports.totalRateTimestamp).to.eql(now);
+            expect(user.reports.timestamp).to.eql(now);
             expect(user.reports.unknownRate).to.equal(15000);
-            expect(user.reports.unknownRateTimestamp).to.eql(now);
             done();
           });
         });
