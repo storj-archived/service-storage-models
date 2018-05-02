@@ -58,11 +58,13 @@ describe('Storage/models/Storage-Event', function() {
 
   it('should save storage event with processed true', function(done) {
     var event = new StorageEvent({
+      token: 'e09958405f0484f6ae54618f48c42ca365a922e9',
       user: 'user@gmail.com',
       downloadBandwidth: 0,
       storage: 1000001,
       farmer: '90310d438d3fa6e98082b9431eaf7a82be8a34c2',
-      client: 'user@gmail.com'
+      client: 'user@gmail.com',
+      processed: true
     });
 
     event.save(function(err, storeEvent) {
@@ -70,6 +72,7 @@ describe('Storage/models/Storage-Event', function() {
         return done(err);
       }
       expect(storeEvent.processed).to.equal(true);
+      done();
     });
   });
 
