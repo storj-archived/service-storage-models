@@ -189,6 +189,31 @@ describe('Storage/models/Contact', function() {
     });
   });
 
+  describe('#resetTimeoutRate', function() {
+    it('will reset the timeoutRate after 72 hour window', function() {
+      const past = new Date(new Date().getTime() - 259200000 - 1);
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        lastTimeout: past,
+        timeoutRate: 1
+      });
+      expect(contact.timeoutRate).to.equal(1);
+      contact.resetTimeoutRate();
+      expect(contact.timeoutRate).to.equal(0);
+    });
+    it('will not reset the timeoutRate before 72 hour window', function() {
+      const past = new Date(new Date().getTime() - 259200000 + 1);
+      const contact = new Contact({
+        lastSeen: Date.now(),
+        lastTimeout: past,
+        timeoutRate: 1
+      });
+      expect(contact.timeoutRate).to.equal(1);
+      contact.resetTimeoutRate();
+      expect(contact.timeoutRate).to.equal(1);
+    });
+  });
+
   describe('#recordTimeoutFailure', function() {
     const sandbox = sinon.sandbox.create();
     afterEach(() => sandbox.restore());
@@ -214,7 +239,7 @@ describe('Storage/models/Contact', function() {
       clock.tick(600000); // 10 min
       contact.recordTimeoutFailure();
 
-      expect(contact.timeoutRate.toFixed(4)).to.equal('0.0069');
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.0023');
     });
 
     it('0.5 after 12 hours of failure', function() {
@@ -232,10 +257,10 @@ describe('Storage/models/Contact', function() {
         contact.recordTimeoutFailure();
       }
 
-      expect(contact.timeoutRate.toFixed(4)).to.equal('0.5000');
+      expect(contact.timeoutRate.toFixed(4)).to.equal('0.1667');
     });
 
-    it('1 after 24 hours of failure', function() {
+    it('1 after 72 hours of failure', function() {
       const clock = sandbox.useFakeTimers();
       const contact = new Contact({
         lastSeen: Date.now()
@@ -247,8 +272,8 @@ describe('Storage/models/Contact', function() {
       clock.tick(600000); // 10 min
       contact.recordTimeoutFailure();
 
-      // 24 repeated failures, each over an hour
-      for (var i = 0; i < 24; i++) {
+      // 72 repeated failures, each over an hour
+      for (var i = 0; i < 72; i++) {
         clock.tick(3600000); // 1 hour
         contact.recordTimeoutFailure();
       }
@@ -282,10 +307,10 @@ describe('Storage/models/Contact', function() {
         contact.recordTimeoutFailure();
       }
 
-      expect(contact.timeoutRate.toFixed(2)).to.equal('0.45');
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.15');
     });
 
-    it('will reset after 24 hours', function() {
+    it('will reset after 72 hours', function() {
       const clock = sandbox.useFakeTimers();
       const contact = new Contact({
         lastSeen: Date.now()
@@ -301,10 +326,10 @@ describe('Storage/models/Contact', function() {
         contact.recordTimeoutFailure();
       }
 
-      expect(contact.timeoutRate.toFixed(2)).to.equal('0.25');
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.08');
 
       // 24 hours passed with successful queries
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 72; i++) {
         clock.tick(3600000); // 1 hour
         contact.lastSeen = Date.now();
       }
@@ -315,7 +340,7 @@ describe('Storage/models/Contact', function() {
         contact.recordTimeoutFailure();
       }
 
-      expect(contact.timeoutRate.toFixed(2)).to.equal('0.04');
+      expect(contact.timeoutRate.toFixed(2)).to.equal('0.01');
     });
 
   });
@@ -353,6 +378,14 @@ describe('Storage/models/Contact', function() {
       const contact = new Contact({});
       contact.recordResponseTime(15000);
       expect(contact.responseTime).to.be.above(10000);
+    });
+
+    it('will reset timeout rate', function() {
+      const contact = new Contact({});
+      contact.resetTimeoutRate = sinon.stub();
+      contact.recordResponseTime(15000);
+      expect(contact.responseTime).to.be.above(10000);
+      expect(contact.resetTimeoutRate.callCount).to.equal(1);
     });
 
     it('will improve response times with a fast response', function() {
